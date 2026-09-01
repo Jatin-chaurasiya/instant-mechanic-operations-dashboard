@@ -14,17 +14,16 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration =
-                new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
 
-        // React frontend
+        // Allowed frontend origins
         configuration.setAllowedOrigins(
                 List.of(
-                        "http://localhost:5173"
+                        "http://localhost:5173",
+                        "http://instant-mechanic.jatindev.xyz"
                 )
         );
 
-        // HTTP methods
         configuration.setAllowedMethods(
                 List.of(
                         "GET",
@@ -35,26 +34,20 @@ public class CorsConfig {
                 )
         );
 
-        // Request headers
         configuration.setAllowedHeaders(
                 List.of("*")
         );
 
-        // Authorization header / JWT
         configuration.setExposedHeaders(
                 List.of("Authorization")
         );
 
-        // Cookies if required later
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration(
-                "/**",
-                configuration
-        );
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }

@@ -2,6 +2,7 @@ package com.instantmechanic.controller;
 
 import com.instantmechanic.entity.Service;
 import com.instantmechanic.service.ServiceService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,15 +12,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/services")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class ServiceController {
 
     private final ServiceService serviceService;
 
-    // ==========================================
     // Get all active services
-    // GET /api/v1.0/services
-    // ==========================================
-
     @GetMapping
     public ResponseEntity<List<Service>> getAllServices() {
 
@@ -28,11 +26,7 @@ public class ServiceController {
         );
     }
 
-    // ==========================================
     // Get active service by ID
-    // GET /api/v1.0/services/{id}
-    // ==========================================
-
     @GetMapping("/{id}")
     public ResponseEntity<Service> getServiceById(
             @PathVariable Long id
@@ -43,11 +37,7 @@ public class ServiceController {
         );
     }
 
-    // ==========================================
     // Get active service categories
-    // GET /api/v1.0/services/categories
-    // ==========================================
-
     @GetMapping("/categories")
     public ResponseEntity<List<String>> getCategories() {
 

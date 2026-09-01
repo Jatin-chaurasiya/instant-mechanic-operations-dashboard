@@ -42,9 +42,7 @@ public class BookingService {
             size = 10;
         }
 
-        // ==========================================
         // Safe sorting
-        // ==========================================
 
         String sortField =
                 resolveSortField(sortBy);
@@ -61,10 +59,7 @@ public class BookingService {
                                 sortField
                         )
                 );
-
-        // ==========================================
         // Booking data
-        // ==========================================
 
         Page<Booking> bookingPage;
 
@@ -75,14 +70,6 @@ public class BookingService {
         boolean hasCategory =
                 category != null &&
                         !category.trim().isEmpty();
-
-        /*
-         * Unified search/filter query is used when
-         * keyword, status or category is provided.
-         *
-         * Existing repository methods remain untouched
-         * for compatibility with other services.
-         */
 
         if (hasKeyword ||
                 status != null ||
@@ -109,10 +96,7 @@ public class BookingService {
                     );
         }
 
-        // ==========================================
         // Entity → DTO
-        // ==========================================
-
         List<BookingResponse> bookings =
                 bookingPage.getContent()
                         .stream()
@@ -139,10 +123,7 @@ public class BookingService {
                 .build();
     }
 
-    // ==========================================
     // Sort field whitelist
-    // ==========================================
-
     private String resolveSortField(
             String sortBy
     ) {
@@ -176,10 +157,7 @@ public class BookingService {
         };
     }
 
-    // ==========================================
     // Sort direction
-    // ==========================================
-
     private Sort.Direction resolveSortDirection(
             String sortOrder
     ) {
@@ -205,9 +183,7 @@ public class BookingService {
         };
     }
 
-    // ==========================================
     // Get booking by ID
-    // ==========================================
 
     @Transactional(readOnly = true)
     public BookingResponse getBookingById(
@@ -226,10 +202,7 @@ public class BookingService {
         return entityToDto(booking);
     }
 
-    // ==========================================
-    // Update booking status
-    // ==========================================
-
+    // Update booking status=
     @Transactional
     public BookingResponse updateBookingStatus(
             Long id,
@@ -261,9 +234,7 @@ public class BookingService {
         return entityToDto(updatedBooking);
     }
 
-    // ==========================================
     // Status transition validation
-    // ==========================================
 
     private void validateStatusTransition(
             BookingStatus currentStatus,
@@ -308,10 +279,7 @@ public class BookingService {
         }
     }
 
-    // ==========================================
     // Entity → DTO
-    // ==========================================
-
     private BookingResponse entityToDto(
             Booking booking
     ) {

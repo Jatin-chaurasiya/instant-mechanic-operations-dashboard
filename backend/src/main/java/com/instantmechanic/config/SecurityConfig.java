@@ -76,7 +76,8 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/login",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/**/OPTIONS"
                         ).permitAll()
 
                         // Baaki sab protected
