@@ -24,4 +24,4 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: jatin8953/instant-mechanic-backend:latest
+          tags: Jatin8953/instant-mechanic-backend:latest
