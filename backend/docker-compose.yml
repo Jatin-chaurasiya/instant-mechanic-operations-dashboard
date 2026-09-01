@@ -1,0 +1,56 @@
+services:
+
+  # ===============================
+  # MySQL Database
+  # ===============================
+  mysql:
+    image: mysql:8.0
+    container_name: instant-mechanic-mysql
+
+    environment:
+      MYSQL_DATABASE: instant_mechanic
+      MYSQL_ROOT_PASSWORD: root
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    restart: unless-stopped
+
+
+  # ===============================
+  # Spring Boot Application
+  # ===============================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: instant-mechanic-backend
+
+    depends_on:
+      - mysql
+
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/instant_mechanic?useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: root
+
+      JWT_SECRET: cGAdygr8H1rALcd1yyIn16EdG3djGW82xWoD2m/50Ic=
+      JWT_EXPIRATION: 86400000
+
+      SERVER_PORT: 8081
+
+    ports:
+      - "8081:8081"
+
+    restart: unless-stopped
+
+
+# ===============================
+# Persistent MySQL Storage
+# ===============================
+volumes:
+  mysql_data:
