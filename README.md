@@ -10,8 +10,10 @@
   <img src="https://img.shields.io/badge/Frontend-Vercel-000000?logo=vercel&logoColor=white" />
   <img src="https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white" />
 </p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Jatin-chaurasiya/instant-mechanic-operations-dashboard/main/daskboard.png" alt="Instant Mechanic Dashboard" width="100%" />
+</p>
 
----
 
 ## 🌐 Live Project
 
