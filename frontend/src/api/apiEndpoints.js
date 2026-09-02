@@ -1,6 +1,6 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  "http://instant-mechanic-api.jatindev.xyz/api/v1.0";
+  "https://instant-mechanic-api.jatindev.xyz/api/v1.0";
 
 const API_ENDPOINTS = {
   BASE_URL: API_BASE_URL,
