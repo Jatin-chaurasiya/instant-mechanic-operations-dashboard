@@ -112,9 +112,17 @@ Registration
 JWT authentication
 Protected backend resources
 Authenticated dashboard access
-## Dark Mode
-The dashboard includes a modern dark-mode interface designed for long operational usage and improved visual hierarchy.
+## 🌙 Dark Mode
+
+The dashboard includes a modern dark-mode interface designed for long operational usage
+and improved visual hierarchy.
+
+## 🌙 Global Search
+
+Search Globally with name,Vehicals number,mechnics name,service name,Booking name etc.
+
 ---
+
 # 📚 Swagger / OpenAPI
 
 The backend includes interactive API documentation using Swagger/OpenAPI.
@@ -265,6 +273,9 @@ POST /auth/login
 
 Dashboard
 GET /dashboard
+
+Global Search
+GET /search?query=Rahul
 
 Bookings
 GET /bookings
@@ -551,6 +562,7 @@ The following bonus-oriented features are currently implemented:
 
 - ✅ Authentication
 - ✅ Dark Mode
+- ✅ Global Search
 - ✅ Swagger / OpenAPI
 - ✅ Docker
 - ✅ CI/CD
