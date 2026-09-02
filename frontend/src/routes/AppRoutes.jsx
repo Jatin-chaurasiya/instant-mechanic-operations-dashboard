@@ -1,9 +1,15 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 
 import DashboardLayout from "../components/layout/DashboardLayout";
 
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
+
 import OverviewPage from "../pages/OverviewPage";
 import AnalyticsPage from "../pages/AnalyticsPage";
 import BookingsPage from "../pages/BookingsPage";
@@ -20,26 +26,59 @@ const AppRoutes = () => {
             Public Routes
         ============================== */}
 
-        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/login"
+          element={<LoginPage />}
+        />
 
-        <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/register"
+          element={<RegisterPage />}
+        />
 
         {/* ==============================
             Protected Dashboard Routes
         ============================== */}
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<DashboardLayout />}>
-            <Route index element={<Navigate to="/overview" replace />} />
+          <Route
+            path="/"
+            element={<DashboardLayout />}
+          >
+            <Route
+              index
+              element={
+                <Navigate
+                  to="/overview"
+                  replace
+                />
+              }
+            />
 
-            <Route path="overview" element={<OverviewPage />} />
+            <Route
+              path="overview"
+              element={<OverviewPage />}
+            />
 
-            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route
+              path="analytics"
+              element={<AnalyticsPage />}
+            />
 
-            <Route path="bookings" element={<BookingsPage />} />
+            <Route
+              path="bookings"
+              element={<BookingsPage />}
+            />
 
-            <Route path="mechanics" element={<MechanicsPage />} />
-            <Route path="customers" element={<CustomersPage />} />
+            <Route
+              path="mechanics"
+              element={<MechanicsPage />}
+            />
+
+            <Route
+              path="customers"
+              element={<CustomersPage />}
+            />
           </Route>
         </Route>
 
@@ -47,7 +86,15 @@ const AppRoutes = () => {
             Unknown Route
         ============================== */}
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

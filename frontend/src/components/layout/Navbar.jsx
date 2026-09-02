@@ -1,6 +1,5 @@
 import {
   Menu,
-  Search,
   Bell,
   ChevronDown,
   CircleHelp,
@@ -12,17 +11,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 import ThemeToggle from "../theme/ThemeToggle";
+import GlobalSearch from "./GlobalSearch";
 
 const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
 
   const { logout } = useAuth();
 
-  const [profileOpen, setProfileOpen] =
-    useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleLogout = () => {
-
     logout();
 
     setProfileOpen(false);
@@ -49,7 +47,6 @@ const Navbar = ({ onMenuClick }) => {
           px-4 sm:px-6 lg:px-8
         "
       >
-
         {/* Left Section */}
 
         <div className="flex min-w-0 items-center gap-3">
@@ -108,94 +105,17 @@ const Navbar = ({ onMenuClick }) => {
 
         <div className="flex items-center gap-2 sm:gap-4">
 
-          {/* Search */}
+          {/* Global Search */}
 
           <div className="hidden md:flex">
-
-            <div className="relative">
-
-              <Search
-                size={18}
-                className="
-                  absolute left-3 top-1/2
-                  -translate-y-1/2
-                  text-slate-400
-                  dark:text-slate-500
-                "
-              />
-
-              <input
-                type="text"
-                placeholder="Search..."
-                className="
-                  h-10
-                  w-48
-                  rounded-xl
-                  border border-slate-200
-                  bg-slate-50
-                  pl-10 pr-10
-                  text-sm
-                  text-slate-700
-                  outline-none
-                  transition
-                  placeholder:text-slate-400
-                  focus:border-slate-400
-                  focus:bg-white
-                  focus:ring-2
-                  focus:ring-slate-100
-                  dark:border-slate-700
-                  dark:bg-slate-900
-                  dark:text-slate-200
-                  dark:placeholder:text-slate-500
-                  dark:focus:border-slate-600
-                  dark:focus:bg-slate-900
-                  dark:focus:ring-slate-800
-                  lg:w-64
-                "
-              />
-
-              <span
-                className="
-                  absolute right-3 top-1/2
-                  hidden
-                  -translate-y-1/2
-                  rounded
-                  border border-slate-200
-                  bg-white
-                  px-1.5 py-0.5
-                  text-[10px]
-                  font-medium
-                  text-slate-400
-                  dark:border-slate-700
-                  dark:bg-slate-800
-                  dark:text-slate-500
-                  lg:block
-                "
-              >
-                /
-              </span>
-
-            </div>
+            <GlobalSearch />
           </div>
 
           {/* Mobile Search */}
 
-          <button
-            className="
-              rounded-xl p-2.5
-              text-slate-500
-              transition
-              hover:bg-slate-100
-              hover:text-slate-900
-              dark:text-slate-400
-              dark:hover:bg-slate-800
-              dark:hover:text-white
-              md:hidden
-            "
-            aria-label="Search"
-          >
-            <Search size={20} />
-          </button>
+          <div className="md:hidden">
+            <GlobalSearch mobile />
+          </div>
 
           {/* Live Status */}
 
