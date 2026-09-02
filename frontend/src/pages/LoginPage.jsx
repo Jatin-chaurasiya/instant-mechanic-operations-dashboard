@@ -10,7 +10,6 @@ import LoginForm from "../components/auth/LoginForm";
 import { useAuth } from "../context/AuthContext";
 
 const LoginPage = () => {
-
   const navigate = useNavigate();
 
   const {
@@ -28,7 +27,6 @@ const LoginPage = () => {
   }
 
   const handleLogin = async (credentials) => {
-
     await login(credentials);
 
     navigate("/overview", {
@@ -45,7 +43,6 @@ const LoginPage = () => {
           className="
             text-sm
             text-slate-500
-            dark:text-slate-400
           "
         >
           Don't have an account?{" "}
@@ -56,7 +53,6 @@ const LoginPage = () => {
               font-semibold
               text-slate-900
               hover:underline
-              dark:text-white
             "
           >
             Create account

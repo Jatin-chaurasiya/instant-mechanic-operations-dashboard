@@ -10,7 +10,6 @@ import RegisterForm from "../components/auth/RegisterForm";
 import { useAuth } from "../context/AuthContext";
 
 const RegisterPage = () => {
-
   const navigate = useNavigate();
 
   const {
@@ -28,7 +27,6 @@ const RegisterPage = () => {
   }
 
   const handleRegister = async (data) => {
-
     await register(data);
 
     navigate("/login", {
@@ -48,7 +46,6 @@ const RegisterPage = () => {
           className="
             text-sm
             text-slate-500
-            dark:text-slate-400
           "
         >
           Already have an account?{" "}
@@ -59,7 +56,6 @@ const RegisterPage = () => {
               font-semibold
               text-slate-900
               hover:underline
-              dark:text-white
             "
           >
             Sign in
