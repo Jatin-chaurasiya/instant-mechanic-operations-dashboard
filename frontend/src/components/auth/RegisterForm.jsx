@@ -14,30 +14,17 @@ const RegisterForm = ({
   onSubmit,
   loading = false,
 }) => {
-  const [name, setName] =
-    useState("");
-
-  const [email, setEmail] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [confirmPassword, setConfirmPassword] =
-    useState("");
-
-  const [showPassword, setShowPassword] =
-    useState(false);
-
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState(false);
-
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     setError("");
 
     if (
@@ -46,9 +33,7 @@ const RegisterForm = ({
       !password ||
       !confirmPassword
     ) {
-      setError(
-        "Please fill in all fields."
-      );
+      setError("Please fill in all fields.");
       return;
     }
 
@@ -60,9 +45,7 @@ const RegisterForm = ({
     }
 
     if (password !== confirmPassword) {
-      setError(
-        "Passwords do not match."
-      );
+      setError("Passwords do not match.");
       return;
     }
 
@@ -74,8 +57,7 @@ const RegisterForm = ({
       });
     } catch (err) {
       setError(
-        err?.message ||
-          "Unable to create account."
+        err?.message || "Unable to create account."
       );
     }
   };
@@ -85,30 +67,31 @@ const RegisterForm = ({
       onSubmit={handleSubmit}
       className="space-y-4"
     >
+      {/* Error */}
       {error && (
-        <div className="
-          rounded-xl
-          border border-red-200
-          bg-red-50
-          px-4 py-3
-          text-sm
-          text-red-600
-          dark:border-red-900
-          dark:bg-red-950/40
-          dark:text-red-400
-        ">
+        <div
+          className="
+            rounded-xl
+            border border-red-200
+            bg-red-50
+            px-4 py-3
+            text-sm
+            text-red-600
+          "
+        >
           {error}
         </div>
       )}
 
       {/* Name */}
       <div>
-        <label className="
-          mb-2 block
-          text-sm font-medium
-          text-slate-700
-          dark:text-slate-300
-        ">
+        <label
+          className="
+            mb-2 block
+            text-sm font-medium
+            text-slate-700
+          "
+        >
           Full Name
         </label>
 
@@ -137,15 +120,11 @@ const RegisterForm = ({
               bg-white
               pl-10 pr-4
               text-sm
+              text-slate-800
               outline-none
               focus:border-slate-400
               focus:ring-4
               focus:ring-slate-100
-              dark:border-slate-700
-              dark:bg-slate-900
-              dark:text-white
-              dark:focus:border-slate-500
-              dark:focus:ring-slate-800
             "
           />
         </div>
@@ -153,12 +132,13 @@ const RegisterForm = ({
 
       {/* Email */}
       <div>
-        <label className="
-          mb-2 block
-          text-sm font-medium
-          text-slate-700
-          dark:text-slate-300
-        ">
+        <label
+          className="
+            mb-2 block
+            text-sm font-medium
+            text-slate-700
+          "
+        >
           Email Address
         </label>
 
@@ -187,15 +167,11 @@ const RegisterForm = ({
               bg-white
               pl-10 pr-4
               text-sm
+              text-slate-800
               outline-none
               focus:border-slate-400
               focus:ring-4
               focus:ring-slate-100
-              dark:border-slate-700
-              dark:bg-slate-900
-              dark:text-white
-              dark:focus:border-slate-500
-              dark:focus:ring-slate-800
             "
           />
         </div>
@@ -203,12 +179,13 @@ const RegisterForm = ({
 
       {/* Password */}
       <div>
-        <label className="
-          mb-2 block
-          text-sm font-medium
-          text-slate-700
-          dark:text-slate-300
-        ">
+        <label
+          className="
+            mb-2 block
+            text-sm font-medium
+            text-slate-700
+          "
+        >
           Password
         </label>
 
@@ -224,15 +201,11 @@ const RegisterForm = ({
 
           <input
             type={
-              showPassword
-                ? "text"
-                : "password"
+              showPassword ? "text" : "password"
             }
             value={password}
             onChange={(event) =>
-              setPassword(
-                event.target.value
-              )
+              setPassword(event.target.value)
             }
             placeholder="Minimum 6 characters"
             autoComplete="new-password"
@@ -243,15 +216,11 @@ const RegisterForm = ({
               bg-white
               pl-10 pr-11
               text-sm
+              text-slate-800
               outline-none
               focus:border-slate-400
               focus:ring-4
               focus:ring-slate-100
-              dark:border-slate-700
-              dark:bg-slate-900
-              dark:text-white
-              dark:focus:border-slate-500
-              dark:focus:ring-slate-800
             "
           />
 
@@ -266,6 +235,7 @@ const RegisterForm = ({
               absolute right-3.5 top-1/2
               -translate-y-1/2
               text-slate-400
+              hover:text-slate-700
             "
           >
             {showPassword ? (
@@ -279,12 +249,13 @@ const RegisterForm = ({
 
       {/* Confirm Password */}
       <div>
-        <label className="
-          mb-2 block
-          text-sm font-medium
-          text-slate-700
-          dark:text-slate-300
-        ">
+        <label
+          className="
+            mb-2 block
+            text-sm font-medium
+            text-slate-700
+          "
+        >
           Confirm Password
         </label>
 
@@ -319,15 +290,11 @@ const RegisterForm = ({
               bg-white
               pl-10 pr-11
               text-sm
+              text-slate-800
               outline-none
               focus:border-slate-400
               focus:ring-4
               focus:ring-slate-100
-              dark:border-slate-700
-              dark:bg-slate-900
-              dark:text-white
-              dark:focus:border-slate-500
-              dark:focus:ring-slate-800
             "
           />
 
@@ -342,6 +309,7 @@ const RegisterForm = ({
               absolute right-3.5 top-1/2
               -translate-y-1/2
               text-slate-400
+              hover:text-slate-700
             "
           >
             {showConfirmPassword ? (
@@ -353,6 +321,7 @@ const RegisterForm = ({
         </div>
       </div>
 
+      {/* Submit */}
       <Button
         type="submit"
         variant="primary"

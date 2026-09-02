@@ -13,21 +13,13 @@ const LoginForm = ({
   onSubmit,
   loading = false,
 }) => {
-  const [email, setEmail] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [showPassword, setShowPassword] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     setError("");
 
     if (!email.trim()) {
@@ -36,9 +28,7 @@ const LoginForm = ({
     }
 
     if (!password) {
-      setError(
-        "Please enter your password."
-      );
+      setError("Please enter your password.");
       return;
     }
 
@@ -49,8 +39,7 @@ const LoginForm = ({
       });
     } catch (err) {
       setError(
-        err?.message ||
-          "Unable to login."
+        err?.message || "Unable to login."
       );
     }
   };
@@ -62,30 +51,30 @@ const LoginForm = ({
     >
       {/* Error */}
       {error && (
-        <div className="
-          rounded-xl
-          border border-red-200
-          bg-red-50
-          px-4 py-3
-          text-sm
-          text-red-600
-          dark:border-red-900
-          dark:bg-red-950/40
-          dark:text-red-400
-        ">
+        <div
+          className="
+            rounded-xl
+            border border-red-200
+            bg-red-50
+            px-4 py-3
+            text-sm
+            text-red-600
+          "
+        >
           {error}
         </div>
       )}
 
       {/* Email */}
       <div>
-        <label className="
-          mb-2 block
-          text-sm
-          font-medium
-          text-slate-700
-          dark:text-slate-300
-        ">
+        <label
+          className="
+            mb-2 block
+            text-sm
+            font-medium
+            text-slate-700
+          "
+        >
           Email Address
         </label>
 
@@ -121,11 +110,6 @@ const LoginForm = ({
               focus:border-slate-400
               focus:ring-4
               focus:ring-slate-100
-              dark:border-slate-700
-              dark:bg-slate-900
-              dark:text-white
-              dark:focus:border-slate-500
-              dark:focus:ring-slate-800
             "
           />
         </div>
@@ -134,12 +118,13 @@ const LoginForm = ({
       {/* Password */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="
-            text-sm
-            font-medium
-            text-slate-700
-            dark:text-slate-300
-          ">
+          <label
+            className="
+              text-sm
+              font-medium
+              text-slate-700
+            "
+          >
             Password
           </label>
 
@@ -150,8 +135,6 @@ const LoginForm = ({
               font-medium
               text-slate-500
               hover:text-slate-900
-              dark:text-slate-400
-              dark:hover:text-white
             "
           >
             Forgot password?
@@ -176,9 +159,7 @@ const LoginForm = ({
             }
             value={password}
             onChange={(event) =>
-              setPassword(
-                event.target.value
-              )
+              setPassword(event.target.value)
             }
             placeholder="Enter your password"
             autoComplete="current-password"
@@ -196,11 +177,6 @@ const LoginForm = ({
               focus:border-slate-400
               focus:ring-4
               focus:ring-slate-100
-              dark:border-slate-700
-              dark:bg-slate-900
-              dark:text-white
-              dark:focus:border-slate-500
-              dark:focus:ring-slate-800
             "
           />
 
@@ -216,7 +192,6 @@ const LoginForm = ({
               -translate-y-1/2
               text-slate-400
               hover:text-slate-700
-              dark:hover:text-white
             "
           >
             {showPassword ? (
