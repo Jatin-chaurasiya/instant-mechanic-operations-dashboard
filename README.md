@@ -1,6 +1,14 @@
 # 🚗 Instant Mechanic — Operations Dashboard
 
 > A production-ready full-stack vehicle service operations dashboard for monitoring bookings, mechanics, customers, services, revenue, and operational activity from a single workspace.
+> **Note**
+## 🔐 Authentication & Access Scope
+
+The application is designed as an internal operations dashboard for company administrators rather than a public customer portal.
+
+JWT-based authentication is implemented for secure login and authenticated API access. The current version uses a single admin user role, with registration and login available to initialize/administer the portal during development and demonstration.
+
+Role-Based Access Control (RBAC) is intentionally kept outside the current scope because the present dashboard is focused on a single administrative workflow. The authentication architecture can be extended to support multiple roles such as Admin, Manager, Mechanic, or Support Staff when required.
 
 <p align="center">
   <img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?logo=react&logoColor=white" />
