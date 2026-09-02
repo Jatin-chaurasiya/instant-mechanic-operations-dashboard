@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface MechanicRepository
         extends JpaRepository<Mechanic, Long> {
 
@@ -36,4 +38,15 @@ public interface MechanicRepository
             MechanicStatus status,
             Pageable pageable
     );
+
+    @Query("""
+            SELECT m
+            FROM Mechanic m
+            WHERE
+                LOWER(m.name) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(m.mechanicCode) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(m.phone) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(m.location) LIKE LOWER(CONCAT('%', :query, '%'))
+            """)
+    List<Mechanic> searchMechanics(@Param("query") String query);
 }

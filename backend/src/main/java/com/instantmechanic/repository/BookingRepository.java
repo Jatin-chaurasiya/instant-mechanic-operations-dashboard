@@ -15,9 +15,7 @@ import java.util.List;
 public interface BookingRepository
         extends JpaRepository<Booking, Long> {
 
-    // =========================================================
     // DASHBOARD
-    // =========================================================
 
     long countByStatus(BookingStatus status);
 
@@ -33,9 +31,7 @@ public interface BookingRepository
     );
 
 
-    // =========================================================
     // BOOKING LIST - OLD METHODS KEPT
-    // =========================================================
 
     @Query("""
             SELECT b
@@ -76,9 +72,8 @@ public interface BookingRepository
     );
 
 
-    // =========================================================
+
     // NEW - BOOKING SEARCH + STATUS + CATEGORY
-    // =========================================================
 
     @Query("""
             SELECT b
@@ -123,9 +118,7 @@ public interface BookingRepository
     );
 
 
-    // =========================================================
     // MECHANIC
-    // =========================================================
 
     @Query("""
             SELECT COUNT(b)
@@ -139,9 +132,9 @@ public interface BookingRepository
     );
 
 
-    // =========================================================
+
     // CUSTOMER
-    // =========================================================
+
 
     @Query("""
             SELECT COUNT(b)
@@ -153,9 +146,7 @@ public interface BookingRepository
     );
 
 
-    // =========================================================
     // ANALYTICS
-    // =========================================================
 
     @Query("""
             SELECT b.bookingDate, COUNT(b)
@@ -209,9 +200,7 @@ public interface BookingRepository
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate
     );
-    // =========================================================
 // ANALYTICS - STATUS DISTRIBUTION
-// =========================================================
 
     @Query("""
         SELECT b.status, COUNT(b)
@@ -227,9 +216,8 @@ public interface BookingRepository
     );
 
 
-// =========================================================
 // ANALYTICS - CATEGORY BREAKDOWN
-// =========================================================
+
 
     @Query("""
         SELECT b.service.category, COUNT(b)
@@ -243,4 +231,24 @@ public interface BookingRepository
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate
     );
+    @Query("""
+            SELECT DISTINCT b
+            FROM Booking b
+            LEFT JOIN b.customer c
+            LEFT JOIN b.vehicle v
+            LEFT JOIN b.service s
+            LEFT JOIN b.mechanic m
+            WHERE
+                LOWER(b.bookingCode) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(c.email) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(c.phone) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(v.vehicleNumber) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(v.vehicleModel) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(s.serviceName) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(s.category) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(m.name) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(m.mechanicCode) LIKE LOWER(CONCAT('%', :query, '%'))
+            """)
+    List<Booking> searchBookings(@Param("query") String query);
 }

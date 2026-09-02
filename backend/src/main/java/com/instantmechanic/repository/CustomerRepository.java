@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface CustomerRepository
         extends JpaRepository<Customer, Long> {
@@ -35,4 +36,14 @@ public interface CustomerRepository
             @Param("keyword") String keyword,
             Pageable pageable
     );
+    @Query("""
+            SELECT c
+            FROM Customer c
+            WHERE
+                LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(c.email) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(c.phone) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(c.address) LIKE LOWER(CONCAT('%', :query, '%'))
+            """)
+    List<Customer> searchCustomers(@Param("query") String query);
 }

@@ -3,6 +3,7 @@ package com.instantmechanic.repository;
 import com.instantmechanic.entity.Service;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -22,4 +23,13 @@ public interface ServiceRepository
             ORDER BY s.category
             """)
     List<String> findActiveCategories();
+    @Query("""
+        SELECT s
+        FROM Service s
+        WHERE
+            LOWER(s.serviceName) LIKE LOWER(CONCAT('%', :query, '%'))
+            OR LOWER(s.category) LIKE LOWER(CONCAT('%', :query, '%'))
+            OR LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))
+        """)
+    List<Service> searchServices(@Param("query") String query);
 }
