@@ -20,7 +20,7 @@ public class CorsConfig {
         configuration.setAllowedOrigins(
                 List.of(
                         "http://localhost:5173",
-                        "http://instant-mechanic.jatindev.xyz"
+                        "https://instant-mechanic.jatindev.xyz"
                 )
         );
 
