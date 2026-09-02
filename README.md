@@ -133,7 +133,22 @@ Search Globally with name,Vehicals number,mechnics name,service name,Booking nam
 
 # 📚 Swagger / OpenAPI
 
-The backend includes interactive API documentation using Swagger/OpenAPI.
+## 🔑 Demo Credentials
+
+For testing the protected APIs through Swagger:
+
+**Email:** YOUR_EMAIL
+**Password:** YOUR_DEMO_PASSWORD
+
+### Swagger Authentication
+
+1. Open the Swagger UI.
+2. Use `POST /auth/login` with the demo credentials.
+3. Copy the JWT token from the response.
+4. Click **Authorize**.
+5. Paste the JWT token into the `bearerAuth` field.
+6. Click **Authorize**.
+7. Protected APIs can now be tested.
 
 Swagger UI
 
