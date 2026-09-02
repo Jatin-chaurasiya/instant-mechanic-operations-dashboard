@@ -17,13 +17,12 @@
 
 | Resource | Link |
 |---|---|
+| 🚀 **Live Application** | https://instant-mechanic.jatindev.xyz |
 | 🚀 **Live Frontend** | https://instant-mechanic.jatindev.xyz |
-| ⚙️ **Live Backend API** | http://instant-mechanic-api.jatindev.xyz/api/v1.0 |
-| 📚 **Swagger UI** | http://instant-mechanic-api.jatindev.xyz/api/v1.0/swagger-ui/index.html |
-| 📄 **OpenAPI JSON** | http://instant-mechanic-api.jatindev.xyz/api/v1.0/v3/api-docs |
+| ⚙️ **Live Backend API** | https://instant-mechanic-api.jatindev.xyz/api/v1.0 |
+| 📚 **Swagger UI** | https://instant-mechanic-api.jatindev.xyz/api/v1.0/swagger-ui/index.html |
+| 📄 **OpenAPI JSON** | https://instant-mechanic-api.jatindev.xyz/api/v1.0/v3/api-docs |
 | 💻 **GitHub Repository** | https://github.com/Jatin-chaurasiya/instant-mechanic-operations-dashboard |
-
-> **Note:** The current demo API is deployed over HTTP. HTTPS can be added later using Nginx + Certbot.
 
 ---
 
@@ -111,11 +110,10 @@ Registration
 JWT authentication
 Protected backend resources
 Authenticated dashboard access
-##  Dark Mode
-
+## Dark Mode
 The dashboard includes a modern dark-mode interface designed for long operational usage and improved visual hierarchy.
 ---
-##📚 Swagger / OpenAPI
+# 📚 Swagger / OpenAPI
 
 The backend includes interactive API documentation using Swagger/OpenAPI.
 
@@ -186,7 +184,7 @@ Spring Boot Application
 MySQL Docker Container
 ```
 ---
-##🧱 Tech Stack
+#🧱 Tech Stack
 ```text
 🎨 Frontend
 React
@@ -229,7 +227,7 @@ Swagger UI
 OpenAPI
 ```
 ---
-## 📊 Database
+# 📊 Database
 
 The application uses a real relational MySQL database instead of relying entirely on hardcoded frontend data.
 
@@ -253,7 +251,7 @@ The seeded booking data contains realistic relationships and variations across:
 - Vehicles
 - Mechanics
 ---
-##🔌 API Endpoints
+#🔌 API Endpoints
 ```text
 Base API URL:
 
@@ -262,15 +260,20 @@ http://instant-mechanic-api.jatindev.xyz/api/v1.0
 Authentication
 POST /auth/register
 POST /auth/login
+
 Dashboard
 GET /dashboard
+
 Bookings
 GET /bookings
 GET /bookings/{id}
+
 Mechanics
 GET /mechanics
+
 Customers
 GET /customers
+
 Services
 GET /services
 GET /services/{id}
@@ -279,345 +282,333 @@ GET /services/categories
 These are representative endpoints. The complete API contract is available through Swagger/OpenAPI.
 ```
 ---
-##💻 Local Setup
-Prerequisites
+## 💻 Local Setup
 
-Install:
+### Prerequisites
 
-Java
-Maven
-Node.js
-npm
-Docker
-Git
-1. Clone Repository
+Before running the project locally, make sure the following are installed:
+
+- Java
+- Maven
+- Node.js
+- npm
+- Docker
+- Git
+
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/Jatin-chaurasiya/instant-mechanic-operations-dashboard.git
-
 cd instant-mechanic-operations-dashboard
-2. Run Backend + MySQL
+```
+
+### 2. Run Backend + MySQL
+
+Navigate to the backend directory:
+
+```bash
 cd backend
+```
+
+Start the backend and MySQL containers using Docker Compose:
+
+```bash
 docker compose up -d
+```
 
-Check containers:
+Check the running containers:
 
+```bash
 docker compose ps
-3. Run Frontend
+```
 
-Open another terminal:
+The main services are:
 
+- `backend` — Spring Boot application
+- `mysql` — MySQL 8 database
+
+### 3. Run the Frontend
+
+Open another terminal and navigate to the frontend directory:
+
+```bash
 cd frontend
+```
+
+Install the dependencies:
+
+```bash
 npm install
+```
+
+Start the Vite development server:
+
+```bash
 npm run dev
+```
 
-Frontend will run at:
+The frontend will be available at:
 
+```text
 http://localhost:5173
-⚙️ Environment Variables
-Frontend
+```
 
-Production:
+---
 
-VITE_API_BASE_URL=http://instant-mechanic-api.jatindev.xyz/api/v1.0
+## ⚙️ Environment Variables
 
-Local development:
+### Frontend
 
+For local development:
+
+```env
 VITE_API_BASE_URL=http://localhost:8081/api/v1.0
-Backend
+```
 
-Environment-specific configuration should be provided using application configuration/environment variables.
+For the deployed production environment:
 
-Typical values include:
+```env
+VITE_API_BASE_URL=https://instant-mechanic-api.jatindev.xyz/api/v1.0
+```
 
+### Backend
+
+The backend uses environment/application configuration for deployment-sensitive values.
+
+Typical configuration includes:
+
+```text
 Database URL
 Database Username
 Database Password
 JWT Secret
 Mail Configuration
 External API Credentials
+```
 
-Never commit secrets, passwords, API keys, or .pem private keys to GitHub.
+> ⚠️ Never commit passwords, API keys, JWT secrets, private keys, or `.pem` files to the repository.
 
-🐳 Docker
+---
 
-The application backend is containerized using Docker.
+## 🐳 Docker
 
-Main services:
+The backend and database are containerized using Docker and Docker Compose.
 
-backend → Spring Boot
-mysql   → MySQL 8
+### Services
 
-Docker Compose is used to manage the application services.
+| Service | Technology |
+|---|---|
+| Backend | Spring Boot |
+| Database | MySQL 8 |
 
-The database uses persistent Docker storage so restarting/redeploying the backend container does not intentionally remove the stored database data.
+Docker Compose manages the containers, networking, and service startup.
 
-☁️ Deployment
-Frontend — Vercel
+The MySQL database uses persistent Docker storage so that restarting or redeploying the backend container does not intentionally remove the existing database data.
+
+---
+
+## ☁️ Deployment
+
+### Frontend — Vercel
+
+The React + Vite frontend is deployed using Vercel.
+
+```text
 React + Vite
-      ↓
-GitHub
-      ↓
+      │
+      ▼
+GitHub Repository
+      │
+      ▼
 Vercel
-      ↓
+      │
+      ▼
 https://instant-mechanic.jatindev.xyz
-Backend — AWS EC2
+```
 
-The backend is deployed using:
+### Backend — AWS EC2
 
-AWS EC2
-Ubuntu
-Docker
-Docker Compose
-Nginx
-Elastic IP
-MySQL
+The Spring Boot backend is deployed on AWS EC2 using:
 
-Backend URL:
+- Ubuntu Linux
+- Docker
+- Docker Compose
+- Nginx
+- Elastic IP
+- MySQL
 
-http://instant-mechanic-api.jatindev.xyz/api/v1.0
-🔄 CI/CD
+Production Backend URL:
+
+```text
+https://instant-mechanic-api.jatindev.xyz/api/v1.0
+```
+
+### Production Request Flow
+
+```text
+Client
+  │
+  ▼
+https://instant-mechanic-api.jatindev.xyz
+  │
+  ▼
+Nginx Reverse Proxy
+  │
+  ▼
+Spring Boot Application
+  │
+  ▼
+MySQL Docker Container
+```
+
+---
+
+## 🔄 CI/CD
 
 The backend deployment is automated using GitHub Actions.
 
-Every push to the main branch triggers:
+Every push to the `main` branch triggers the CI/CD pipeline:
 
-git push
-   ↓
+```text
+Developer
+    │
+    │ git push
+    ▼
+GitHub Repository
+    │
+    ▼
 GitHub Actions
-   ↓
-Checkout repository
-   ↓
-Build Docker image
-   ↓
-Push image to Docker Hub
-   ↓
-SSH into EC2
-   ↓
-Pull latest backend image
-   ↓
-Restart backend container
-Current pipeline
-docker ✅
-   ↓
-deploy ✅
+    │
+    ├── Checkout Repository
+    ├── Build Docker Image
+    ├── Push Image to Docker Hub
+    │
+    ▼
+AWS EC2
+    │
+    ├── Pull Latest Backend Image
+    └── Restart Backend Container
+    │
+    ▼
+Nginx
+    │
+    ▼
+Spring Boot Application
+```
 
-This eliminates the need to manually rebuild and restart the backend after every code change.
+### CI/CD Pipeline
 
-🛡️ Security
+```text
+Docker Build & Push ✅
+          │
+          ▼
+      EC2 Deploy ✅
+```
 
-Current security implementation includes:
+This automation allows backend changes to be deployed to AWS EC2 automatically after pushing code to the `main` branch, without manually rebuilding and restarting the backend for every deployment.
 
-Spring Security
-JWT authentication
-Protected APIs
-CORS configuration
-Security Group configuration
-Environment-based secrets
-SSH-based automated EC2 deployment
+---
+## 🛡️ Security
 
-Production hardening opportunities include HTTPS and stricter network access rules.
+The application includes the following security measures:
 
-📱 Responsive UI
+- Spring Security
+- JWT Authentication
+- Protected REST APIs
+- CORS Configuration
+- AWS Security Group Configuration
+- Environment-based Secrets
+- SSH-based Automated EC2 Deployment
+- HTTPS / SSL
 
-The dashboard was designed as a modern operations/SaaS interface with:
+Production security can be further strengthened with stricter network access rules, role-based authorization, API rate limiting, and advanced monitoring.
 
-Responsive layout
-Sidebar navigation
-KPI cards
-Tables
-Filters
-Charts/analytics
-Live status indicators
-Dark mode
-Loading/error states
-Clean typography
-Consistent spacing
-🖼️ Screenshots
+---
 
-Screenshots can be added later under:
+## 📱 Responsive UI
 
-docs/screenshots/
+The dashboard is designed as a modern operations/SaaS interface with:
 
-Recommended structure:
+- Responsive Layout
+- Sidebar Navigation
+- KPI Cards
+- Data Tables
+- Filters
+- Analytics and Charts
+- Live Status Indicators
+- Dark Mode
+- Loading and Error States
+- Clean Typography
+- Consistent Spacing
 
-docs/
-└── screenshots/
-    ├── login.png
-    ├── dashboard.png
-    ├── bookings.png
-    ├── mechanics.png
-    ├── customers.png
-    └── analytics.png
+---
 
-Then add them using:
-
-## Login
-
-![Login](docs/screenshots/login.png)
-
-## Dashboard
-
-![Dashboard](docs/screenshots/dashboard.png)
-
-## Bookings
-
-![Bookings](docs/screenshots/bookings.png)
-
-## Mechanics
-
-![Mechanics](docs/screenshots/mechanics.png)
-
-## Analytics
-
-![Analytics](docs/screenshots/analytics.png)
-⭐ Implemented Bonus Features
+## ⭐ Implemented Bonus Features
 
 The following bonus-oriented features are currently implemented:
 
-✅ Authentication
-✅ Dark Mode
-✅ Swagger / OpenAPI
-✅ Docker
-✅ CI/CD
-✅ GitHub Actions
-✅ AWS EC2 deployment
-✅ Vercel deployment
-✅ Responsive dashboard
-✅ REST API architecture
-✅ Realistic database seed data
-✅ Automatic dashboard refresh
-✅ Nginx reverse proxy
-✅ Elastic IP
-✅ Docker Hub integration
-🚧 Not Currently Implemented
-Role-Based Access Control
+- ✅ Authentication
+- ✅ Dark Mode
+- ✅ Swagger / OpenAPI
+- ✅ Docker
+- ✅ CI/CD
+- ✅ GitHub Actions
+- ✅ AWS EC2 Deployment
+- ✅ Vercel Deployment
+- ✅ Responsive Dashboard
+- ✅ REST API Architecture
+- ✅ Realistic Database Seed Data
+- ✅ Automatic Dashboard Refresh
+- ✅ Nginx Reverse Proxy
+- ✅ Elastic IP
+- ✅ Docker Hub Integration
+- ✅ HTTPS / SSL
+---
 
-Authentication is implemented, but separate fine-grained permissions for different application roles are not currently implemented.
+## 🧠 Engineering Decisions
 
-For example:
-
-Admin
-Operations Manager
-Support Agent
-
-are not currently separated into different authorization policies.
-
-🚀 Future Enhancements
-🔍 Global Search
-
-A single search bar can be extended to search across:
-
-Bookings
-Customers
-Mechanics
-Vehicles
-Services
-
-Possible searchable values:
-
-Booking ID
-Customer Name
-Customer Email
-Vehicle Number
-Mechanic Name
-Service Name
-🔔 Real-Time Notifications
-
-The notification system can be enhanced using WebSockets to provide instant events such as:
-
-New booking received
-Mechanic assigned
-Booking status changed
-Booking completed
-New customer registered
-🌐 WebSockets
-
-WebSockets can be introduced for true real-time communication between the backend and dashboard.
-
-Possible flow:
-
-Booking status changed
-       ↓
-Spring Boot
-       ↓
-WebSocket Event
-       ↓
-React Dashboard
-       ↓
-UI updates instantly
-🛡️ API Rate Limiting
-
-Rate limiting can be added to protect APIs from excessive requests.
-
-Possible implementation:
-
-Client
-  ↓
-Nginx / API Layer
-  ↓
-Rate Limiter
-  ↓
-Spring Boot
-🔒 HTTPS
-
-Future production hardening:
-
-HTTP
- ↓
-Nginx
- ↓
-Certbot / SSL
- ↓
-HTTPS
-📍 Additional Future Features
-Role-Based Access Control
-WebSockets
-Mechanic map/location visualization
-CSV export
-Advanced filtering
-Error monitoring
-Caching
-Automated tests
-Query optimization
-More detailed analytics
-🧠 Engineering Decisions
-Why React + Vite?
+### Why React + Vite?
 
 Used for a fast, component-based frontend with efficient development and straightforward deployment.
 
-Why Spring Boot?
+### Why Spring Boot?
 
 Spring Boot provides a clean Java backend architecture with REST APIs, dependency injection, security, and JPA/Hibernate support.
 
-Why MySQL?
+### Why MySQL?
 
 The domain is highly relational. Bookings naturally connect customers, vehicles, services, and mechanics, making MySQL a good fit.
 
-Why Docker?
+### Why Docker?
 
 Docker provides a reproducible runtime environment and simplifies deployment.
 
-Why Nginx?
+### Why Nginx?
 
 Nginx acts as a reverse proxy between the public domain and the internal Spring Boot service.
 
-Why GitHub Actions?
+### Why GitHub Actions?
 
 GitHub Actions automates the deployment pipeline and reduces manual deployment effort.
 
-🧪 Testing & Verification
+---
+
+## 🧪 Testing & Verification
 
 The project was verified through:
 
-Local frontend testing
-Local backend testing
-Postman API testing
-MySQL verification
-Swagger/OpenAPI testing
-Docker container verification
-AWS EC2 deployment testing
-Public API testing
-GitHub Actions CI/CD verification
-📂 Repository Structure
+- Local frontend testing
+- Local backend testing
+- Postman API testing
+- MySQL verification
+- Swagger/OpenAPI testing
+- Docker container verification
+- AWS EC2 deployment testing
+- Public API testing
+- GitHub Actions CI/CD verification
+---
+#📂 Repository Structure
+```text
 instant-mechanic-operations-dashboard/
 │
 ├── .github/
@@ -639,41 +630,32 @@ instant-mechanic-operations-dashboard/
 │   └── screenshots/
 │
 └── README.md
-🤖 AI Usage
+```
+---
+## 🤖 AI Usage
 
 AI tools were used as engineering assistants during development.
 
-AI was used for
-Architecture brainstorming
-Code generation and refinement
-Debugging
-API design discussions
-Database design
-SQL seed-data generation
-UI/UX improvements
-Deployment troubleshooting
-Docker and CI/CD configuration support
-Documentation
-Human contribution
+### AI was used for
 
-The generated suggestions were reviewed, adapted, integrated, tested, and debugged manually.
+- Architecture brainstorming
+- Code generation and refinement
+- Debugging
+- API design discussions
+- Database design
+- SQL seed-data generation
+- UI/UX improvements
+- Deployment troubleshooting
+- Docker and CI/CD configuration support
+- Documentation
 
-The final system was assembled and validated through actual:
+---
 
-Frontend development
-Backend development
-Database setup
-API integration
-Docker deployment
-AWS EC2 deployment
-Nginx configuration
-Vercel deployment
-CI/CD setup
-Production testing
-📈 Project Highlights
+## 📈 Project Highlights
 
 This project demonstrates the complete full-stack development lifecycle:
 
+```text
 UI Design
    ↓
 React Frontend
@@ -695,43 +677,31 @@ Nginx
 AWS EC2
    ↓
 GitHub Actions CI/CD
+```
+---
+# 📬 Final Submission
 
-The application is not limited to a local prototype; it is publicly deployed and connected end-to-end.
-
-🎯 What I'm Most Proud Of
-
-The strongest part of the project is taking the application from development all the way to production deployment.
-
-The complete workflow covers:
-
-Frontend → Backend → Database → Docker → AWS EC2 → Nginx → Domain → Vercel → Swagger/OpenAPI → GitHub Actions CI/CD
-
-This demonstrates practical full-stack engineering rather than only UI development.
-
-📬 Final Submission
-👨‍💻 Name
-
-Jatin Chaurasiya
-
-💻 GitHub
+## 💻 GitHub
 
 https://github.com/Jatin-chaurasiya/instant-mechanic-operations-dashboard
 
-🚀 Frontend
+## 🚀 Frontend
 
 https://instant-mechanic.jatindev.xyz
 
-⚙️ Backend
+## ⚙️ Backend
 
-http://instant-mechanic-api.jatindev.xyz/api/v1.0
+https://instant-mechanic-api.jatindev.xyz/api/v1.0
 
-📚 API Documentation
+## 📚 API Documentation
 
 http://instant-mechanic-api.jatindev.xyz/api/v1.0/swagger-ui/index.html
 
-📄 OpenAPI
+## 📄 OpenAPI
 
 http://instant-mechanic-api.jatindev.xyz/api/v1.0/v3/api-docs
+
+---
 
 ❤️ Final Note
 
