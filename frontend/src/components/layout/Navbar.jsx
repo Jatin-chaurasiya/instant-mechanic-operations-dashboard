@@ -4,6 +4,7 @@ import {
   ChevronDown,
   CircleHelp,
   LogOut,
+  UserRound,
 } from "lucide-react";
 
 import { useState } from "react";
@@ -15,19 +16,25 @@ import GlobalSearch from "./GlobalSearch";
 
 const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
-
   const { logout } = useAuth();
 
   const [profileOpen, setProfileOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
-
     setProfileOpen(false);
 
     navigate("/login", {
       replace: true,
     });
+  };
+
+  const handleProfile = () => {
+    setProfileOpen(false);
+    navigate("/profile");
+  };
+  const handleSupport = () => {
+    navigate("/support");
   };
 
   return (
@@ -48,11 +55,8 @@ const Navbar = ({ onMenuClick }) => {
         "
       >
         {/* Left Section */}
-
         <div className="flex min-w-0 items-center gap-3">
-
           {/* Mobile Menu */}
-
           <button
             onClick={onMenuClick}
             className="
@@ -70,9 +74,7 @@ const Navbar = ({ onMenuClick }) => {
           </button>
 
           {/* Page Heading */}
-
           <div className="min-w-0">
-
             <h2
               className="
                 truncate
@@ -97,28 +99,22 @@ const Navbar = ({ onMenuClick }) => {
             >
               Monitor your service operations in real time
             </p>
-
           </div>
         </div>
 
         {/* Right Section */}
-
         <div className="flex items-center gap-2 sm:gap-4">
-
           {/* Global Search */}
-
           <div className="hidden md:flex">
             <GlobalSearch />
           </div>
 
           {/* Mobile Search */}
-
           <div className="md:hidden">
             <GlobalSearch mobile />
           </div>
 
           {/* Live Status */}
-
           <div
             className="
               hidden
@@ -133,9 +129,7 @@ const Navbar = ({ onMenuClick }) => {
               lg:flex
             "
           >
-
             <span className="relative flex h-2 w-2">
-
               <span
                 className="
                   absolute
@@ -157,7 +151,6 @@ const Navbar = ({ onMenuClick }) => {
                   bg-emerald-500
                 "
               />
-
             </span>
 
             <span
@@ -170,36 +163,34 @@ const Navbar = ({ onMenuClick }) => {
             >
               Live
             </span>
-
           </div>
 
           {/* Theme Toggle */}
-
           <ThemeToggle />
 
           {/* Help */}
-
           <button
+            type="button"
+            onClick={handleSupport}
             className="
-              hidden
-              rounded-xl
-              p-2.5
-              text-slate-500
-              transition
-              hover:bg-slate-100
-              hover:text-slate-900
-              dark:text-slate-400
-              dark:hover:bg-slate-800
-              dark:hover:text-white
-              sm:block
-            "
-            aria-label="Help"
+    hidden
+    rounded-xl
+    p-2.5
+    text-slate-500
+    transition
+    hover:bg-slate-100
+    hover:text-slate-900
+    dark:text-slate-400
+    dark:hover:bg-slate-800
+    dark:hover:text-white
+    sm:block
+  "
+            aria-label="Help & Support"
           >
             <CircleHelp size={20} />
           </button>
 
           {/* Notification */}
-
           <button
             className="
               relative
@@ -232,7 +223,6 @@ const Navbar = ({ onMenuClick }) => {
           </button>
 
           {/* Divider */}
-
           <div
             className="
               hidden
@@ -244,14 +234,10 @@ const Navbar = ({ onMenuClick }) => {
           />
 
           {/* User Profile */}
-
           <div className="relative">
-
             <button
               type="button"
-              onClick={() =>
-                setProfileOpen((prev) => !prev)
-              }
+              onClick={() => setProfileOpen((prev) => !prev)}
               className="
                 flex
                 items-center
@@ -265,9 +251,7 @@ const Navbar = ({ onMenuClick }) => {
               aria-expanded={profileOpen}
               aria-haspopup="menu"
             >
-
               {/* Avatar */}
-
               <div
                 className="
                   flex
@@ -287,9 +271,7 @@ const Navbar = ({ onMenuClick }) => {
               </div>
 
               {/* User Details */}
-
               <div className="hidden text-left md:block">
-
                 <p
                   className="
                     text-sm
@@ -310,7 +292,6 @@ const Navbar = ({ onMenuClick }) => {
                 >
                   Administrator
                 </p>
-
               </div>
 
               <ChevronDown
@@ -322,11 +303,9 @@ const Navbar = ({ onMenuClick }) => {
                   md:block
                 "
               />
-
             </button>
 
             {/* Profile Dropdown */}
-
             {profileOpen && (
               <div
                 className="
@@ -348,7 +327,34 @@ const Navbar = ({ onMenuClick }) => {
                 "
                 role="menu"
               >
+                {/* Profile */}
+                <button
+                  type="button"
+                  onClick={handleProfile}
+                  className="
+                    flex
+                    w-full
+                    items-center
+                    gap-2
+                    rounded-lg
+                    px-3
+                    py-2.5
+                    text-left
+                    text-sm
+                    font-medium
+                    text-slate-700
+                    transition
+                    hover:bg-slate-100
+                    dark:text-slate-200
+                    dark:hover:bg-slate-800
+                  "
+                  role="menuitem"
+                >
+                  <UserRound size={17} />
+                  Profile
+                </button>
 
+                {/* Logout */}
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -374,12 +380,9 @@ const Navbar = ({ onMenuClick }) => {
                   <LogOut size={17} />
                   Logout
                 </button>
-
               </div>
             )}
-
           </div>
-
         </div>
       </div>
     </header>

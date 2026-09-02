@@ -151,33 +151,31 @@ const Sidebar = ({ onClose }) => {
                 to={item.path}
                 onClick={onClose}
                 end={item.path === "/"}
-                className={({ isActive }) =>
-                  `
-                    group
-                    flex items-center gap-3
-                    rounded-xl
-                    px-3 py-3
-                    text-sm font-medium
-                    transition-all duration-200
+                className={({ isActive }) => `
+                  group
+                  flex items-center gap-3
+                  rounded-xl
+                  px-3 py-3
+                  text-sm font-medium
+                  transition-all duration-200
 
-                    ${
-                      isActive
-                        ? `
-                          bg-slate-900
-                          shadow-sm
-                          dark:bg-white
-                        `
-                        : `
-                          text-slate-600
-                          hover:bg-slate-100
-                          hover:text-slate-900
-                          dark:text-slate-400
-                          dark:hover:bg-slate-800
-                          dark:hover:text-white
-                        `
-                    }
-                  `
-                }
+                  ${
+                    isActive
+                      ? `
+                        bg-slate-900
+                        shadow-sm
+                        dark:bg-white
+                      `
+                      : `
+                        text-slate-600
+                        hover:bg-slate-100
+                        hover:text-slate-900
+                        dark:text-slate-400
+                        dark:hover:bg-slate-800
+                        dark:hover:text-white
+                      `
+                  }
+                `}
               >
                 {({ isActive }) => (
                   <>
@@ -243,25 +241,61 @@ const Sidebar = ({ onClose }) => {
         </button>
 
         {/* Help & Support */}
-        <button
-          type="button"
-          className="
-            flex w-full items-center gap-3
-            rounded-xl
-            px-3 py-3
-            text-sm font-medium
-            text-slate-600
-            transition
-            hover:bg-slate-100
-            hover:text-slate-900
-            dark:text-slate-400
-            dark:hover:bg-slate-800
-            dark:hover:text-white
-          "
-        >
-          <HelpCircle size={19} strokeWidth={2} />
-          <span>Help & Support</span>
-        </button>
+        <NavLink
+  to="/support"
+  onClick={onClose}
+  className={({ isActive }) =>
+    isActive
+      ? `
+        flex w-full items-center gap-3
+        rounded-xl
+        px-3 py-3
+        text-sm font-medium
+        bg-slate-900
+        text-white
+        shadow-sm
+        dark:bg-white
+        dark:text-slate-950
+      `
+      : `
+        flex w-full items-center gap-3
+        rounded-xl
+        px-3 py-3
+        text-sm font-medium
+        text-slate-600
+        transition
+        hover:bg-slate-100
+        hover:text-slate-900
+        dark:text-slate-400
+        dark:hover:bg-slate-800
+        dark:hover:text-white
+      `
+  }
+>
+  {({ isActive }) => (
+    <>
+      <HelpCircle
+        size={19}
+        strokeWidth={isActive ? 2.4 : 2}
+        className={
+          isActive
+            ? "text-white dark:text-slate-950"
+            : "text-slate-600 dark:text-slate-400"
+        }
+      />
+
+      <span
+        className={
+          isActive
+            ? "text-white dark:text-slate-950"
+            : "text-slate-600 dark:text-slate-400"
+        }
+      >
+        Help & Support
+      </span>
+    </>
+  )}
+</NavLink>
 
         {/* Version */}
         <p
