@@ -1,7 +1,3 @@
-// ==========================================
-// Initial Vehicle State
-// ==========================================
-
 export const initialVehicleState = {
   // Vehicles
   vehicles: [],
@@ -26,11 +22,7 @@ export const initialVehicleState = {
   // Vehicle Details
   selectedVehicle: null,
 };
-
-
-// ==========================================
 // Vehicle Actions
-// ==========================================
 
 export const VEHICLE_ACTIONS = {
   // Vehicles
@@ -94,12 +86,7 @@ export const vehiclesReducer = (state, action) => {
         ...state,
         error: action.payload,
       };
-
-
-    // ======================================
     // Search + Pagination
-    // ======================================
-
     case VEHICLE_ACTIONS.SET_SEARCH:
       return {
         ...state,
@@ -127,12 +114,7 @@ export const vehiclesReducer = (state, action) => {
         ...state,
         totalItems: action.payload,
       };
-
-
-    // ======================================
     // Add Vehicle
-    // ======================================
-
     case VEHICLE_ACTIONS.SET_ADD_MODAL_OPEN:
       return {
         ...state,
@@ -152,12 +134,7 @@ export const vehiclesReducer = (state, action) => {
         ...state,
         addError: action.payload,
       };
-
-
-    // ======================================
     // Delete Vehicle
-    // ======================================
-
     case VEHICLE_ACTIONS.SET_DELETE_VEHICLE_TARGET:
       return {
         ...state,
@@ -170,35 +147,20 @@ export const vehiclesReducer = (state, action) => {
         ...state,
         deletingVehicle: action.payload,
       };
-
-
-    // ======================================
     // Vehicle Details
-    // ======================================
-
     case VEHICLE_ACTIONS.SET_SELECTED_VEHICLE:
       return {
         ...state,
         selectedVehicle: action.payload,
       };
-
-
-    // ======================================
     // Reset Filters
-    // ======================================
-
     case VEHICLE_ACTIONS.RESET_FILTERS:
       return {
         ...state,
         search: "",
         currentPage: 1,
       };
-
-
-    // ======================================
     // Reset Add Vehicle
-    // ======================================
-
     case VEHICLE_ACTIONS.RESET_ADD_VEHICLE:
       return {
         ...state,
@@ -206,34 +168,20 @@ export const vehiclesReducer = (state, action) => {
         addLoading: false,
         addError: "",
       };
-
-
-    // ======================================
     // Reset Delete Vehicle
-    // ======================================
-
     case VEHICLE_ACTIONS.RESET_DELETE_VEHICLE:
       return {
         ...state,
         deleteVehicleTarget: null,
         deletingVehicle: false,
       };
-
-
-    // ======================================
     // Reset Details
-    // ======================================
-
     case VEHICLE_ACTIONS.RESET_DETAILS:
       return {
         ...state,
         selectedVehicle: null,
       };
-
-
-    // ======================================
     // Default
-    // ======================================
 
     default:
       return state;

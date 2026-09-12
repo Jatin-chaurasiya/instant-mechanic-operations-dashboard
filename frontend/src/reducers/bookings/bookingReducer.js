@@ -79,6 +79,38 @@ export const initialBookingState = {
   // ======================================================
 
   isAddBookingOpen: false,
+  // ======================================================
+  // Add Booking Data
+  // ======================================================
+
+  customers: [],
+  vehicles: [],
+  services: [],
+  mechanics: [],
+
+  // Add Booking Selection
+  customerId: "",
+  vehicleId: "",
+  serviceId: "",
+  mechanicId: "",
+
+  // Add Booking Form
+  bookingDate: "",
+  bookingTime: "",
+  amount: "",
+
+  // Add Booking Search
+  customerSearch: "",
+  vehicleSearch: "",
+
+  // Add Booking Loading
+  loadingCustomers: false,
+  loadingVehicles: false,
+  loadingServices: false,
+  loadingMechanics: false,
+
+  // Add Booking Submit
+  submitting: false,
 
   // ======================================================
   // Assign Booking Modal
@@ -128,6 +160,8 @@ export const BOOKING_ACTIONS = {
   // ------------------------------------------
 
   SET_CURRENT_PAGE: "SET_CURRENT_PAGE",
+  SET_TOTAL_PAGES: "SET_TOTAL_PAGES",
+  SET_TOTAL_ITEMS: "SET_TOTAL_ITEMS",
 
   // ------------------------------------------
   // Categories
@@ -166,6 +200,33 @@ export const BOOKING_ACTIONS = {
   // ------------------------------------------
 
   SET_ADD_BOOKING_OPEN: "SET_ADD_BOOKING_OPEN",
+  // ------------------------------------------
+  // Add Booking Data
+  // ------------------------------------------
+
+  SET_CUSTOMERS: "SET_CUSTOMERS",
+  SET_VEHICLES: "SET_VEHICLES",
+  SET_SERVICES: "SET_SERVICES",
+  SET_MECHANICS: "SET_MECHANICS",
+
+  SET_CUSTOMER_ID: "SET_CUSTOMER_ID",
+  SET_VEHICLE_ID: "SET_VEHICLE_ID",
+  SET_SERVICE_ID: "SET_SERVICE_ID",
+  SET_MECHANIC_ID: "SET_MECHANIC_ID",
+
+  SET_BOOKING_DATE: "SET_BOOKING_DATE",
+  SET_BOOKING_TIME: "SET_BOOKING_TIME",
+  SET_AMOUNT: "SET_AMOUNT",
+
+  SET_CUSTOMER_SEARCH: "SET_CUSTOMER_SEARCH",
+  SET_VEHICLE_SEARCH: "SET_VEHICLE_SEARCH",
+
+  SET_LOADING_CUSTOMERS: "SET_LOADING_CUSTOMERS",
+  SET_LOADING_VEHICLES: "SET_LOADING_VEHICLES",
+  SET_LOADING_SERVICES: "SET_LOADING_SERVICES",
+  SET_LOADING_MECHANICS: "SET_LOADING_MECHANICS",
+
+  SET_SUBMITTING: "SET_SUBMITTING",
 
   // ------------------------------------------
   // Assign Booking Modal
@@ -178,11 +239,9 @@ export const BOOKING_ACTIONS = {
   // Delete Booking
   // ------------------------------------------
 
-  SET_DELETE_BOOKING_TARGET:
-    "SET_DELETE_BOOKING_TARGET",
+  SET_DELETE_BOOKING_TARGET: "SET_DELETE_BOOKING_TARGET",
 
-  SET_DELETING_BOOKING:
-    "SET_DELETING_BOOKING",
+  SET_DELETING_BOOKING: "SET_DELETING_BOOKING",
 
   // ------------------------------------------
   // Reset
@@ -258,8 +317,7 @@ const bookingReducer = (state, action) => {
       return {
         ...state,
         sortBy: action.payload.sortBy,
-        sortOrder:
-          action.payload.sortOrder || "desc",
+        sortOrder: action.payload.sortOrder || "desc",
         currentPage: 1,
       };
 
@@ -271,6 +329,17 @@ const bookingReducer = (state, action) => {
       return {
         ...state,
         currentPage: action.payload,
+      };
+    case BOOKING_ACTIONS.SET_TOTAL_PAGES:
+      return {
+        ...state,
+        totalPages: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_TOTAL_ITEMS:
+      return {
+        ...state,
+        totalItems: action.payload,
       };
 
     // ==================================================
@@ -369,6 +438,116 @@ const bookingReducer = (state, action) => {
       return {
         ...state,
         isAddBookingOpen: action.payload,
+      };
+    case BOOKING_ACTIONS.SET_CUSTOMERS:
+      return {
+        ...state,
+        customers: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_VEHICLES:
+      return {
+        ...state,
+        vehicles: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_SERVICES:
+      return {
+        ...state,
+        services: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_MECHANICS:
+      return {
+        ...state,
+        mechanics: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_CUSTOMER_ID:
+      return {
+        ...state,
+        customerId: action.payload,
+        vehicleId: "",
+        vehicleSearch: "",
+        vehicles: [],
+      };
+
+    case BOOKING_ACTIONS.SET_VEHICLE_ID:
+      return {
+        ...state,
+        vehicleId: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_SERVICE_ID:
+      return {
+        ...state,
+        serviceId: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_MECHANIC_ID:
+      return {
+        ...state,
+        mechanicId: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_BOOKING_DATE:
+      return {
+        ...state,
+        bookingDate: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_BOOKING_TIME:
+      return {
+        ...state,
+        bookingTime: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_AMOUNT:
+      return {
+        ...state,
+        amount: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_CUSTOMER_SEARCH:
+      return {
+        ...state,
+        customerSearch: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_VEHICLE_SEARCH:
+      return {
+        ...state,
+        vehicleSearch: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_LOADING_CUSTOMERS:
+      return {
+        ...state,
+        loadingCustomers: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_LOADING_VEHICLES:
+      return {
+        ...state,
+        loadingVehicles: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_LOADING_SERVICES:
+      return {
+        ...state,
+        loadingServices: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_LOADING_MECHANICS:
+      return {
+        ...state,
+        loadingMechanics: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_SUBMITTING:
+      return {
+        ...state,
+        submitting: action.payload,
       };
 
     // ==================================================

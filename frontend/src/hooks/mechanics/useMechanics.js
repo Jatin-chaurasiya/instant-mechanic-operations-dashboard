@@ -23,9 +23,7 @@ const useMechanics = ({
   initialPage = 1,
   initialItemsPerPage = 12,
 } = {}) => {
-  // ======================================================
   // Reducer
-  // ======================================================
 
   const [state, dispatch] = useReducer(
     mechanicsReducer,
@@ -36,9 +34,7 @@ const useMechanics = ({
     }
   );
 
-  // ======================================================
   // State Destructuring
-  // ======================================================
 
   const {
     // Main mechanics
@@ -76,9 +72,7 @@ const useMechanics = ({
     saving,
   } = state;
 
-  // ======================================================
   // Fetch Mechanics
-  // ======================================================
 
   const fetchMechanics = useCallback(
     async (isInitialLoad = false) => {
@@ -199,17 +193,13 @@ const useMechanics = ({
     ]
   );
 
-  // ======================================================
   // Initial Load / Filter / Page
-  // ======================================================
 
   useEffect(() => {
     fetchMechanics(true);
   }, [fetchMechanics]);
 
-  // ======================================================
   // Automatic Polling
-  // ======================================================
 
   usePolling(
     () => fetchMechanics(false),
@@ -217,9 +207,7 @@ const useMechanics = ({
     autoRefresh
   );
 
-  // ======================================================
   // Search
-  // ======================================================
 
   const handleSearchChange =
     useCallback((value) => {
@@ -230,9 +218,7 @@ const useMechanics = ({
       });
     }, []);
 
-  // ======================================================
   // Status Filter
-  // ======================================================
 
   const handleStatusChange =
     useCallback((value) => {
@@ -243,9 +229,7 @@ const useMechanics = ({
       });
     }, []);
 
-  // ======================================================
   // Main Pagination
-  // ======================================================
 
   const handlePageChange =
     useCallback(
@@ -264,9 +248,7 @@ const useMechanics = ({
       [totalPages]
     );
 
-  // ======================================================
   // Reset Filters
-  // ======================================================
 
   const resetFilters =
     useCallback(() => {
@@ -276,18 +258,14 @@ const useMechanics = ({
       });
     }, []);
 
-  // ======================================================
   // Manual Refresh
-  // ======================================================
 
   const refresh =
     useCallback(() => {
       return fetchMechanics(false);
     }, [fetchMechanics]);
 
-  // ======================================================
   // Load Available Mechanics
-  // ======================================================
 
   const loadAvailable =
     useCallback(
@@ -306,12 +284,10 @@ const useMechanics = ({
 
         try {
           const response =
-            await mechanicApi.getAvailableMechanics(
-              {
-                page,
-                size: PAGE_SIZE,
-              }
-            );
+            await mechanicApi.getAvailableMechanics({
+              page,
+              size: PAGE_SIZE,
+            });
 
           dispatch({
             type:
@@ -347,9 +323,7 @@ const useMechanics = ({
       []
     );
 
-  // ======================================================
   // Load Inactive Mechanics
-  // ======================================================
 
   const loadInactive =
     useCallback(
@@ -368,12 +342,10 @@ const useMechanics = ({
 
         try {
           const response =
-            await mechanicApi.getInactiveMechanics(
-              {
-                page,
-                size: PAGE_SIZE,
-              }
-            );
+            await mechanicApi.getInactiveMechanics({
+              page,
+              size: PAGE_SIZE,
+            });
 
           dispatch({
             type:
@@ -409,9 +381,7 @@ const useMechanics = ({
       []
     );
 
-  // ======================================================
   // Initial Available / Inactive Load
-  // ======================================================
 
   useEffect(() => {
     loadAvailable(0);
@@ -421,9 +391,7 @@ const useMechanics = ({
     loadInactive,
   ]);
 
-  // ======================================================
   // Section Change
-  // ======================================================
 
   const handleSectionChange =
     useCallback((section) => {
@@ -434,9 +402,7 @@ const useMechanics = ({
       });
     }, []);
 
-  // ======================================================
   // Refresh Current Section
-  // ======================================================
 
   const handleRefresh =
     useCallback(async () => {
@@ -468,9 +434,7 @@ const useMechanics = ({
       inactive.page,
     ]);
 
-  // ======================================================
   // Open Add Modal
-  // ======================================================
 
   const handleAddClick =
     useCallback(() => {
@@ -487,9 +451,7 @@ const useMechanics = ({
       });
     }, []);
 
-  // ======================================================
   // Open Update Modal
-  // ======================================================
 
   const handleEdit =
     useCallback((mechanic) => {
@@ -506,10 +468,8 @@ const useMechanics = ({
       });
     }, []);
 
-  // ======================================================
   // Save Mechanic
   // Add + Update
-  // ======================================================
 
   const handleSaveMechanic =
     useCallback(
@@ -588,9 +548,7 @@ const useMechanics = ({
       ]
     );
 
-  // ======================================================
   // Close Mechanic Modal
-  // ======================================================
 
   const handleCloseModal =
     useCallback(() => {
@@ -611,9 +569,7 @@ const useMechanics = ({
       });
     }, [saving]);
 
-  // ======================================================
   // Deactivate
-  // ======================================================
 
   const handleDeactivate =
     useCallback(
@@ -656,9 +612,7 @@ const useMechanics = ({
       ]
     );
 
-  // ======================================================
   // Activate
-  // ======================================================
 
   const handleActivate =
     useCallback(
@@ -701,9 +655,7 @@ const useMechanics = ({
       ]
     );
 
-  // ======================================================
   // View Mechanic Details
-  // ======================================================
 
   const handleView =
     useCallback((mechanic) => {
@@ -721,9 +673,7 @@ const useMechanics = ({
       });
     }, []);
 
-  // ======================================================
   // Close Details
-  // ======================================================
 
   const handleCloseDetails =
     useCallback(() => {
@@ -740,9 +690,7 @@ const useMechanics = ({
       });
     }, []);
 
-  // ======================================================
   // Pagination
-  // ======================================================
 
   const handleSectionPageChange =
     useCallback(
@@ -771,9 +719,7 @@ const useMechanics = ({
       ]
     );
 
-  // ======================================================
   // Reset Filters
-  // ======================================================
 
   const handleReset =
     useCallback(() => {
@@ -797,9 +743,7 @@ const useMechanics = ({
       loadInactive,
     ]);
 
-  // ======================================================
   // Retry
-  // ======================================================
 
   const handleRetry =
     useCallback(() => {
@@ -831,9 +775,7 @@ const useMechanics = ({
       inactive.page,
     ]);
 
-  // ======================================================
   // Current Section Data
-  // ======================================================
 
   let sectionData;
 
@@ -882,15 +824,10 @@ const useMechanics = ({
     };
   }
 
-  // ======================================================
   // Return
-  // ======================================================
 
   return {
-    // ==========================================
     // Main Mechanics
-    // ==========================================
-
     mechanics,
     loading,
     refreshing,
@@ -916,10 +853,7 @@ const useMechanics = ({
     resetFilters,
     refresh,
 
-    // ==========================================
     // Sections
-    // ==========================================
-
     activeSection,
 
     available,
@@ -937,20 +871,14 @@ const useMechanics = ({
     handleRetry,
     handleReset,
 
-    // ==========================================
     // Details
-    // ==========================================
-
     detailsOpen,
     selectedMechanicId,
 
     handleView,
     handleCloseDetails,
 
-    // ==========================================
     // Add / Update
-    // ==========================================
-
     mechanicModalOpen,
     selectedMechanic,
     saving,
@@ -960,10 +888,7 @@ const useMechanics = ({
     handleSaveMechanic,
     handleCloseModal,
 
-    // ==========================================
     // Status Actions
-    // ==========================================
-
     handleDeactivate,
     handleActivate,
   };

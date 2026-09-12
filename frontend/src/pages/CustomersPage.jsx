@@ -1,4 +1,8 @@
-import { Users, RefreshCw, UserRoundPlus } from "lucide-react";
+import {
+  Users,
+  RefreshCw,
+  UserRoundPlus,
+} from "lucide-react";
 
 import CustomersGrid from "../components/customers/CustomersGrid";
 import CustomerDetailsModal from "../components/customers/CustomerDetailsModal";
@@ -13,28 +17,22 @@ const CustomersPage = () => {
     loading,
     refreshing,
     error,
-
     search,
     currentPage,
     totalPages,
     totalItems,
-
     selectedCustomer,
     detailsLoading,
     detailsError,
-
     isAddCustomerOpen,
     addCustomerLoading,
     addCustomerError,
-
     refresh,
     setSearch,
     setPage,
     resetFilters,
-
     handleViewCustomer,
     handleCloseDetails,
-
     handleOpenAddCustomer,
     handleCloseAddCustomer,
     handleAddCustomer,
@@ -42,10 +40,7 @@ const CustomersPage = () => {
 
   return (
     <div>
-      {/* ==========================================
-          Page Header
-      ========================================== */}
-
+      {/* Page Header */}
       <div
         className="
           flex flex-col gap-4
@@ -100,10 +95,7 @@ const CustomersPage = () => {
           </p>
         </div>
 
-        {/* ==========================================
-            Header Actions
-        ========================================== */}
-
+        {/* Header Actions */}
         <div className="flex items-center gap-2">
           {/* Add Customer */}
           <Button
@@ -126,10 +118,7 @@ const CustomersPage = () => {
         </div>
       </div>
 
-      {/* ==========================================
-          Customers
-      ========================================== */}
-
+      {/* Customers */}
       <div className="mt-6">
         <CustomersGrid
           customers={customers}
@@ -147,10 +136,7 @@ const CustomersPage = () => {
         />
       </div>
 
-      {/* ==========================================
-          Customer Details Modal
-      ========================================== */}
-
+      {/* Customer Details Modal */}
       {selectedCustomer && (
         <CustomerDetailsModal
           customer={selectedCustomer}
@@ -160,10 +146,7 @@ const CustomersPage = () => {
         />
       )}
 
-      {/* ==========================================
-          Add Customer Modal
-      ========================================== */}
-
+      {/* Add Customer Modal */}
       {isAddCustomerOpen && (
         <AddCustomerModal
           isOpen={isAddCustomerOpen}
@@ -174,10 +157,7 @@ const CustomersPage = () => {
         />
       )}
 
-      {/* ==========================================
-          Live Status
-      ========================================== */}
-
+      {/* Live Status */}
       <div
         className="
           mt-5
@@ -197,7 +177,9 @@ const CustomersPage = () => {
           "
         />
 
-        <span>Customer data refreshes automatically</span>
+        <span>
+          Customer data refreshes automatically
+        </span>
       </div>
     </div>
   );

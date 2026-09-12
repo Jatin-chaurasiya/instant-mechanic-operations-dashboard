@@ -1,74 +1,57 @@
-import {
-  useCallback,
-  useEffect,
-  useReducer,
-} from "react";
-
+import { useCallback, useEffect, useReducer } from "react";
 import { toast } from "react-toastify";
 
 import usePolling from "../usePolling";
 
 import bookingApi from "../../api/bookingApi";
 import serviceApi from "../../api/serviceApi";
+import customerApi from "../../api/customerApi";
+import vehicleApi from "../../api/vehicleApi";
+import mechanicApi from "../../api/mechanicApi";
 
 import bookingReducer, {
   initialBookingState,
   BOOKING_ACTIONS,
-} from "../../reducers/bookings/bookingReducer"
+} from "../../reducers/bookings/bookingReducer";
 
-// ======================================================
-// Normalize API Page Response
-// ======================================================
+const CUSTOMER_PAGE_SIZE = 10;
+const VEHICLE_PAGE_SIZE = 10;
+const MECHANIC_PAGE_SIZE = 10;
 
 const normalizePageResponse = (response) => {
   const data = response?.data ?? response;
 
-  // Spring Page response
   if (Array.isArray(data?.content)) {
     return {
       content: data.content,
-      totalElements:
-        data.totalElements ??
-        data.content.length,
-      totalPages:
-        data.totalPages ?? 1,
+      totalElements: data.totalElements ?? data.content.length,
+      totalPages: data.totalPages ?? 1,
     };
   }
 
-  // Wrapped Spring Page response
   if (Array.isArray(data?.data?.content)) {
     return {
       content: data.data.content,
-      totalElements:
-        data.data.totalElements ??
-        data.data.content.length,
-      totalPages:
-        data.data.totalPages ?? 1,
+      totalElements: data.data.totalElements ?? data.data.content.length,
+      totalPages: data.data.totalPages ?? 1,
     };
   }
 
-  // Plain array response
   if (Array.isArray(data)) {
     return {
       content: data,
       totalElements: data.length,
-      totalPages:
-        data.length > 0 ? 1 : 0,
+      totalPages: data.length > 0 ? 1 : 0,
     };
   }
 
-  // Wrapped array response
   if (Array.isArray(data?.bookings)) {
     return {
       content: data.bookings,
-      totalElements:
-        data.totalElements ??
-        data.bookings.length,
+      totalElements: data.totalElements ?? data.bookings.length,
       totalPages:
         data.totalPages ??
-        (data.bookings.length > 0
-          ? 1
-          : 0),
+        (data.bookings.length > 0 ? 1 : 0),
     };
   }
 
@@ -79,92 +62,85 @@ const normalizePageResponse = (response) => {
   };
 };
 
-// ======================================================
-// useBookings
-// ======================================================
-
 const useBookings = ({
   autoRefresh = true,
   refreshInterval = 30000,
   initialPage = 1,
   initialItemsPerPage = 10,
 } = {}) => {
-  // ======================================================
-  // Reducer
-  // ======================================================
-
-  const [state, dispatch] = useReducer(
-    bookingReducer,
-    {
-      ...initialBookingState,
-      currentPage: initialPage,
-      itemsPerPage: initialItemsPerPage,
-    }
-  );
-
-  // ======================================================
-  // State Destructuring
-  // ======================================================
+  const [state, dispatch] = useReducer(bookingReducer, {
+    ...initialBookingState,
+    currentPage: initialPage,
+    itemsPerPage: initialItemsPerPage,
+  });
 
   const {
-    // All bookings
     bookings,
     loading,
     refreshing,
     error,
 
-    // Filters
     search,
     status,
     category,
 
-    // Sorting
     sortBy,
     sortOrder,
 
-    // Pagination
     currentPage,
     itemsPerPage,
     totalPages,
     totalItems,
 
-    // Categories
     categories,
 
-    // Section
     activeSection,
 
-    // Pending
     pendingBookings,
     pendingCount,
     pendingPage,
     pendingTotalPages,
 
-    // Active
     activeBookings,
     activeCount,
     activePage,
     activeTotalPages,
 
-    // Section loading/error
     sectionLoading,
     sectionError,
 
-    // Add booking
     isAddBookingOpen,
 
-    // Assign booking
+    customers,
+    vehicles,
+    services,
+    mechanics,
+
+    customerId,
+    vehicleId,
+    serviceId,
+    mechanicId,
+
+    bookingDate,
+    bookingTime,
+    amount,
+
+    customerSearch,
+    vehicleSearch,
+
+    loadingCustomers,
+    loadingVehicles,
+    loadingServices,
+    loadingMechanics,
+
+    submitting,
+
     isAssignBookingOpen,
     selectedBooking,
 
-    // Delete
     deleteBookingTarget,
     deletingBooking,
   } = state;
-
-  // ======================================================
-  // Fetch All Bookings
-  // ======================================================
 
   const fetchBookings = useCallback(
     async (isInitialLoad = false) => {
@@ -186,67 +162,48 @@ const useBookings = ({
           payload: null,
         });
 
-        const response =
-          await bookingApi.getBookings({
-            page: currentPage - 1,
-            size: itemsPerPage,
-            keyword:
-              search.trim() || undefined,
-            status:
-              status || undefined,
-            category:
-              category || undefined,
-            sortBy,
-            sortOrder,
-          });
+        const response = await bookingApi.getBookings({
+          page: currentPage - 1,
+          size: itemsPerPage,
+          keyword: search.trim() || undefined,
+          status: status || undefined,
+          category: category || undefined,
+          sortBy,
+          sortOrder,
+        });
 
-        // Backend response
         dispatch({
           type: BOOKING_ACTIONS.SET_BOOKINGS,
-          payload:
-            Array.isArray(
-              response?.bookings
-            )
-              ? response.bookings
-              : [],
+          payload: Array.isArray(response?.bookings)
+            ? response.bookings
+            : [],
         });
 
         dispatch({
           type: BOOKING_ACTIONS.SET_TOTAL_ITEMS,
-          payload: Number(
-            response?.totalElements || 0
-          ),
+          payload: Number(response?.totalElements || 0),
         });
 
         dispatch({
           type: BOOKING_ACTIONS.SET_TOTAL_PAGES,
-          payload: Number(
-            response?.totalPages || 1
-          ),
+          payload: Number(response?.totalPages || 1),
         });
 
-        // Keep frontend page valid
-        const backendTotalPages =
-          Number(
-            response?.totalPages || 0
-          );
+        const backendTotalPages = Number(
+          response?.totalPages || 0
+        );
 
         if (
           backendTotalPages > 0 &&
           currentPage > backendTotalPages
         ) {
           dispatch({
-            type:
-              BOOKING_ACTIONS.SET_CURRENT_PAGE,
-            payload:
-              backendTotalPages,
+            type: BOOKING_ACTIONS.SET_CURRENT_PAGE,
+            payload: backendTotalPages,
           });
         }
       } catch (err) {
-        console.error(
-          "Bookings error:",
-          err
-        );
+        console.error("Bookings error:", err);
 
         dispatch({
           type: BOOKING_ACTIONS.SET_ERROR,
@@ -262,14 +219,12 @@ const useBookings = ({
         });
 
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_TOTAL_ITEMS,
+          type: BOOKING_ACTIONS.SET_TOTAL_ITEMS,
           payload: 0,
         });
 
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_TOTAL_PAGES,
+          type: BOOKING_ACTIONS.SET_TOTAL_PAGES,
           payload: 1,
         });
       } finally {
@@ -279,8 +234,7 @@ const useBookings = ({
         });
 
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_REFRESHING,
+          type: BOOKING_ACTIONS.SET_REFRESHING,
           payload: false,
         });
       }
@@ -296,17 +250,9 @@ const useBookings = ({
     ]
   );
 
-  // ======================================================
-  // Initial Load + Filters + Sorting + Page
-  // ======================================================
-
   useEffect(() => {
     fetchBookings(true);
   }, [fetchBookings]);
-
-  // ======================================================
-  // Automatic Polling
-  // ======================================================
 
   usePolling(
     () => fetchBookings(false),
@@ -314,23 +260,14 @@ const useBookings = ({
     autoRefresh
   );
 
-  // ======================================================
-  // Load Categories
-  // ======================================================
-
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const data =
-          await serviceApi.getCategories();
+        const data = await serviceApi.getCategories();
 
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_CATEGORIES,
-          payload:
-            Array.isArray(data)
-              ? data
-              : [],
+          type: BOOKING_ACTIONS.SET_CATEGORIES,
+          payload: Array.isArray(data) ? data : [],
         });
       } catch (error) {
         console.error(
@@ -339,8 +276,7 @@ const useBookings = ({
         );
 
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_CATEGORIES,
+          type: BOOKING_ACTIONS.SET_CATEGORIES,
           payload: [],
         });
       }
@@ -349,203 +285,153 @@ const useBookings = ({
     loadCategories();
   }, []);
 
-  // ======================================================
-  // Load Pending Bookings
-  // ======================================================
+  const loadPendingBookings = useCallback(
+    async (page = pendingPage) => {
+      try {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SECTION_LOADING,
+          payload: true,
+        });
 
-  const loadPendingBookings =
-    useCallback(
-      async (page = pendingPage) => {
-        try {
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_SECTION_LOADING,
-            payload: true,
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SECTION_ERROR,
+          payload: "",
+        });
+
+        const response =
+          await bookingApi.getPendingAssignments({
+            page,
+            size: itemsPerPage,
           });
 
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_SECTION_ERROR,
-            payload: "",
+        const data = normalizePageResponse(response);
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_PENDING_BOOKINGS,
+          payload: data.content,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_PENDING_COUNT,
+          payload: data.totalElements,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_PENDING_TOTAL_PAGES,
+          payload: data.totalPages,
+        });
+      } catch (error) {
+        console.error(
+          "Unable to load pending bookings:",
+          error
+        );
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SECTION_ERROR,
+          payload:
+            error?.response?.data?.message ||
+            "Unable to load pending bookings.",
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_PENDING_BOOKINGS,
+          payload: [],
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_PENDING_COUNT,
+          payload: 0,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_PENDING_TOTAL_PAGES,
+          payload: 0,
+        });
+      } finally {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SECTION_LOADING,
+          payload: false,
+        });
+      }
+    },
+    [pendingPage, itemsPerPage]
+  );
+
+  const loadActiveBookings = useCallback(
+    async (page = activePage) => {
+      try {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SECTION_LOADING,
+          payload: true,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SECTION_ERROR,
+          payload: "",
+        });
+
+        const response =
+          await bookingApi.getActiveBookings({
+            page,
+            size: itemsPerPage,
           });
 
-          const response =
-            await bookingApi.getPendingAssignments({
-              page,
-              size: itemsPerPage,
-            });
+        const data = normalizePageResponse(response);
 
-          const data =
-            normalizePageResponse(
-              response
-            );
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ACTIVE_BOOKINGS,
+          payload: data.content,
+        });
 
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_PENDING_BOOKINGS,
-            payload: data.content,
-          });
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ACTIVE_COUNT,
+          payload: data.totalElements,
+        });
 
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_PENDING_COUNT,
-            payload: data.totalElements,
-          });
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ACTIVE_TOTAL_PAGES,
+          payload: data.totalPages,
+        });
+      } catch (error) {
+        console.error(
+          "Unable to load active bookings:",
+          error
+        );
 
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_PENDING_TOTAL_PAGES,
-            payload: data.totalPages,
-          });
-        } catch (error) {
-          console.error(
-            "Unable to load pending bookings:",
-            error
-          );
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SECTION_ERROR,
+          payload:
+            error?.response?.data?.message ||
+            "Unable to load active bookings.",
+        });
 
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_SECTION_ERROR,
-            payload:
-              error?.response?.data?.message ||
-              "Unable to load pending bookings.",
-          });
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ACTIVE_BOOKINGS,
+          payload: [],
+        });
 
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_PENDING_BOOKINGS,
-            payload: [],
-          });
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ACTIVE_COUNT,
+          payload: 0,
+        });
 
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_PENDING_COUNT,
-            payload: 0,
-          });
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_PENDING_TOTAL_PAGES,
-            payload: 0,
-          });
-        } finally {
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_SECTION_LOADING,
-            payload: false,
-          });
-        }
-      },
-      [
-        pendingPage,
-        itemsPerPage,
-      ]
-    );
-
-  // ======================================================
-  // Load Active Bookings
-  // ======================================================
-
-  const loadActiveBookings =
-    useCallback(
-      async (page = activePage) => {
-        try {
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_SECTION_LOADING,
-            payload: true,
-          });
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_SECTION_ERROR,
-            payload: "",
-          });
-
-          const response =
-            await bookingApi.getActiveBookings({
-              page,
-              size: itemsPerPage,
-            });
-
-          const data =
-            normalizePageResponse(
-              response
-            );
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_ACTIVE_BOOKINGS,
-            payload: data.content,
-          });
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_ACTIVE_COUNT,
-            payload: data.totalElements,
-          });
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_ACTIVE_TOTAL_PAGES,
-            payload: data.totalPages,
-          });
-        } catch (error) {
-          console.error(
-            "Unable to load active bookings:",
-            error
-          );
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_SECTION_ERROR,
-            payload:
-              error?.response?.data?.message ||
-              "Unable to load active bookings.",
-          });
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_ACTIVE_BOOKINGS,
-            payload: [],
-          });
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_ACTIVE_COUNT,
-            payload: 0,
-          });
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_ACTIVE_TOTAL_PAGES,
-            payload: 0,
-          });
-        } finally {
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_SECTION_LOADING,
-            payload: false,
-          });
-        }
-      },
-      [
-        activePage,
-        itemsPerPage,
-      ]
-    );
-
-  // ======================================================
-  // Load Current Section
-  // ======================================================
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ACTIVE_TOTAL_PAGES,
+          payload: 0,
+        });
+      } finally {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SECTION_LOADING,
+          payload: false,
+        });
+      }
+    },
+    [activePage, itemsPerPage]
+  );
 
   useEffect(() => {
-    if (
-      activeSection === "pending"
-    ) {
-      loadPendingBookings(
-        pendingPage
-      );
+    if (activeSection === "pending") {
+      loadPendingBookings(pendingPage);
     }
   }, [
     activeSection,
@@ -554,12 +440,8 @@ const useBookings = ({
   ]);
 
   useEffect(() => {
-    if (
-      activeSection === "active"
-    ) {
-      loadActiveBookings(
-        activePage
-      );
+    if (activeSection === "active") {
+      loadActiveBookings(activePage);
     }
   }, [
     activeSection,
@@ -567,266 +449,8 @@ const useBookings = ({
     loadActiveBookings,
   ]);
 
-  // ======================================================
-  // Initial Pending / Active Counts
-  // ======================================================
-
   useEffect(() => {
-    const loadSectionCounts =
-      async () => {
-        try {
-          const [
-            pendingResponse,
-            activeResponse,
-          ] = await Promise.all([
-            bookingApi.getPendingAssignments({
-              page: 0,
-              size: 1,
-            }),
-
-            bookingApi.getActiveBookings({
-              page: 0,
-              size: 1,
-            }),
-          ]);
-
-          const pendingData =
-            normalizePageResponse(
-              pendingResponse
-            );
-
-          const activeData =
-            normalizePageResponse(
-              activeResponse
-            );
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_PENDING_COUNT,
-            payload:
-              pendingData.totalElements,
-          });
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_ACTIVE_COUNT,
-            payload:
-              activeData.totalElements,
-          });
-        } catch (error) {
-          console.error(
-            "Unable to load booking section counts:",
-            error
-          );
-        }
-      };
-
-    loadSectionCounts();
-  }, []);
-
-  // ======================================================
-  // Search
-  // ======================================================
-
-  const handleSearchChange =
-    useCallback((value) => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_SEARCH,
-        payload: value,
-      });
-    }, []);
-
-  // ======================================================
-  // Status Filter
-  // ======================================================
-
-  const handleStatusChange =
-    useCallback((value) => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_STATUS,
-        payload: value,
-      });
-    }, []);
-
-  // ======================================================
-  // Category Filter
-  // ======================================================
-
-  const handleCategoryChange =
-    useCallback((value) => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_CATEGORY,
-        payload: value,
-      });
-    }, []);
-
-  // ======================================================
-  // Sorting
-  // ======================================================
-
-  const handleSortChange =
-    useCallback(
-      (field, order) => {
-        dispatch({
-          type:
-            BOOKING_ACTIONS.SET_SORT,
-          payload: {
-            sortBy: field,
-            sortOrder:
-              order || "desc",
-          },
-        });
-      },
-      []
-    );
-
-  // ======================================================
-  // All Bookings Pagination
-  // ======================================================
-
-  const handlePageChange =
-    useCallback(
-      (page) => {
-        if (
-          page < 1 ||
-          page > totalPages
-        ) {
-          return;
-        }
-
-        dispatch({
-          type:
-            BOOKING_ACTIONS.SET_CURRENT_PAGE,
-          payload: page,
-        });
-      },
-      [totalPages]
-    );
-
-  // ======================================================
-  // Reset Filters
-  // ======================================================
-
-  const resetFilters =
-    useCallback(() => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.RESET_FILTERS,
-      });
-    }, []);
-
-  // ======================================================
-  // Section Change
-  // ======================================================
-
-  const handleSectionChange =
-    useCallback((section) => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_ACTIVE_SECTION,
-        payload: section,
-      });
-
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_SECTION_ERROR,
-        payload: "",
-      });
-
-      if (section === "pending") {
-        dispatch({
-          type:
-            BOOKING_ACTIONS.SET_PENDING_PAGE,
-          payload: 0,
-        });
-      }
-
-      if (section === "active") {
-        dispatch({
-          type:
-            BOOKING_ACTIONS.SET_ACTIVE_PAGE,
-          payload: 0,
-        });
-      }
-    }, []);
-
-  // ======================================================
-  // Pending Pagination
-  // ======================================================
-
-  const handlePendingPageChange =
-    useCallback((page) => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_PENDING_PAGE,
-        payload: page,
-      });
-    }, []);
-
-  // ======================================================
-  // Active Pagination
-  // ======================================================
-
-  const handleActivePageChange =
-    useCallback((page) => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_ACTIVE_PAGE,
-        payload: page,
-      });
-    }, []);
-
-  // ======================================================
-  // Assign Booking
-  // ======================================================
-
-  const handleAssignClick =
-    useCallback((booking) => {
-      if (!booking?.id) {
-        return;
-      }
-
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_SELECTED_BOOKING,
-        payload: booking,
-      });
-
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_ASSIGN_BOOKING_OPEN,
-        payload: true,
-      });
-    }, []);
-
-  // ======================================================
-  // Close Assign Modal
-  // ======================================================
-
-  const handleCloseAssignModal =
-    useCallback(() => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_ASSIGN_BOOKING_OPEN,
-        payload: false,
-      });
-
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_SELECTED_BOOKING,
-        payload: null,
-      });
-    }, []);
-
-  // ======================================================
-  // Refresh Counts
-  // ======================================================
-
-  const refreshSectionCounts =
-    useCallback(async () => {
+    const loadSectionCounts = async () => {
       try {
         const [
           pendingResponse,
@@ -836,7 +460,6 @@ const useBookings = ({
             page: 0,
             size: 1,
           }),
-
           bookingApi.getActiveBookings({
             page: 0,
             size: 1,
@@ -844,98 +467,226 @@ const useBookings = ({
         ]);
 
         const pendingData =
-          normalizePageResponse(
-            pendingResponse
-          );
+          normalizePageResponse(pendingResponse);
 
         const activeData =
-          normalizePageResponse(
-            activeResponse
-          );
+          normalizePageResponse(activeResponse);
 
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_PENDING_COUNT,
-          payload:
-            pendingData.totalElements,
+          type: BOOKING_ACTIONS.SET_PENDING_COUNT,
+          payload: pendingData.totalElements,
         });
 
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_ACTIVE_COUNT,
-          payload:
-            activeData.totalElements,
+          type: BOOKING_ACTIONS.SET_ACTIVE_COUNT,
+          payload: activeData.totalElements,
         });
       } catch (error) {
         console.error(
-          "Unable to refresh booking counts:",
+          "Unable to load booking section counts:",
           error
         );
       }
-    }, []);
+    };
 
-  // ======================================================
-  // Assignment Successful
-  // ======================================================
+    loadSectionCounts();
+  }, []);
 
-  const handleAssigned =
-    useCallback(async () => {
+  const handleSearchChange = useCallback((value) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SEARCH,
+      payload: value,
+    });
+  }, []);
+
+  const handleStatusChange = useCallback((value) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_STATUS,
+      payload: value,
+    });
+  }, []);
+
+  const handleCategoryChange = useCallback((value) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_CATEGORY,
+      payload: value,
+    });
+  }, []);
+
+  const handleSortChange = useCallback(
+    (field, order) => {
       dispatch({
-        type:
-          BOOKING_ACTIONS.SET_ASSIGN_BOOKING_OPEN,
-        payload: false,
+        type: BOOKING_ACTIONS.SET_SORT,
+        payload: {
+          sortBy: field,
+          sortOrder: order || "desc",
+        },
       });
+    },
+    []
+  );
 
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_SELECTED_BOOKING,
-        payload: null,
-      });
-
-      // Refresh All
-      await fetchBookings(false);
-
-      // Refresh Pending
-      await loadPendingBookings(
-        pendingPage
-      );
-
-      // Refresh Active
-      await loadActiveBookings(
-        activePage
-      );
-
-      // Refresh Counts
-      await refreshSectionCounts();
-    }, [
-      fetchBookings,
-      loadPendingBookings,
-      loadActiveBookings,
-      pendingPage,
-      activePage,
-      refreshSectionCounts,
-    ]);
-
-  // ======================================================
-  // Delete Booking
-  // ======================================================
-
-  const handleDeleteBooking =
-    useCallback((booking) => {
-      if (!booking?.id) {
+  const handlePageChange = useCallback(
+    (page) => {
+      if (page < 1 || page > totalPages) {
         return;
       }
 
       dispatch({
-        type:
-          BOOKING_ACTIONS.SET_DELETE_BOOKING_TARGET,
-        payload: booking,
+        type: BOOKING_ACTIONS.SET_CURRENT_PAGE,
+        payload: page,
       });
-    }, []);
+    },
+    [totalPages]
+  );
 
-  // ======================================================
-  // Confirm Delete Booking
-  // ======================================================
+  const resetFilters = useCallback(() => {
+    dispatch({
+      type: BOOKING_ACTIONS.RESET_FILTERS,
+    });
+  }, []);
+
+  const handleSectionChange = useCallback((section) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_ACTIVE_SECTION,
+      payload: section,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SECTION_ERROR,
+      payload: "",
+    });
+
+    if (section === "pending") {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_PENDING_PAGE,
+        payload: 0,
+      });
+    }
+
+    if (section === "active") {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_ACTIVE_PAGE,
+        payload: 0,
+      });
+    }
+  }, []);
+
+  const handlePendingPageChange = useCallback((page) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_PENDING_PAGE,
+      payload: page,
+    });
+  }, []);
+
+  const handleActivePageChange = useCallback((page) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_ACTIVE_PAGE,
+      payload: page,
+    });
+  }, []);
+
+  const handleAssignClick = useCallback((booking) => {
+    if (!booking?.id) {
+      return;
+    }
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SELECTED_BOOKING,
+      payload: booking,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_ASSIGN_BOOKING_OPEN,
+      payload: true,
+    });
+  }, []);
+
+  const handleCloseAssignModal = useCallback(() => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_ASSIGN_BOOKING_OPEN,
+      payload: false,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SELECTED_BOOKING,
+      payload: null,
+    });
+  }, []);
+
+  const refreshSectionCounts = useCallback(async () => {
+    try {
+      const [
+        pendingResponse,
+        activeResponse,
+      ] = await Promise.all([
+        bookingApi.getPendingAssignments({
+          page: 0,
+          size: 1,
+        }),
+        bookingApi.getActiveBookings({
+          page: 0,
+          size: 1,
+        }),
+      ]);
+
+      const pendingData =
+        normalizePageResponse(pendingResponse);
+
+      const activeData =
+        normalizePageResponse(activeResponse);
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_PENDING_COUNT,
+        payload: pendingData.totalElements,
+      });
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_ACTIVE_COUNT,
+        payload: activeData.totalElements,
+      });
+    } catch (error) {
+      console.error(
+        "Unable to refresh booking counts:",
+        error
+      );
+    }
+  }, []);
+
+  const handleAssigned = useCallback(async () => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_ASSIGN_BOOKING_OPEN,
+      payload: false,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SELECTED_BOOKING,
+      payload: null,
+    });
+
+    await fetchBookings(false);
+    await loadPendingBookings(pendingPage);
+    await loadActiveBookings(activePage);
+    await refreshSectionCounts();
+  }, [
+    fetchBookings,
+    loadPendingBookings,
+    loadActiveBookings,
+    pendingPage,
+    activePage,
+    refreshSectionCounts,
+  ]);
+
+  const handleDeleteBooking = useCallback((booking) => {
+    if (!booking?.id) {
+      return;
+    }
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_DELETE_BOOKING_TARGET,
+      payload: booking,
+    });
+  }, []);
 
   const handleConfirmDeleteBooking =
     useCallback(async () => {
@@ -945,8 +696,7 @@ const useBookings = ({
 
       try {
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_DELETING_BOOKING,
+          type: BOOKING_ACTIONS.SET_DELETING_BOOKING,
           payload: true,
         });
 
@@ -955,27 +705,15 @@ const useBookings = ({
         );
 
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_DELETE_BOOKING_TARGET,
+          type: BOOKING_ACTIONS.SET_DELETE_BOOKING_TARGET,
           payload: null,
         });
 
-        toast.success(
-          "Booking deleted successfully."
-        );
+        toast.success("Booking deleted successfully.");
 
-        // Refresh All
         await fetchBookings(false);
-
-        // Refresh Pending
-        await loadPendingBookings(
-          pendingPage
-        );
-
-        // Refresh Active
-        await loadActiveBookings(
-          activePage
-        );
+        await loadPendingBookings(pendingPage);
+        await loadActiveBookings(activePage);
       } catch (error) {
         console.error(
           "Unable to delete booking:",
@@ -984,12 +722,11 @@ const useBookings = ({
 
         toast.error(
           error?.response?.data?.message ||
-            "Unable to delete booking."
+          "Unable to delete booking."
         );
       } finally {
         dispatch({
-          type:
-            BOOKING_ACTIONS.SET_DELETING_BOOKING,
+          type: BOOKING_ACTIONS.SET_DELETING_BOOKING,
           payload: false,
         });
       }
@@ -1002,215 +739,513 @@ const useBookings = ({
       activePage,
     ]);
 
-  // ======================================================
-  // Close Delete Modal
-  // ======================================================
+  const handleCloseDeleteModal = useCallback(() => {
+    if (deletingBooking) {
+      return;
+    }
 
-  const handleCloseDeleteModal =
-    useCallback(() => {
-      if (deletingBooking) {
-        return;
-      }
+    dispatch({
+      type: BOOKING_ACTIONS.SET_DELETE_BOOKING_TARGET,
+      payload: null,
+    });
+  }, [deletingBooking]);
 
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_DELETE_BOOKING_TARGET,
-        payload: null,
-      });
-    }, [deletingBooking]);
+  const openAddBooking = useCallback(() => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_ADD_BOOKING_OPEN,
+      payload: true,
+    });
+  }, []);
 
-  // ======================================================
-  // Add Booking Modal
-  // ======================================================
+  const closeAddBooking = useCallback(() => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_ADD_BOOKING_OPEN,
+      payload: false,
+    });
+  }, []);
 
-  const openAddBooking =
-    useCallback(() => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_ADD_BOOKING_OPEN,
-        payload: true,
-      });
-    }, []);
+  const loadCustomers = useCallback(
+    async (page = 0, keyword = "") => {
+      try {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_LOADING_CUSTOMERS,
+          payload: true,
+        });
 
-  const closeAddBooking =
-    useCallback(() => {
-      dispatch({
-        type:
-          BOOKING_ACTIONS.SET_ADD_BOOKING_OPEN,
-        payload: false,
-      });
-    }, []);
-
-  // ======================================================
-  // Add Booking
-  // ======================================================
-
-  const handleAddBooking =
-    useCallback(
-      async (bookingData) => {
-        try {
-          await bookingApi.createBooking(
-            bookingData
-          );
-
-          dispatch({
-            type:
-              BOOKING_ACTIONS.SET_ADD_BOOKING_OPEN,
-            payload: false,
+        const response =
+          await customerApi.getCustomers({
+            page,
+            size: CUSTOMER_PAGE_SIZE,
+            keyword: keyword.trim(),
           });
 
-          toast.success(
-            "Booking created successfully."
-          );
+        dispatch({
+          type: BOOKING_ACTIONS.SET_CUSTOMERS,
+          payload: Array.isArray(response?.content)
+            ? response.content
+            : [],
+        });
+      } catch (error) {
+        console.error(
+          "Unable to load customers:",
+          error
+        );
 
-          // Refresh All
-          await fetchBookings(false);
+        const message =
+          error?.response?.data?.message ||
+          "Unable to load customers.";
 
-          // Refresh Pending
-          await loadPendingBookings(
-            pendingPage
-          );
+        toast.error(message);
 
-          // Refresh Active
-          await loadActiveBookings(
-            activePage
-          );
-        } catch (error) {
-          console.error(
-            "Unable to create booking:",
-            error
-          );
+        dispatch({
+          type: BOOKING_ACTIONS.SET_CUSTOMERS,
+          payload: [],
+        });
+      } finally {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_LOADING_CUSTOMERS,
+          payload: false,
+        });
+      }
+    },
+    []
+  );
 
-          toast.error(
-            error?.response?.data?.message ||
-              "Unable to create booking."
-          );
-        }
-      },
-      [
-        fetchBookings,
-        loadPendingBookings,
-        loadActiveBookings,
-        pendingPage,
-        activePage,
-      ]
+  const loadServices = useCallback(async () => {
+    try {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_LOADING_SERVICES,
+        payload: true,
+      });
+
+      const response = await serviceApi.getServices();
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_SERVICES,
+        payload: Array.isArray(response)
+          ? response
+          : Array.isArray(response?.content)
+          ? response.content
+          : [],
+      });
+    } catch (error) {
+      console.error(
+        "Unable to load services:",
+        error
+      );
+
+      const message =
+        error?.response?.data?.message ||
+        "Unable to load services.";
+
+      toast.error(message);
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_SERVICES,
+        payload: [],
+      });
+    } finally {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_LOADING_SERVICES,
+        payload: false,
+      });
+    }
+  }, []);
+
+  const loadMechanics = useCallback(async () => {
+    try {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_LOADING_MECHANICS,
+        payload: true,
+      });
+
+      const response =
+        await mechanicApi.getAvailableMechanics({
+          page: 0,
+          size: MECHANIC_PAGE_SIZE,
+        });
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_MECHANICS,
+        payload: Array.isArray(response?.content)
+          ? response.content
+          : [],
+      });
+    } catch (error) {
+      console.error(
+        "Unable to load mechanics:",
+        error
+      );
+
+      const message =
+        error?.response?.data?.message ||
+        "Unable to load available mechanics.";
+
+      toast.error(message);
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_MECHANICS,
+        payload: [],
+      });
+    } finally {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_LOADING_MECHANICS,
+        payload: false,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isAddBookingOpen) {
+      return;
+    }
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_CUSTOMER_SEARCH,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_VEHICLE_SEARCH,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_CUSTOMER_ID,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_VEHICLE_ID,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SERVICE_ID,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_MECHANIC_ID,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_BOOKING_DATE,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_BOOKING_TIME,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_AMOUNT,
+      payload: "",
+    });
+
+    loadCustomers(0, "");
+    loadServices();
+    loadMechanics();
+  }, [
+    isAddBookingOpen,
+    loadCustomers,
+    loadServices,
+    loadMechanics,
+  ]);
+
+  const handleCustomerSearch = useCallback(
+    async (event) => {
+      const value = event.target.value;
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_CUSTOMER_SEARCH,
+        payload: value,
+      });
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_CUSTOMER_ID,
+        payload: "",
+      });
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_VEHICLE_ID,
+        payload: "",
+      });
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_VEHICLE_SEARCH,
+        payload: "",
+      });
+
+      await loadCustomers(0, value);
+    },
+    [loadCustomers]
+  );
+
+  const handleCustomerChange = useCallback((event) => {
+    const selectedCustomerId = event.target.value;
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_CUSTOMER_ID,
+      payload: selectedCustomerId,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_VEHICLE_ID,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_VEHICLE_SEARCH,
+      payload: "",
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!customerId) {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_VEHICLES,
+        payload: [],
+      });
+
+      return;
+    }
+
+    const loadVehicles = async () => {
+      try {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_LOADING_VEHICLES,
+          payload: true,
+        });
+
+        const response =
+          await vehicleApi.getVehiclesByCustomer({
+            customerId: Number(customerId),
+            page: 0,
+            size: VEHICLE_PAGE_SIZE,
+            keyword: vehicleSearch.trim(),
+          });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_VEHICLES,
+          payload: Array.isArray(response?.content)
+            ? response.content
+            : [],
+        });
+      } catch (error) {
+        console.error(
+          "Unable to load customer vehicles:",
+          error
+        );
+
+        const message =
+          error?.response?.data?.message ||
+          "Unable to load customer vehicles.";
+
+        toast.error(message);
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_VEHICLES,
+          payload: [],
+        });
+      } finally {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_LOADING_VEHICLES,
+          payload: false,
+        });
+      }
+    };
+
+    loadVehicles();
+  }, [customerId, vehicleSearch]);
+
+  const handleVehicleSearch = useCallback((event) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_VEHICLE_SEARCH,
+      payload: event.target.value,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_VEHICLE_ID,
+      payload: "",
+    });
+  }, []);
+
+  const handleVehicleChange = useCallback((event) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_VEHICLE_ID,
+      payload: event.target.value,
+    });
+  }, []);
+
+  const handleServiceChange = useCallback((event) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SERVICE_ID,
+      payload: event.target.value,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!serviceId) {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_AMOUNT,
+        payload: "",
+      });
+
+      return;
+    }
+
+    const selectedService = services.find(
+      (service) =>
+        Number(service.id) === Number(serviceId)
     );
 
-  // ======================================================
-  // Refresh Current Section
-  // ======================================================
+    if (selectedService?.price != null) {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_AMOUNT,
+        payload: String(selectedService.price),
+      });
+    }
+  }, [serviceId, services]);
 
-  const refreshCurrentSection =
-    useCallback(async () => {
-      if (
-        activeSection === "all"
-      ) {
+  const handleMechanicChange = useCallback((event) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_MECHANIC_ID,
+      payload: event.target.value,
+    });
+  }, []);
+
+  const handleBookingDateChange =
+    useCallback((event) => {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_BOOKING_DATE,
+        payload: event.target.value,
+      });
+    }, []);
+
+  const handleBookingTimeChange =
+    useCallback((event) => {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_BOOKING_TIME,
+        payload: event.target.value,
+      });
+    }, []);
+
+  const handleAmountChange = useCallback((event) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_AMOUNT,
+      payload: event.target.value,
+    });
+  }, []);
+
+  const handleAddBooking = useCallback(
+    async (bookingData) => {
+      try {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SUBMITTING,
+          payload: true,
+        });
+
+        await bookingApi.createBooking(bookingData);
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ADD_BOOKING_OPEN,
+          payload: false,
+        });
+
+        toast.success("Booking created successfully.");
+
+        await fetchBookings(false);
+        await loadPendingBookings(pendingPage);
+        await loadActiveBookings(activePage);
+      } catch (error) {
+        console.error(
+          "Unable to create booking:",
+          error
+        );
+
+        toast.error(
+          error?.response?.data?.message ||
+          "Unable to create booking."
+        );
+      } finally {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SUBMITTING,
+          payload: false,
+        });
+      }
+    },
+    [
+      fetchBookings,
+      loadPendingBookings,
+      loadActiveBookings,
+      pendingPage,
+      activePage,
+    ]
+  );
+
+  const refreshCurrentSection = useCallback(
+    async () => {
+      if (activeSection === "all") {
         await fetchBookings(false);
         return;
       }
 
-      if (
-        activeSection === "pending"
-      ) {
-        await loadPendingBookings(
-          pendingPage
-        );
+      if (activeSection === "pending") {
+        await loadPendingBookings(pendingPage);
         return;
       }
 
-      if (
-        activeSection === "active"
-      ) {
-        await loadActiveBookings(
-          activePage
-        );
+      if (activeSection === "active") {
+        await loadActiveBookings(activePage);
       }
-    }, [
+    },
+    [
       activeSection,
       fetchBookings,
       loadPendingBookings,
       loadActiveBookings,
       pendingPage,
       activePage,
-    ]);
-
-  // ======================================================
-  // Current Section Data
-  // ======================================================
+    ]
+  );
 
   let sectionBookings = bookings;
-  let sectionCurrentPage =
-    currentPage;
-  let sectionTotalPages =
-    totalPages;
-  let sectionTotalItems =
-    totalItems;
-  let sectionIsLoading =
-    loading;
-  let sectionErrorMessage =
-    error;
+  let sectionCurrentPage = currentPage;
+  let sectionTotalPages = totalPages;
+  let sectionTotalItems = totalItems;
+  let sectionIsLoading = loading;
+  let sectionErrorMessage = error;
 
-  if (
-    activeSection === "pending"
-  ) {
-    sectionBookings =
-      pendingBookings;
-
-    sectionCurrentPage =
-      pendingPage;
-
-    sectionTotalPages =
-      pendingTotalPages;
-
-    sectionTotalItems =
-      pendingCount;
-
-    sectionIsLoading =
-      sectionLoading;
-
-    sectionErrorMessage =
-      sectionError;
+  if (activeSection === "pending") {
+    sectionBookings = pendingBookings;
+    sectionCurrentPage = pendingPage;
+    sectionTotalPages = pendingTotalPages;
+    sectionTotalItems = pendingCount;
+    sectionIsLoading = sectionLoading;
+    sectionErrorMessage = sectionError;
   }
 
-  if (
-    activeSection === "active"
-  ) {
-    sectionBookings =
-      activeBookings;
-
-    sectionCurrentPage =
-      activePage;
-
-    sectionTotalPages =
-      activeTotalPages;
-
-    sectionTotalItems =
-      activeCount;
-
-    sectionIsLoading =
-      sectionLoading;
-
-    sectionErrorMessage =
-      sectionError;
+  if (activeSection === "active") {
+    sectionBookings = activeBookings;
+    sectionCurrentPage = activePage;
+    sectionTotalPages = activeTotalPages;
+    sectionTotalItems = activeCount;
+    sectionIsLoading = sectionLoading;
+    sectionErrorMessage = sectionError;
   }
-
-  // ======================================================
-  // Current Section Pagination
-  // ======================================================
 
   const handleCurrentSectionPageChange =
     useCallback(
       (page) => {
-        if (
-          activeSection === "all"
-        ) {
+        if (activeSection === "all") {
           handlePageChange(page);
           return;
         }
 
-        if (
-          activeSection === "pending"
-        ) {
+        if (activeSection === "pending") {
           if (
             page < 1 ||
             page > pendingTotalPages
@@ -1218,15 +1253,11 @@ const useBookings = ({
             return;
           }
 
-          handlePendingPageChange(
-            page
-          );
+          handlePendingPageChange(page);
           return;
         }
 
-        if (
-          activeSection === "active"
-        ) {
+        if (activeSection === "active") {
           if (
             page < 1 ||
             page > activeTotalPages
@@ -1234,9 +1265,7 @@ const useBookings = ({
             return;
           }
 
-          handleActivePageChange(
-            page
-          );
+          handleActivePageChange(page);
         }
       },
       [
@@ -1249,24 +1278,12 @@ const useBookings = ({
       ]
     );
 
-  // ======================================================
-  // Manual Refresh
-  // ======================================================
-
-  const refresh =
-    useCallback(() => {
-      return fetchBookings(false);
-    }, [fetchBookings]);
-
-  // ======================================================
-  // Return
-  // ======================================================
+  const refresh = useCallback(
+    () => fetchBookings(false),
+    [fetchBookings]
+  );
 
   return {
-    // ==========================================
-    // All Bookings
-    // ==========================================
-
     bookings,
 
     // Kept for compatibility
@@ -1288,38 +1305,15 @@ const useBookings = ({
     totalItems,
     itemsPerPage,
 
-    // ==========================================
-    // Categories
-    // ==========================================
-
     categories,
 
-    // ==========================================
-    // Existing handlers
-    // ==========================================
-
-    setSearch:
-      handleSearchChange,
-
-    setStatus:
-      handleStatusChange,
-
-    setCategory:
-      handleCategoryChange,
-
-    setSort:
-      handleSortChange,
-
-    setPage:
-      handlePageChange,
-
+    setSearch: handleSearchChange,
+    setStatus: handleStatusChange,
+    setCategory: handleCategoryChange,
+    setSort: handleSortChange,
+    setPage: handlePageChange,
     resetFilters,
-
     refresh,
-
-    // ==========================================
-    // Sections
-    // ==========================================
 
     activeSection,
 
@@ -1349,19 +1343,48 @@ const useBookings = ({
     loadPendingBookings,
     loadActiveBookings,
 
-    // ==========================================
-    // Add Booking
-    // ==========================================
-
     isAddBookingOpen,
+
+    customers,
+    vehicles,
+    services,
+    mechanics,
+
+    customerId,
+    vehicleId,
+    serviceId,
+    mechanicId,
+
+    bookingDate,
+    bookingTime,
+    amount,
+
+    customerSearch,
+    vehicleSearch,
+
+    loadingCustomers,
+    loadingVehicles,
+    loadingServices,
+    loadingMechanics,
+
+    submitting,
 
     openAddBooking,
     closeAddBooking,
     handleAddBooking,
 
-    // ==========================================
-    // Assign Booking
-    // ==========================================
+    handleCustomerSearch,
+    handleCustomerChange,
+
+    handleVehicleSearch,
+    handleVehicleChange,
+
+    handleServiceChange,
+    handleMechanicChange,
+
+    handleBookingDateChange,
+    handleBookingTimeChange,
+    handleAmountChange,
 
     isAssignBookingOpen,
     selectedBooking,
@@ -1370,16 +1393,13 @@ const useBookings = ({
     handleAssigned,
     handleCloseAssignModal,
 
-    // ==========================================
-    // Delete Booking
-    // ==========================================
-
     deleteBookingTarget,
     deletingBooking,
-
     handleDeleteBooking,
     handleConfirmDeleteBooking,
     handleCloseDeleteModal,
+
+    refreshCurrentSection,
   };
 };
 

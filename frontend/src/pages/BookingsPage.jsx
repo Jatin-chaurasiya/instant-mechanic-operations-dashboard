@@ -1,8 +1,4 @@
-import {
-  CalendarCheck,
-  RefreshCw,
-  Plus,
-} from "lucide-react";
+import { CalendarCheck, RefreshCw, Plus } from "lucide-react";
 
 import BookingSearch from "../components/bookings/BookingSearch";
 import BookingFilters from "../components/bookings/BookingFilters";
@@ -16,18 +12,9 @@ import Button from "../components/ui/Button";
 
 import useBookings from "../hooks/bookings/useBookings";
 
-// ======================================================
-// Bookings Page
-// ======================================================
-
 const BookingsPage = () => {
   const {
-    // ==================================================
     // All Bookings
-    // ==================================================
-
-    bookings,
-    loading,
     refreshing,
     error,
 
@@ -38,20 +25,13 @@ const BookingsPage = () => {
     sortBy,
     sortOrder,
 
-    currentPage,
-    totalPages,
     totalItems,
     itemsPerPage,
 
-    // ==================================================
     // Categories
-    // ==================================================
-
     categories,
 
-    // ==================================================
     // Existing All Booking Handlers
-    // ==================================================
 
     setSearch,
     setStatus,
@@ -60,9 +40,7 @@ const BookingsPage = () => {
     setPage,
     resetFilters,
 
-    // ==================================================
     // Sections
-    // ==================================================
 
     activeSection,
 
@@ -79,24 +57,49 @@ const BookingsPage = () => {
     handleSectionChange,
     handleCurrentSectionPageChange,
 
-    // ==================================================
     // Refresh
-    // ==================================================
 
     refreshCurrentSection,
-
-    // ==================================================
     // Add Booking
-    // ==================================================
-
     isAddBookingOpen,
     openAddBooking,
     closeAddBooking,
     handleAddBooking,
 
-    // ==================================================
+    customers,
+    vehicles,
+    services,
+    mechanics,
+
+    customerId,
+    vehicleId,
+    serviceId,
+    mechanicId,
+
+    bookingDate,
+    bookingTime,
+    amount,
+
+    customerSearch,
+    vehicleSearch,
+
+    loadingCustomers,
+    loadingVehicles,
+    loadingServices,
+    loadingMechanics,
+
+    submitting,
+
+    handleCustomerSearch,
+    handleCustomerChange,
+    handleVehicleSearch,
+    handleVehicleChange,
+    handleServiceChange,
+    handleMechanicChange,
+    handleBookingDateChange,
+    handleBookingTimeChange,
+    handleAmountChange,
     // Assign Booking
-    // ==================================================
 
     isAssignBookingOpen,
     selectedBooking,
@@ -104,9 +107,7 @@ const BookingsPage = () => {
     handleAssigned,
     handleCloseAssignModal,
 
-    // ==================================================
     // Delete Booking
-    // ==================================================
 
     deleteBookingTarget,
     deletingBooking,
@@ -118,10 +119,6 @@ const BookingsPage = () => {
 
   return (
     <div>
-      {/* ==========================================
-          Page Header
-      ========================================== */}
-
       <div
         className="
           flex flex-col gap-4
@@ -165,8 +162,7 @@ const BookingsPage = () => {
               dark:text-slate-400
             "
           >
-            Manage and monitor all vehicle
-            service bookings.
+            Manage and monitor all vehicle service bookings.
           </p>
         </div>
 
@@ -182,20 +178,11 @@ const BookingsPage = () => {
             Refresh
           </Button>
 
-          <Button
-            variant="primary"
-            icon={Plus}
-            onClick={openAddBooking}
-          >
+          <Button variant="primary" icon={Plus} onClick={openAddBooking}>
             Add Booking
           </Button>
         </div>
       </div>
-
-      {/* ==========================================
-          Search & Controls
-          Only for All Bookings
-      ========================================== */}
 
       {activeSection === "all" && (
         <div
@@ -253,11 +240,6 @@ const BookingsPage = () => {
           </div>
         </div>
       )}
-
-      {/* ==========================================
-          Booking Sections
-      ========================================== */}
-
       <div
         className="
           mt-6
@@ -277,9 +259,7 @@ const BookingsPage = () => {
 
         <button
           type="button"
-          onClick={() =>
-            handleSectionChange("all")
-          }
+          onClick={() => handleSectionChange("all")}
           className={`
             whitespace-nowrap
             rounded-xl
@@ -306,19 +286,14 @@ const BookingsPage = () => {
           `}
         >
           All Bookings
-
-          <span className="ml-2 opacity-70">
-            ({totalItems})
-          </span>
+          <span className="ml-2 opacity-70">({totalItems})</span>
         </button>
 
         {/* Pending */}
 
         <button
           type="button"
-          onClick={() =>
-            handleSectionChange("pending")
-          }
+          onClick={() => handleSectionChange("pending")}
           className={`
             whitespace-nowrap
             rounded-xl
@@ -345,19 +320,14 @@ const BookingsPage = () => {
           `}
         >
           Pending Assignments
-
-          <span className="ml-2 opacity-70">
-            ({pendingCount})
-          </span>
+          <span className="ml-2 opacity-70">({pendingCount})</span>
         </button>
 
         {/* Active */}
 
         <button
           type="button"
-          onClick={() =>
-            handleSectionChange("active")
-          }
+          onClick={() => handleSectionChange("active")}
           className={`
             whitespace-nowrap
             rounded-xl
@@ -384,17 +354,9 @@ const BookingsPage = () => {
           `}
         >
           Active Bookings
-
-          <span className="ml-2 opacity-70">
-            ({activeCount})
-          </span>
+          <span className="ml-2 opacity-70">({activeCount})</span>
         </button>
       </div>
-
-      {/* ==========================================
-          Current Section
-      ========================================== */}
-
       <div
         className="
           mt-5
@@ -412,14 +374,11 @@ const BookingsPage = () => {
               dark:text-white
             "
           >
-            {activeSection === "all" &&
-              "All Bookings"}
+            {activeSection === "all" && "All Bookings"}
 
-            {activeSection === "pending" &&
-              "Pending Assignments"}
+            {activeSection === "pending" && "Pending Assignments"}
 
-            {activeSection === "active" &&
-              "Active Bookings"}
+            {activeSection === "active" && "Active Bookings"}
           </h2>
 
           <p
@@ -430,8 +389,7 @@ const BookingsPage = () => {
               dark:text-slate-400
             "
           >
-            {activeSection === "all" &&
-              "View and manage all service bookings."}
+            {activeSection === "all" && "View and manage all service bookings."}
 
             {activeSection === "pending" &&
               "Bookings waiting for mechanic assignment."}
@@ -455,11 +413,6 @@ const BookingsPage = () => {
           {sectionTotalItems} bookings
         </span>
       </div>
-
-      {/* ==========================================
-          Bookings Table
-      ========================================== */}
-
       <div className="mt-4">
         <BookingsTable
           bookings={sectionBookings}
@@ -469,20 +422,13 @@ const BookingsPage = () => {
           totalPages={sectionTotalPages}
           totalItems={sectionTotalItems}
           itemsPerPage={itemsPerPage}
-          onPageChange={
-            handleCurrentSectionPageChange
-          }
+          onPageChange={handleCurrentSectionPageChange}
           onRetry={refreshCurrentSection}
           section={activeSection}
           onAssign={handleAssignClick}
           onDelete={handleDeleteBooking}
         />
       </div>
-
-      {/* ==========================================
-          Live Status
-      ========================================== */}
-
       <div
         className="
           mt-4
@@ -497,10 +443,7 @@ const BookingsPage = () => {
       >
         <CalendarCheck size={14} />
 
-        <span>
-          Bookings automatically refresh every
-          30 seconds
-        </span>
+        <span>Bookings automatically refresh every 30 seconds</span>
 
         <span
           className="
@@ -511,32 +454,45 @@ const BookingsPage = () => {
           "
         />
       </div>
-
-      {/* ==========================================
-          Add Booking Modal
-      ========================================== */}
-
       <AddBookingModal
         isOpen={isAddBookingOpen}
         onClose={closeAddBooking}
         onSubmit={handleAddBooking}
+        customers={customers}
+        vehicles={vehicles}
+        services={services}
+        mechanics={mechanics}
+        customerId={customerId}
+        vehicleId={vehicleId}
+        serviceId={serviceId}
+        mechanicId={mechanicId}
+        bookingDate={bookingDate}
+        bookingTime={bookingTime}
+        amount={amount}
+        customerSearch={customerSearch}
+        vehicleSearch={vehicleSearch}
+        loadingCustomers={loadingCustomers}
+        loadingVehicles={loadingVehicles}
+        loadingServices={loadingServices}
+        loadingMechanics={loadingMechanics}
+        submitting={submitting}
+        error={error}
+        onCustomerSearch={handleCustomerSearch}
+        onCustomerChange={handleCustomerChange}
+        onVehicleSearch={handleVehicleSearch}
+        onVehicleChange={handleVehicleChange}
+        onServiceChange={handleServiceChange}
+        onMechanicChange={handleMechanicChange}
+        onBookingDateChange={handleBookingDateChange}
+        onBookingTimeChange={handleBookingTimeChange}
+        onAmountChange={handleAmountChange}
       />
-
-      {/* ==========================================
-          Assign Booking Modal
-      ========================================== */}
-
       <AssignBookingModal
         isOpen={isAssignBookingOpen}
         onClose={handleCloseAssignModal}
         booking={selectedBooking}
         onAssigned={handleAssigned}
       />
-
-      {/* ==========================================
-          Delete Booking Confirmation
-      ========================================== */}
-
       <ConfirmModal
         isOpen={Boolean(deleteBookingTarget)}
         onClose={handleCloseDeleteModal}
@@ -545,8 +501,7 @@ const BookingsPage = () => {
         description={
           deleteBookingTarget
             ? `Are you sure you want to delete booking #${
-                deleteBookingTarget.bookingCode ||
-                deleteBookingTarget.id
+                deleteBookingTarget.bookingCode || deleteBookingTarget.id
               }? This action cannot be undone.`
             : ""
         }

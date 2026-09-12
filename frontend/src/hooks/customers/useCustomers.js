@@ -8,417 +8,899 @@ import { toast } from "react-toastify";
 
 import usePolling from "../usePolling";
 
-import customerApi from "../../api/customerApi";
+import mechanicApi from "../../api/mechanicApi";
 
-import {
-  customersReducer,
-  initialCustomerState,
-  CUSTOMER_ACTIONS,
-} from "../../reducers/customers/customersReducer";
+import mechanicsReducer, {
+  initialMechanicsState,
+  MECHANIC_ACTIONS,
+} from "../../reducers/mechanics/mechanicsReducer";
 
-const useCustomers = ({
+const PAGE_SIZE = 10;
+
+const useMechanics = ({
   autoRefresh = true,
   refreshInterval = 30000,
   initialPage = 1,
-  initialItemsPerPage = 10,
+  initialItemsPerPage = 12,
 } = {}) => {
-  /* =========================================================
-     Initial State
-  ========================================================= */
+  // Reducer
 
   const [state, dispatch] = useReducer(
-    customersReducer,
+    mechanicsReducer,
     {
-      ...initialCustomerState,
+      ...initialMechanicsState,
       currentPage: initialPage,
       itemsPerPage: initialItemsPerPage,
-    },
+    }
   );
 
+  // State Destructuring
+
   const {
-    customers,
+    // Main mechanics
+    mechanics,
     loading,
     refreshing,
     error,
 
+    // Search / Filter
     search,
+    status,
 
+    // Pagination
     currentPage,
     itemsPerPage,
     totalPages,
     totalItems,
 
-    selectedCustomer,
-    detailsLoading,
-    detailsError,
+    // Section
+    activeSection,
 
-    isAddCustomerOpen,
-    addCustomerLoading,
-    addCustomerError,
+    // Available
+    available,
+
+    // Inactive
+    inactive,
+
+    // Details
+    detailsOpen,
+    selectedMechanicId,
+
+    // Add / Update
+    mechanicModalOpen,
+    selectedMechanic,
+    saving,
   } = state;
 
-  /* =========================================================
-     Fetch Customers
-  ========================================================= */
+  // Fetch Mechanics
 
-  const fetchCustomers = useCallback(
+  const fetchMechanics = useCallback(
     async (isInitialLoad = false) => {
       try {
         if (isInitialLoad) {
           dispatch({
-            type: CUSTOMER_ACTIONS.SET_LOADING,
+            type:
+              MECHANIC_ACTIONS.SET_LOADING,
             payload: true,
           });
         } else {
           dispatch({
-            type: CUSTOMER_ACTIONS.SET_REFRESHING,
+            type:
+              MECHANIC_ACTIONS.SET_REFRESHING,
             payload: true,
           });
         }
 
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_ERROR,
+          type:
+            MECHANIC_ACTIONS.SET_ERROR,
           payload: null,
         });
 
-        const response = await customerApi.getCustomers({
-          page: currentPage - 1,
-          size: itemsPerPage,
-          keyword: search.trim(),
-        });
-
-        /* =====================================================
-           Spring Page response
-        ===================================================== */
+        const response =
+          await mechanicApi.getMechanics({
+            page: currentPage - 1,
+            size: itemsPerPage,
+            keyword: search.trim(),
+            status,
+          });
 
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_CUSTOMERS,
-          payload: response.content || [],
-        });
-
-        dispatch({
-          type: CUSTOMER_ACTIONS.SET_TOTAL_ITEMS,
-          payload: response.totalElements || 0,
+          type:
+            MECHANIC_ACTIONS.SET_MECHANICS,
+          payload:
+            response.content || [],
         });
 
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_TOTAL_PAGES,
-          payload: response.totalPages || 1,
+          type:
+            MECHANIC_ACTIONS.SET_TOTAL_ITEMS,
+          payload:
+            response.totalElements || 0,
         });
 
-        /* =====================================================
-           Frontend uses 1-based pages
-        ===================================================== */
+        dispatch({
+          type:
+            MECHANIC_ACTIONS.SET_TOTAL_PAGES,
+          payload:
+            response.totalPages || 1,
+        });
 
+        // Keep frontend page 1-based
         if (
           response.totalPages > 0 &&
-          currentPage > response.totalPages
+          currentPage >
+            response.totalPages
         ) {
           dispatch({
-            type: CUSTOMER_ACTIONS.SET_CURRENT_PAGE,
-            payload: response.totalPages,
+            type:
+              MECHANIC_ACTIONS.SET_CURRENT_PAGE,
+            payload:
+              response.totalPages,
           });
         }
       } catch (err) {
-        console.error("Customers error:", err);
+        console.error(
+          "Mechanics error:",
+          err
+        );
 
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_ERROR,
+          type:
+            MECHANIC_ACTIONS.SET_ERROR,
           payload:
             err?.response?.data?.message ||
             err?.message ||
-            "Unable to load customers.",
+            "Unable to load mechanics.",
         });
 
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_CUSTOMERS,
+          type:
+            MECHANIC_ACTIONS.SET_MECHANICS,
           payload: [],
         });
 
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_TOTAL_ITEMS,
+          type:
+            MECHANIC_ACTIONS.SET_TOTAL_ITEMS,
           payload: 0,
         });
 
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_TOTAL_PAGES,
+          type:
+            MECHANIC_ACTIONS.SET_TOTAL_PAGES,
           payload: 1,
         });
       } finally {
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_LOADING,
+          type:
+            MECHANIC_ACTIONS.SET_LOADING,
           payload: false,
         });
 
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_REFRESHING,
+          type:
+            MECHANIC_ACTIONS.SET_REFRESHING,
           payload: false,
         });
       }
     },
-    [currentPage, itemsPerPage, search],
+    [
+      currentPage,
+      itemsPerPage,
+      search,
+      status,
+    ]
   );
 
-  /* =========================================================
-     Initial Load / Search / Page Change
-  ========================================================= */
+  // Initial Load / Filter / Page
 
   useEffect(() => {
-    fetchCustomers(true);
-  }, [fetchCustomers]);
+    fetchMechanics(true);
+  }, [fetchMechanics]);
 
-  /* =========================================================
-     Automatic Polling
-  ========================================================= */
+  // Automatic Polling
 
   usePolling(
-    () => fetchCustomers(false),
+    () => fetchMechanics(false),
     refreshInterval,
-    autoRefresh,
+    autoRefresh
   );
 
-  /* =========================================================
-     Search
-  ========================================================= */
+  // Search
 
-  const handleSearchChange = useCallback((value) => {
-    dispatch({
-      type: CUSTOMER_ACTIONS.SET_SEARCH,
-      payload: value,
-    });
-  }, []);
+  const handleSearchChange =
+    useCallback((value) => {
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_SEARCH,
+        payload: value,
+      });
+    }, []);
 
-  /* =========================================================
-     Pagination
-  ========================================================= */
+  // Status Filter
 
-  const handlePageChange = useCallback(
-    (page) => {
-      if (
-        page >= 1 &&
-        page <= totalPages
-      ) {
+  const handleStatusChange =
+    useCallback((value) => {
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_STATUS,
+        payload: value,
+      });
+    }, []);
+
+  // Main Pagination
+
+  const handlePageChange =
+    useCallback(
+      (page) => {
+        if (
+          page >= 1 &&
+          page <= totalPages
+        ) {
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_CURRENT_PAGE,
+            payload: page,
+          });
+        }
+      },
+      [totalPages]
+    );
+
+  // Reset Filters
+
+  const resetFilters =
+    useCallback(() => {
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.RESET_FILTERS,
+      });
+    }, []);
+
+  // Manual Refresh
+
+  const refresh =
+    useCallback(() => {
+      return fetchMechanics(false);
+    }, [fetchMechanics]);
+
+  // Load Available Mechanics
+
+  const loadAvailable =
+    useCallback(
+      async (page = 0) => {
         dispatch({
-          type: CUSTOMER_ACTIONS.SET_CURRENT_PAGE,
-          payload: page,
+          type:
+            MECHANIC_ACTIONS.SET_AVAILABLE_LOADING,
+          payload: true,
         });
-      }
-    },
-    [totalPages],
-  );
 
-  /* =========================================================
-     Reset Filters
-  ========================================================= */
+        dispatch({
+          type:
+            MECHANIC_ACTIONS.SET_AVAILABLE_ERROR,
+          payload: "",
+        });
 
-  const resetFilters = useCallback(() => {
-    dispatch({
-      type: CUSTOMER_ACTIONS.RESET_FILTERS,
-    });
-  }, []);
+        try {
+          const response =
+            await mechanicApi.getAvailableMechanics(
+              {
+                page,
+                size: PAGE_SIZE,
+              }
+            );
 
-  /* =========================================================
-     Manual Refresh
-  ========================================================= */
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_AVAILABLE,
+            payload: {
+              data:
+                response?.content || [],
+              loading: false,
+              error: "",
+              page:
+                response?.number ?? page,
+              totalPages:
+                response?.totalPages ?? 1,
+              totalItems:
+                response?.totalElements ?? 0,
+            },
+          });
+        } catch (err) {
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_AVAILABLE,
+            payload: {
+              data: [],
+              loading: false,
+              error:
+                err?.response?.data
+                  ?.message ||
+                "Unable to load available mechanics.",
+            },
+          });
+        }
+      },
+      []
+    );
 
-  const refresh = useCallback(() => {
-    return fetchCustomers(false);
-  }, [fetchCustomers]);
+  // Load Inactive Mechanics
 
-  /* =========================================================
-     View Customer Details
-  ========================================================= */
+  const loadInactive =
+    useCallback(
+      async (page = 0) => {
+        dispatch({
+          type:
+            MECHANIC_ACTIONS.SET_INACTIVE_LOADING,
+          payload: true,
+        });
 
-  const handleViewCustomer = useCallback(
-    async (customer) => {
-      if (!customer?.id) {
+        dispatch({
+          type:
+            MECHANIC_ACTIONS.SET_INACTIVE_ERROR,
+          payload: "",
+        });
+
+        try {
+          const response =
+            await mechanicApi.getInactiveMechanics(
+              {
+                page,
+                size: PAGE_SIZE,
+              }
+            );
+
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_INACTIVE,
+            payload: {
+              data:
+                response?.content || [],
+              loading: false,
+              error: "",
+              page:
+                response?.number ?? page,
+              totalPages:
+                response?.totalPages ?? 1,
+              totalItems:
+                response?.totalElements ?? 0,
+            },
+          });
+        } catch (err) {
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_INACTIVE,
+            payload: {
+              data: [],
+              loading: false,
+              error:
+                err?.response?.data
+                  ?.message ||
+                "Unable to load inactive mechanics.",
+            },
+          });
+        }
+      },
+      []
+    );
+
+  // Initial Available / Inactive Load
+
+  useEffect(() => {
+    loadAvailable(0);
+    loadInactive(0);
+  }, [
+    loadAvailable,
+    loadInactive,
+  ]);
+
+  // Section Change
+
+  const handleSectionChange =
+    useCallback((section) => {
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_ACTIVE_SECTION,
+        payload: section,
+      });
+    }, []);
+
+  // Refresh Current Section
+
+  const handleRefresh =
+    useCallback(async () => {
+      if (
+        activeSection === "all"
+      ) {
+        await refresh();
         return;
       }
 
-      dispatch({
-        type: CUSTOMER_ACTIONS.SET_SELECTED_CUSTOMER,
-        payload: customer,
-      });
+      if (
+        activeSection === "available"
+      ) {
+        await loadAvailable(
+          available.page
+        );
+        return;
+      }
 
+      await loadInactive(
+        inactive.page
+      );
+    }, [
+      activeSection,
+      refresh,
+      loadAvailable,
+      loadInactive,
+      available.page,
+      inactive.page,
+    ]);
+
+  // Open Add Modal
+
+  const handleAddClick =
+    useCallback(() => {
       dispatch({
-        type: CUSTOMER_ACTIONS.SET_DETAILS_ERROR,
+        type:
+          MECHANIC_ACTIONS.SET_SELECTED_MECHANIC,
         payload: null,
       });
 
       dispatch({
-        type: CUSTOMER_ACTIONS.SET_DETAILS_LOADING,
+        type:
+          MECHANIC_ACTIONS.SET_MECHANIC_MODAL_OPEN,
         payload: true,
       });
+    }, []);
 
-      try {
-        const response =
-          await customerApi.getCustomerById(
-            customer.id,
+  // Open Update Modal
+
+  const handleEdit =
+    useCallback((mechanic) => {
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_SELECTED_MECHANIC,
+        payload: mechanic,
+      });
+
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_MECHANIC_MODAL_OPEN,
+        payload: true,
+      });
+    }, []);
+
+  // Save Mechanic
+  // Add + Update
+
+  const handleSaveMechanic =
+    useCallback(
+      async (mechanicData) => {
+        try {
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_SAVING,
+            payload: true,
+          });
+
+          if (selectedMechanic) {
+            await mechanicApi.updateMechanic(
+              selectedMechanic.id,
+              mechanicData
+            );
+
+            toast.success(
+              "Mechanic updated successfully."
+            );
+          } else {
+            await mechanicApi.createMechanic(
+              mechanicData
+            );
+
+            toast.success(
+              "Mechanic added successfully."
+            );
+          }
+
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_MECHANIC_MODAL_OPEN,
+            payload: false,
+          });
+
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_SELECTED_MECHANIC,
+            payload: null,
+          });
+
+          await Promise.all([
+            refresh(),
+            loadAvailable(
+              available.page
+            ),
+            loadInactive(
+              inactive.page
+            ),
+          ]);
+        } catch (err) {
+          toast.error(
+            err?.response?.data?.message ||
+              (selectedMechanic
+                ? "Unable to update mechanic."
+                : "Unable to add mechanic.")
           );
 
-        dispatch({
-          type: CUSTOMER_ACTIONS.SET_SELECTED_CUSTOMER,
-          payload: response,
-        });
-      } catch (err) {
-        console.error(
-          "Customer details error:",
-          err,
-        );
+          throw err;
+        } finally {
+          dispatch({
+            type:
+              MECHANIC_ACTIONS.SET_SAVING,
+            payload: false,
+          });
+        }
+      },
+      [
+        selectedMechanic,
+        refresh,
+        loadAvailable,
+        loadInactive,
+        available.page,
+        inactive.page,
+      ]
+    );
 
-        dispatch({
-          type: CUSTOMER_ACTIONS.SET_DETAILS_ERROR,
-          payload:
-            err?.response?.data?.message ||
-            err?.message ||
-            "Unable to load customer details.",
-        });
-      } finally {
-        dispatch({
-          type: CUSTOMER_ACTIONS.SET_DETAILS_LOADING,
-          payload: false,
-        });
+  // Close Mechanic Modal
+
+  const handleCloseModal =
+    useCallback(() => {
+      if (saving) {
+        return;
       }
-    },
-    [],
-  );
-
-  /* =========================================================
-     Close Customer Details
-  ========================================================= */
-
-  const handleCloseDetails = useCallback(() => {
-    dispatch({
-      type: CUSTOMER_ACTIONS.RESET_DETAILS,
-    });
-  }, []);
-
-  /* =========================================================
-     Open Add Customer Modal
-  ========================================================= */
-
-  const handleOpenAddCustomer = useCallback(() => {
-    dispatch({
-      type: CUSTOMER_ACTIONS.SET_ADD_CUSTOMER_ERROR,
-      payload: null,
-    });
-
-    dispatch({
-      type: CUSTOMER_ACTIONS.SET_ADD_CUSTOMER_OPEN,
-      payload: true,
-    });
-  }, []);
-
-  /* =========================================================
-     Close Add Customer Modal
-  ========================================================= */
-
-  const handleCloseAddCustomer = useCallback(() => {
-    if (addCustomerLoading) {
-      return;
-    }
-
-    dispatch({
-      type: CUSTOMER_ACTIONS.SET_ADD_CUSTOMER_ERROR,
-      payload: null,
-    });
-
-    dispatch({
-      type: CUSTOMER_ACTIONS.SET_ADD_CUSTOMER_OPEN,
-      payload: false,
-    });
-  }, [addCustomerLoading]);
-
-  /* =========================================================
-     Add Customer
-  ========================================================= */
-  const handleAddCustomer = useCallback(
-  async (data) => {
-    dispatch({
-      type: CUSTOMER_ACTIONS.SET_ADD_CUSTOMER_LOADING,
-      payload: true,
-    });
-
-    dispatch({
-      type: CUSTOMER_ACTIONS.SET_ADD_CUSTOMER_ERROR,
-      payload: null,
-    });
-
-    try {
-      await customerApi.createCustomer(data);
 
       dispatch({
-        type: CUSTOMER_ACTIONS.SET_ADD_CUSTOMER_OPEN,
+        type:
+          MECHANIC_ACTIONS.SET_MECHANIC_MODAL_OPEN,
         payload: false,
       });
 
-      toast.success(
-        "Customer added successfully!",
-      );
-
-      await refresh();
-    } catch (err) {
-      console.error(
-        "Unable to add customer:",
-        err,
-      );
-
-      toast.error(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Unable to add customer.",
-      );
-    } finally {
       dispatch({
-        type: CUSTOMER_ACTIONS.SET_ADD_CUSTOMER_LOADING,
+        type:
+          MECHANIC_ACTIONS.SET_SELECTED_MECHANIC,
+        payload: null,
+      });
+    }, [saving]);
+
+  // Deactivate
+
+  const handleDeactivate =
+    useCallback(
+      async (mechanic) => {
+        if (!mechanic?.id) {
+          return;
+        }
+
+        try {
+          await mechanicApi.deactivateMechanic(
+            mechanic.id
+          );
+
+          await Promise.all([
+            refresh(),
+            loadAvailable(
+              available.page
+            ),
+            loadInactive(
+              inactive.page
+            ),
+          ]);
+
+          toast.success(
+            "Mechanic deactivated successfully."
+          );
+        } catch (err) {
+          toast.error(
+            err?.response?.data?.message ||
+              "Unable to deactivate mechanic."
+          );
+        }
+      },
+      [
+        refresh,
+        loadAvailable,
+        loadInactive,
+        available.page,
+        inactive.page,
+      ]
+    );
+
+  // Activate
+
+  const handleActivate =
+    useCallback(
+      async (mechanic) => {
+        if (!mechanic?.id) {
+          return;
+        }
+
+        try {
+          await mechanicApi.activateMechanic(
+            mechanic.id
+          );
+
+          await Promise.all([
+            refresh(),
+            loadAvailable(
+              available.page
+            ),
+            loadInactive(
+              inactive.page
+            ),
+          ]);
+
+          toast.success(
+            "Mechanic activated successfully."
+          );
+        } catch (err) {
+          toast.error(
+            err?.response?.data?.message ||
+              "Unable to activate mechanic."
+          );
+        }
+      },
+      [
+        refresh,
+        loadAvailable,
+        loadInactive,
+        available.page,
+        inactive.page,
+      ]
+    );
+
+  // View Mechanic Details
+
+  const handleView =
+    useCallback((mechanic) => {
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_SELECTED_MECHANIC_ID,
+        payload:
+          mechanic?.id ?? null,
+      });
+
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_DETAILS_OPEN,
+        payload: true,
+      });
+    }, []);
+
+  // Close Details
+
+  const handleCloseDetails =
+    useCallback(() => {
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_DETAILS_OPEN,
         payload: false,
       });
-    }
-  },
-  [refresh],
-);
-  /* =========================================================
-     Return
-  ========================================================= */
+
+      dispatch({
+        type:
+          MECHANIC_ACTIONS.SET_SELECTED_MECHANIC_ID,
+        payload: null,
+      });
+    }, []);
+
+  // Pagination
+
+  const handleSectionPageChange =
+    useCallback(
+      (page) => {
+        if (
+          activeSection === "all"
+        ) {
+          handlePageChange(page);
+          return;
+        }
+
+        if (
+          activeSection === "available"
+        ) {
+          loadAvailable(page - 1);
+          return;
+        }
+
+        loadInactive(page - 1);
+      },
+      [
+        activeSection,
+        handlePageChange,
+        loadAvailable,
+        loadInactive,
+      ]
+    );
+
+  // Reset Filters
+
+  const handleReset =
+    useCallback(() => {
+      resetFilters();
+
+      if (
+        activeSection === "available"
+      ) {
+        loadAvailable(0);
+      }
+
+      if (
+        activeSection === "inactive"
+      ) {
+        loadInactive(0);
+      }
+    }, [
+      resetFilters,
+      activeSection,
+      loadAvailable,
+      loadInactive,
+    ]);
+
+  // Retry
+
+  const handleRetry =
+    useCallback(() => {
+      if (
+        activeSection === "all"
+      ) {
+        refresh();
+        return;
+      }
+
+      if (
+        activeSection === "available"
+      ) {
+        loadAvailable(
+          available.page
+        );
+        return;
+      }
+
+      loadInactive(
+        inactive.page
+      );
+    }, [
+      activeSection,
+      refresh,
+      loadAvailable,
+      loadInactive,
+      available.page,
+      inactive.page,
+    ]);
+
+  // Current Section Data
+
+  let sectionData;
+
+  if (
+    activeSection === "all"
+  ) {
+    sectionData = {
+      mechanics,
+      loading,
+      error,
+      currentPage,
+      totalPages,
+      totalItems,
+    };
+  } else if (
+    activeSection === "available"
+  ) {
+    sectionData = {
+      mechanics:
+        available.data,
+      loading:
+        available.loading,
+      error:
+        available.error,
+      currentPage:
+        available.page + 1,
+      totalPages:
+        available.totalPages,
+      totalItems:
+        available.totalItems,
+    };
+  } else {
+    sectionData = {
+      mechanics:
+        inactive.data,
+      loading:
+        inactive.loading,
+      error:
+        inactive.error,
+      currentPage:
+        inactive.page + 1,
+      totalPages:
+        inactive.totalPages,
+      totalItems:
+        inactive.totalItems,
+    };
+  }
+
+  // Return
 
   return {
-    /* Customer List */
-    customers,
+    // Main Mechanics
+
+    mechanics,
     loading,
     refreshing,
     error,
 
-    /* Search */
     search,
+    status,
 
-    /* Pagination */
     currentPage,
     totalPages,
     totalItems,
     itemsPerPage,
 
-    setSearch: handleSearchChange,
-    setPage: handlePageChange,
+    setSearch:
+      handleSearchChange,
+
+    setStatus:
+      handleStatusChange,
+
+    setPage:
+      handlePageChange,
+
     resetFilters,
     refresh,
 
-    /* Details Modal */
-    selectedCustomer,
-    detailsLoading,
-    detailsError,
+    // Sections
 
-    handleViewCustomer,
+    activeSection,
+
+    available,
+    inactive,
+
+    sectionData,
+
+    handleSectionChange,
+    handleRefresh,
+    handleSectionPageChange,
+
+    loadAvailable,
+    loadInactive,
+
+    handleRetry,
+    handleReset,
+
+    // Details
+
+    detailsOpen,
+    selectedMechanicId,
+
+    handleView,
     handleCloseDetails,
 
-    /* Add Customer Modal */
-    isAddCustomerOpen,
-    addCustomerLoading,
-    addCustomerError,
+    // Add / Update
 
-    handleOpenAddCustomer,
-    handleCloseAddCustomer,
-    handleAddCustomer,
+    mechanicModalOpen,
+    selectedMechanic,
+    saving,
+
+    handleAddClick,
+    handleEdit,
+    handleSaveMechanic,
+    handleCloseModal,
+
+    // Status Actions
+
+    handleDeactivate,
+    handleActivate,
   };
 };
 
-export default useCustomers;
+export default useMechanics;

@@ -1,43 +1,27 @@
-// ======================================================
 // Mechanics Initial State
-// ======================================================
 
 export const initialMechanicsState = {
-  // ======================================================
   // Main Mechanics - Backend Data
-  // ======================================================
-
   mechanics: [],
   loading: true,
   refreshing: false,
   error: null,
 
-  // ======================================================
   // Search / Filter
-  // ======================================================
-
   search: "",
   status: "",
 
-  // ------------------------------------------
   // Main Pagination
-  // ------------------------------------------
+  currentPage: 1,
+  itemsPerPage: 10,
+  totalPages: 1,
+  totalItems: 0,
 
-  SET_CURRENT_PAGE: "SET_CURRENT_PAGE",
-  SET_TOTAL_ITEMS: "SET_TOTAL_ITEMS",
-  SET_TOTAL_PAGES: "SET_TOTAL_PAGES",
-
-  // ======================================================
   // Section
   // all | available | inactive
-  // ======================================================
-
   activeSection: "all",
 
-  // ======================================================
   // Available Mechanics
-  // ======================================================
-
   available: {
     data: [],
     loading: false,
@@ -47,10 +31,7 @@ export const initialMechanicsState = {
     totalItems: 0,
   },
 
-  // ======================================================
   // Inactive Mechanics
-  // ======================================================
-
   inactive: {
     data: [],
     loading: false,
@@ -60,120 +41,71 @@ export const initialMechanicsState = {
     totalItems: 0,
   },
 
-  // ======================================================
   // Mechanic Details
-  // ======================================================
-
   detailsOpen: false,
   selectedMechanicId: null,
 
-  // ======================================================
   // Add / Update Mechanic Modal
-  // ======================================================
-
   mechanicModalOpen: false,
   selectedMechanic: null,
   saving: false,
 };
 
-// ======================================================
 // Mechanics Action Types
-// ======================================================
 
 export const MECHANIC_ACTIONS = {
-  // ------------------------------------------
   // Main Mechanics
-  // ------------------------------------------
-
   SET_MECHANICS: "SET_MECHANICS",
   SET_LOADING: "SET_LOADING",
   SET_REFRESHING: "SET_REFRESHING",
   SET_ERROR: "SET_ERROR",
 
-  // ------------------------------------------
   // Search / Filter
-  // ------------------------------------------
-
   SET_SEARCH: "SET_SEARCH",
   SET_STATUS: "SET_STATUS",
 
-  // ------------------------------------------
   // Main Pagination
-  // ------------------------------------------
-
   SET_CURRENT_PAGE: "SET_CURRENT_PAGE",
+  SET_TOTAL_ITEMS: "SET_TOTAL_ITEMS",
+  SET_TOTAL_PAGES: "SET_TOTAL_PAGES",
 
-  // ------------------------------------------
   // Section
-  // ------------------------------------------
-
   SET_ACTIVE_SECTION: "SET_ACTIVE_SECTION",
 
-  // ------------------------------------------
   // Available Mechanics
-  // ------------------------------------------
-
   SET_AVAILABLE: "SET_AVAILABLE",
-
   SET_AVAILABLE_LOADING: "SET_AVAILABLE_LOADING",
-
   SET_AVAILABLE_ERROR: "SET_AVAILABLE_ERROR",
-
   SET_AVAILABLE_PAGE: "SET_AVAILABLE_PAGE",
-
   SET_AVAILABLE_TOTAL_PAGES: "SET_AVAILABLE_TOTAL_PAGES",
-
   SET_AVAILABLE_TOTAL_ITEMS: "SET_AVAILABLE_TOTAL_ITEMS",
 
-  // ------------------------------------------
   // Inactive Mechanics
-  // ------------------------------------------
-
   SET_INACTIVE: "SET_INACTIVE",
-
   SET_INACTIVE_LOADING: "SET_INACTIVE_LOADING",
-
   SET_INACTIVE_ERROR: "SET_INACTIVE_ERROR",
-
   SET_INACTIVE_PAGE: "SET_INACTIVE_PAGE",
-
   SET_INACTIVE_TOTAL_PAGES: "SET_INACTIVE_TOTAL_PAGES",
-
   SET_INACTIVE_TOTAL_ITEMS: "SET_INACTIVE_TOTAL_ITEMS",
 
-  // ------------------------------------------
   // Details Modal
-  // ------------------------------------------
-
   SET_DETAILS_OPEN: "SET_DETAILS_OPEN",
   SET_SELECTED_MECHANIC_ID: "SET_SELECTED_MECHANIC_ID",
 
-  // ------------------------------------------
   // Add / Update Modal
-  // ------------------------------------------
-
   SET_MECHANIC_MODAL_OPEN: "SET_MECHANIC_MODAL_OPEN",
-
   SET_SELECTED_MECHANIC: "SET_SELECTED_MECHANIC",
-
   SET_SAVING: "SET_SAVING",
 
-  // ------------------------------------------
   // Reset
-  // ------------------------------------------
-
   RESET_FILTERS: "RESET_FILTERS",
 };
 
-// ======================================================
 // Mechanics Reducer
-// ======================================================
 
 const mechanicsReducer = (state, action) => {
   switch (action.type) {
-    // ==================================================
     // Main Mechanics
-    // ==================================================
 
     case MECHANIC_ACTIONS.SET_MECHANICS:
       return {
@@ -199,9 +131,7 @@ const mechanicsReducer = (state, action) => {
         error: action.payload,
       };
 
-    // ==================================================
     // Search / Filter
-    // ==================================================
 
     case MECHANIC_ACTIONS.SET_SEARCH:
       return {
@@ -217,9 +147,7 @@ const mechanicsReducer = (state, action) => {
         currentPage: 1,
       };
 
-    // ==================================================
     // Main Pagination
-    // ==================================================
 
     case MECHANIC_ACTIONS.SET_CURRENT_PAGE:
       return {
@@ -239,9 +167,7 @@ const mechanicsReducer = (state, action) => {
         totalPages: action.payload,
       };
 
-    // ==================================================
     // Section
-    // ==================================================
 
     case MECHANIC_ACTIONS.SET_ACTIVE_SECTION:
       return {
@@ -249,9 +175,7 @@ const mechanicsReducer = (state, action) => {
         activeSection: action.payload,
       };
 
-    // ==================================================
     // Available Mechanics
-    // ==================================================
 
     case MECHANIC_ACTIONS.SET_AVAILABLE:
       return {
@@ -307,9 +231,7 @@ const mechanicsReducer = (state, action) => {
         },
       };
 
-    // ==================================================
     // Inactive Mechanics
-    // ==================================================
 
     case MECHANIC_ACTIONS.SET_INACTIVE:
       return {
@@ -365,9 +287,7 @@ const mechanicsReducer = (state, action) => {
         },
       };
 
-    // ==================================================
     // Details Modal
-    // ==================================================
 
     case MECHANIC_ACTIONS.SET_DETAILS_OPEN:
       return {
@@ -381,9 +301,7 @@ const mechanicsReducer = (state, action) => {
         selectedMechanicId: action.payload,
       };
 
-    // ==================================================
     // Add / Update Mechanic Modal
-    // ==================================================
 
     case MECHANIC_ACTIONS.SET_MECHANIC_MODAL_OPEN:
       return {
@@ -403,9 +321,7 @@ const mechanicsReducer = (state, action) => {
         saving: action.payload,
       };
 
-    // ==================================================
     // Reset Filters
-    // ==================================================
 
     case MECHANIC_ACTIONS.RESET_FILTERS:
       return {
@@ -415,9 +331,7 @@ const mechanicsReducer = (state, action) => {
         currentPage: 1,
       };
 
-    // ==================================================
     // Default
-    // ==================================================
 
     default:
       return state;

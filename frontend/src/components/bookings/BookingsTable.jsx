@@ -1,10 +1,9 @@
-import {
-  CalendarX2,
-} from "lucide-react";
+import { CalendarX2 } from "lucide-react";
 
 import BookingRow from "./BookingRow";
 import BookingDetailModal from "./BookingDetailModal";
 import Pagination from "./Pagination";
+
 import EmptyState from "../ui/EmptyState";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
@@ -102,45 +101,30 @@ const BookingsTable = ({
   totalPages = 1,
   totalItems = bookings.length,
   itemsPerPage = 10,
-
   onPageChange,
   onRetry,
-
   section = "all",
-
   onAssign,
   onDelete,
 
-  // ==========================================
   // Booking Detail Modal
   // Controlled from Hook / Page
-  // ==========================================
-
   selectedBooking = null,
   onView,
   onCloseDetail,
 }) => {
-  // ==========================================
   // Assign Booking
-  // ==========================================
-
   const handleAssignBooking = (booking) => {
     onAssign?.(booking);
   };
 
-  // ==========================================
   // Delete Booking
-  // ==========================================
-
   const handleDeleteBooking = (booking) => {
     // Confirmation is handled outside this component.
     onDelete?.(booking);
   };
 
-  // ==========================================
   // Section Title
-  // ==========================================
-
   const getSectionTitle = () => {
     if (section === "pending") {
       return "Pending Assignments";
@@ -153,10 +137,7 @@ const BookingsTable = ({
     return "Recent Bookings";
   };
 
-  // ==========================================
   // Section Description
-  // ==========================================
-
   const getSectionDescription = () => {
     if (section === "pending") {
       return "Assign available mechanics to pending bookings.";
@@ -169,10 +150,7 @@ const BookingsTable = ({
     return "Monitor and manage vehicle service bookings.";
   };
 
-  // ==========================================
   // Empty State
-  // ==========================================
-
   const getEmptyTitle = () => {
     if (section === "pending") {
       return "No pending assignments";
@@ -197,10 +175,7 @@ const BookingsTable = ({
     return "There are no bookings matching your current search or filters.";
   };
 
-  // ==========================================
   // Render
-  // ==========================================
-
   return (
     <>
       <div
@@ -215,10 +190,7 @@ const BookingsTable = ({
           dark:bg-slate-900
         "
       >
-        {/* =====================================
-            Table Header
-        ===================================== */}
-
+        {/* Table Header */}
         <div
           className="
             flex
@@ -255,10 +227,7 @@ const BookingsTable = ({
           </p>
         </div>
 
-        {/* =====================================
-            Error
-        ===================================== */}
-
+        {/* Error */}
         {error && !loading && (
           <div className="p-5 sm:p-6">
             <ErrorState
@@ -272,10 +241,7 @@ const BookingsTable = ({
           </div>
         )}
 
-        {/* =====================================
-            Loading
-        ===================================== */}
-
+        {/* Loading */}
         {loading && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1100px]">
@@ -288,10 +254,7 @@ const BookingsTable = ({
           </div>
         )}
 
-        {/* =====================================
-            Empty
-        ===================================== */}
-
+        {/* Empty */}
         {!loading &&
           !error &&
           bookings.length === 0 && (
@@ -304,10 +267,7 @@ const BookingsTable = ({
             </div>
           )}
 
-        {/* =====================================
-            Table
-        ===================================== */}
-
+        {/* Table */}
         {!loading &&
           !error &&
           bookings.length > 0 && (
@@ -346,10 +306,7 @@ const BookingsTable = ({
                 </table>
               </div>
 
-              {/* =================================
-                  Pagination
-              ================================= */}
-
+              {/* Pagination */}
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -361,10 +318,7 @@ const BookingsTable = ({
           )}
       </div>
 
-      {/* =======================================
-          Booking Detail Modal
-      ======================================= */}
-
+      {/* Booking Detail Modal */}
       <BookingDetailModal
         isOpen={Boolean(selectedBooking)}
         onClose={onCloseDetail}
