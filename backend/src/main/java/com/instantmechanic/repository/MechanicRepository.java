@@ -49,4 +49,5 @@ public interface MechanicRepository
                 OR LOWER(m.location) LIKE LOWER(CONCAT('%', :query, '%'))
             """)
     List<Mechanic> searchMechanics(@Param("query") String query);
+
 }

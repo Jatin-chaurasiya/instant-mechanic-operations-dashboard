@@ -251,4 +251,13 @@ public interface BookingRepository
                 OR LOWER(m.mechanicCode) LIKE LOWER(CONCAT('%', :query, '%'))
             """)
     List<Booking> searchBookings(@Param("query") String query);
+    Page<Booking> findByStatusAndMechanicIsNull(
+            BookingStatus status,
+            Pageable pageable
+    );
+    Page<Booking> findByStatusIn(
+            List<BookingStatus> statuses,
+            Pageable pageable
+    );
+    boolean existsByVehicleId(Long vehicleId);
 }

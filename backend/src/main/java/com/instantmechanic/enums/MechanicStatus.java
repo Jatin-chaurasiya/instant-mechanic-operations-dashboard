@@ -4,5 +4,6 @@ public enum MechanicStatus {
 
     AVAILABLE,
     BUSY,
-    ON_THE_WAY
+    ON_THE_WAY,
+    INACTIVE
 }

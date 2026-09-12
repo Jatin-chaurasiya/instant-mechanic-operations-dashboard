@@ -1,8 +1,10 @@
 package com.instantmechanic.controller;
 
+import com.instantmechanic.dto.customer.CustomerRequest;
 import com.instantmechanic.dto.customer.CustomerResponse;
 import com.instantmechanic.service.CustomerService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,15 @@ public class CustomerController {
                         size,
                         keyword
                 )
+        );
+    }
+    @PostMapping
+    public ResponseEntity<CustomerResponse> addCustomer(
+            @Valid @RequestBody CustomerRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                customerService.addCustomer(request)
         );
     }
 

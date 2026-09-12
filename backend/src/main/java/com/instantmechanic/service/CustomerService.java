@@ -1,5 +1,6 @@
 package com.instantmechanic.service;
 
+import com.instantmechanic.dto.customer.CustomerRequest;
 import com.instantmechanic.dto.customer.CustomerResponse;
 import com.instantmechanic.entity.Customer;
 import com.instantmechanic.exception.ResourceNotFoundException;
@@ -66,6 +67,31 @@ public class CustomerService {
                         );
 
         return entityToDto(customer);
+    }
+    @Transactional
+    public CustomerResponse addCustomer(
+            CustomerRequest request
+    ) {
+
+        Customer customer = new Customer();
+
+        customer.setName(request.getName().trim());
+        customer.setEmail(request.getEmail().trim());
+        customer.setPhone(
+                request.getPhone() != null
+                        ? request.getPhone().trim()
+                        : null
+        );
+        customer.setAddress(
+                request.getAddress() != null
+                        ? request.getAddress().trim()
+                        : null
+        );
+
+        Customer savedCustomer =
+                customerRepository.save(customer);
+
+        return entityToDto(savedCustomer);
     }
 
     private CustomerResponse entityToDto(
