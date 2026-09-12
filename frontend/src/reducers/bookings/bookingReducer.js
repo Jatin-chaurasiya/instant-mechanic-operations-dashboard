@@ -550,7 +550,6 @@ const bookingReducer = (state, action) => {
         submitting: action.payload,
       };
 
-    // ==================================================
     // Assign Booking Modal
     // ==================================================
 
