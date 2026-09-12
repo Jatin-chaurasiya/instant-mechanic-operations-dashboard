@@ -1,10 +1,10 @@
-// const API_BASE_URL =
-//   import.meta.env.VITE_API_BASE_URL ||
-//   "https://instant-mechanic-api.jatindev.xyz/api/v1.0";
-
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  "http://localhost:8081/api/v1.0";
+  "https://instant-mechanic-api.jatindev.xyz/api/v1.0";
+
+// const API_BASE_URL =
+//   import.meta.env.VITE_API_BASE_URL ||
+//   "http://localhost:8081/api/v1.0";
 
 const API_ENDPOINTS = {
 
