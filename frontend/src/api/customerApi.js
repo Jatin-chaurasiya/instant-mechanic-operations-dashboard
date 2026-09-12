@@ -36,7 +36,17 @@ const customerApi = {
 
     return response.data;
   },
+  createCustomer: async (customerData) => {
+
+    const response = await api.post(
+      API_ENDPOINTS.CUSTOMERS.CREATE,
+      customerData
+    );
+
+    return response.data;
+  },
 
 };
+
 
 export default customerApi;

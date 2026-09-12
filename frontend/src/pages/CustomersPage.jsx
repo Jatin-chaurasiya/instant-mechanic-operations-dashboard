@@ -1,16 +1,11 @@
-import {
-  Users,
-  RefreshCw,
-} from "lucide-react";
-import { useCallback, useState } from "react";
+import { Users, RefreshCw, UserRoundPlus } from "lucide-react";
 
 import CustomersGrid from "../components/customers/CustomersGrid";
 import CustomerDetailsModal from "../components/customers/CustomerDetailsModal";
-
+import AddCustomerModal from "../components/customers/AddCustomerModal";
 import Button from "../components/ui/Button";
 
-import useCustomers from "../hooks/useCustomers";
-import customerApi from "../api/customerApi";
+import useCustomers from "../hooks/customers/useCustomers";
 
 const CustomersPage = () => {
   const {
@@ -18,72 +13,39 @@ const CustomersPage = () => {
     loading,
     refreshing,
     error,
+
     search,
     currentPage,
     totalPages,
     totalItems,
+
+    selectedCustomer,
+    detailsLoading,
+    detailsError,
+
+    isAddCustomerOpen,
+    addCustomerLoading,
+    addCustomerError,
+
     refresh,
     setSearch,
     setPage,
     resetFilters,
+
+    handleViewCustomer,
+    handleCloseDetails,
+
+    handleOpenAddCustomer,
+    handleCloseAddCustomer,
+    handleAddCustomer,
   } = useCustomers();
-
-  // Selected customer for details modal
-  const [selectedCustomer, setSelectedCustomer] =
-    useState(null);
-
-  const [detailsLoading, setDetailsLoading] =
-    useState(false);
-
-  const [detailsError, setDetailsError] =
-    useState(null);
-
-  // View customer details
-  const handleViewCustomer = useCallback(
-    async (customer) => {
-      if (!customer?.id) {
-        return;
-      }
-
-      setSelectedCustomer(customer);
-      setDetailsError(null);
-      setDetailsLoading(true);
-
-      try {
-        const response =
-          await customerApi.getCustomerById(
-            customer.id
-          );
-
-        setSelectedCustomer(response);
-      } catch (err) {
-        console.error(
-          "Customer details error:",
-          err
-        );
-
-        setDetailsError(
-          err?.response?.data?.message ||
-            err?.message ||
-            "Unable to load customer details."
-        );
-      } finally {
-        setDetailsLoading(false);
-      }
-    },
-    []
-  );
-
-  // Close details modal
-  const handleCloseDetails = useCallback(() => {
-    setSelectedCustomer(null);
-    setDetailsError(null);
-    setDetailsLoading(false);
-  }, []);
 
   return (
     <div>
-      {/* Header */}
+      {/* ==========================================
+          Page Header
+      ========================================== */}
+
       <div
         className="
           flex flex-col gap-4
@@ -138,18 +100,36 @@ const CustomersPage = () => {
           </p>
         </div>
 
-        {/* Refresh */}
-        <Button
-          variant="secondary"
-          icon={RefreshCw}
-          loading={refreshing}
-          onClick={refresh}
-        >
-          Refresh
-        </Button>
+        {/* ==========================================
+            Header Actions
+        ========================================== */}
+
+        <div className="flex items-center gap-2">
+          {/* Add Customer */}
+          <Button
+            variant="primary"
+            icon={UserRoundPlus}
+            onClick={handleOpenAddCustomer}
+          >
+            Add Customer
+          </Button>
+
+          {/* Refresh */}
+          <Button
+            variant="secondary"
+            icon={RefreshCw}
+            loading={refreshing}
+            onClick={refresh}
+          >
+            Refresh
+          </Button>
+        </div>
       </div>
 
-      {/* Customers */}
+      {/* ==========================================
+          Customers
+      ========================================== */}
+
       <div className="mt-6">
         <CustomersGrid
           customers={customers}
@@ -167,7 +147,10 @@ const CustomersPage = () => {
         />
       </div>
 
-      {/* Customer Details Modal */}
+      {/* ==========================================
+          Customer Details Modal
+      ========================================== */}
+
       {selectedCustomer && (
         <CustomerDetailsModal
           customer={selectedCustomer}
@@ -177,12 +160,28 @@ const CustomersPage = () => {
         />
       )}
 
-      {/* Live Status */}
+      {/* ==========================================
+          Add Customer Modal
+      ========================================== */}
+
+      {isAddCustomerOpen && (
+        <AddCustomerModal
+          isOpen={isAddCustomerOpen}
+          onClose={handleCloseAddCustomer}
+          onSubmit={handleAddCustomer}
+          loading={addCustomerLoading}
+          error={addCustomerError}
+        />
+      )}
+
+      {/* ==========================================
+          Live Status
+      ========================================== */}
+
       <div
         className="
           mt-5
-          flex
-          items-center
+          flex items-center
           justify-end
           gap-2
           text-xs
@@ -198,9 +197,7 @@ const CustomersPage = () => {
           "
         />
 
-        <span>
-          Customer data refreshes automatically
-        </span>
+        <span>Customer data refreshes automatically</span>
       </div>
     </div>
   );

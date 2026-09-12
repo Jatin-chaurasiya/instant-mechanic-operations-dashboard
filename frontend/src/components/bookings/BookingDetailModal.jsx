@@ -7,17 +7,20 @@ import {
   IndianRupee,
   Hash,
   MapPin,
+  Mail,
 } from "lucide-react";
 
 import Modal from "../ui/Modal";
 import Badge from "../ui/Badge";
 import StatusBadge from "./StatusBadge";
 
+
 const DetailItem = ({
   icon: Icon,
   label,
   value,
 }) => {
+
   return (
     <div
       className="
@@ -30,7 +33,9 @@ const DetailItem = ({
         dark:bg-slate-800/60
       "
     >
+
       <div className="flex items-center gap-2">
+
         <Icon
           size={15}
           className="
@@ -49,7 +54,9 @@ const DetailItem = ({
         >
           {label}
         </span>
+
       </div>
+
 
       <p
         className="
@@ -62,30 +69,51 @@ const DetailItem = ({
       >
         {value || "N/A"}
       </p>
+
     </div>
   );
 };
+
 
 const BookingDetailModal = ({
   isOpen,
   onClose,
   booking,
 }) => {
+
   if (!booking) {
     return null;
   }
+
+
+  const {
+    id,
+    bookingCode,
+    customerName,
+    customerEmail,
+    vehicleName,
+    vehicleNumber,
+    serviceName,
+    mechanicName,
+    amount,
+    bookingDate,
+    bookingTime,
+    status,
+  } = booking;
+
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       size="lg"
-      title={`Booking #${
-        booking.bookingCode || booking.id
-      }`}
+      title={`Booking #${bookingCode || id}`}
       description="Complete booking information"
     >
-      {/* Header Summary */}
+
+      {/* ==========================================
+          Header Summary
+      ========================================== */}
 
       <div
         className="
@@ -104,7 +132,9 @@ const BookingDetailModal = ({
           sm:justify-between
         "
       >
+
         <div>
+
           <p
             className="
               text-xs
@@ -117,6 +147,7 @@ const BookingDetailModal = ({
           </p>
 
           <div className="mt-1 flex items-center gap-1">
+
             <IndianRupee
               size={18}
               className="
@@ -134,18 +165,23 @@ const BookingDetailModal = ({
               "
             >
               {Number(
-                booking.amount || 0
+                amount || 0
               ).toLocaleString("en-IN")}
             </span>
+
           </div>
+
         </div>
 
-        <StatusBadge
-          status={booking.status}
-        />
+
+        <StatusBadge status={status} />
+
       </div>
 
-      {/* Details */}
+
+      {/* ==========================================
+          Booking Details
+      ========================================== */}
 
       <div
         className="
@@ -156,65 +192,68 @@ const BookingDetailModal = ({
           sm:grid-cols-2
         "
       >
+
         <DetailItem
           icon={Hash}
           label="Booking ID"
-          value={`#${
-            booking.bookingCode ||
-            booking.id
-          }`}
+          value={`#${bookingCode || id}`}
         />
 
         <DetailItem
           icon={UserRound}
           label="Customer"
-          value={booking.customerName}
+          value={customerName}
         />
 
         <DetailItem
           icon={CarFront}
           label="Vehicle"
-          value={booking.vehicleName}
+          value={vehicleName}
+        />
+
+        <DetailItem
+          icon={MapPin}
+          label="Vehicle Number"
+          value={vehicleNumber}
         />
 
         <DetailItem
           icon={Wrench}
           label="Mechanic"
           value={
-            booking.mechanicName ||
-            "Unassigned"
+            mechanicName || "Unassigned"
           }
-        />
-
-        <DetailItem
-          icon={CalendarDays}
-          label="Date"
-          value={booking.bookingDate}
-        />
-
-        <DetailItem
-          icon={Clock3}
-          label="Time"
-          value={booking.bookingTime}
-        />
-
-        <DetailItem
-          icon={MapPin}
-          label="Vehicle Number"
-          value={booking.vehicleNumber}
         />
 
         <DetailItem
           icon={Wrench}
           label="Service"
-          value={booking.serviceName}
+          value={serviceName}
         />
+
+        <DetailItem
+          icon={CalendarDays}
+          label="Booking Date"
+          value={bookingDate}
+        />
+
+        <DetailItem
+          icon={Clock3}
+          label="Booking Time"
+          value={bookingTime}
+        />
+
       </div>
 
-      {/* Customer Information */}
 
-      {booking.customerEmail && (
+      {/* ==========================================
+          Customer Information
+      ========================================== */}
+
+      {customerEmail && (
+
         <div className="mt-6">
+
           <h4
             className="
               text-sm
@@ -226,49 +265,69 @@ const BookingDetailModal = ({
             Customer Information
           </h4>
 
+
           <div className="mt-3">
+
             <div
               className="
                 flex
                 items-center
-                justify-between
-                gap-4
+                gap-3
                 rounded-xl
                 border
                 border-slate-100
-                px-4
-                py-3
+                px-4 py-3
                 dark:border-slate-700
                 dark:bg-slate-800/50
               "
             >
-              <span
-                className="
-                  text-sm
-                  text-slate-500
-                  dark:text-slate-400
-                "
-              >
-                Email
-              </span>
 
-              <span
+              <Mail
+                size={16}
                 className="
-                  truncate
-                  text-sm
-                  font-medium
-                  text-slate-700
-                  dark:text-slate-200
+                  shrink-0
+                  text-slate-400
+                  dark:text-slate-500
                 "
-              >
-                {booking.customerEmail}
-              </span>
+              />
+
+              <div className="min-w-0">
+
+                <p
+                  className="
+                    text-xs
+                    text-slate-400
+                    dark:text-slate-500
+                  "
+                >
+                  Email
+                </p>
+
+                <p
+                  className="
+                    truncate
+                    text-sm
+                    font-medium
+                    text-slate-700
+                    dark:text-slate-200
+                  "
+                >
+                  {customerEmail}
+                </p>
+
+              </div>
+
             </div>
+
           </div>
+
         </div>
       )}
 
-      {/* Footer Information */}
+
+      {/* ==========================================
+          Footer Information
+      ========================================== */}
 
       <div
         className="
@@ -282,14 +341,24 @@ const BookingDetailModal = ({
           dark:bg-slate-800
         "
       >
+
         <div className="flex flex-wrap items-center gap-2">
+
           <Badge variant="neutral">
-            Service: {booking.serviceName || "N/A"}
+            Service: {serviceName || "N/A"}
           </Badge>
+
+          <Badge variant="neutral">
+            Status: {status || "N/A"}
+          </Badge>
+
         </div>
+
       </div>
+
     </Modal>
   );
 };
+
 
 export default BookingDetailModal;

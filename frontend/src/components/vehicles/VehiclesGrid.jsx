@@ -1,18 +1,13 @@
-import { Search, UsersRound, SlidersHorizontal, X } from "lucide-react";
+import { Search, CarFront, X } from "lucide-react";
 
-import MechanicCard from "./MechanicCard";
+import VehicleCard from "./VehicleCard";
 
-import Select from "../ui/Select";
 import Button from "../ui/Button";
 import Skeleton from "../ui/Skeleton";
 import EmptyState from "../ui/EmptyState";
 import ErrorState from "../ui/ErrorState";
 
-/* =========================================================
-   Mechanic Card Skeleton
-========================================================= */
-
-const MechanicCardSkeleton = () => {
+const VehicleCardSkeleton = () => {
   return (
     <div
       className="
@@ -26,21 +21,19 @@ const MechanicCardSkeleton = () => {
       "
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Skeleton variant="circle" className="h-12 w-12" />
 
-          <div className="space-y-2">
-            <Skeleton variant="text" className="h-4 w-28" />
+      <div className="flex items-center gap-3">
+        <Skeleton variant="circle" className="h-12 w-12" />
 
-            <Skeleton variant="text" className="h-3 w-20" />
-          </div>
+        <div className="space-y-2">
+          <Skeleton variant="text" className="h-4 w-32" />
+
+          <Skeleton variant="text" className="h-3 w-20" />
         </div>
-
-        <Skeleton className="h-6 w-20 rounded-full" />
       </div>
 
       {/* Divider */}
+
       <div
         className="
           my-5
@@ -50,29 +43,37 @@ const MechanicCardSkeleton = () => {
         "
       />
 
-      <Skeleton className="h-10 w-full" />
+      {/* Vehicle Information */}
 
-      <Skeleton className="mt-5 h-20 w-full" />
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-full" />
 
-      <Skeleton className="mt-4 h-9 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+      </div>
+
+      {/* Button */}
+
+      <Skeleton
+        className="
+          mt-5
+          h-10
+          w-full
+          rounded-xl
+        "
+      />
     </div>
   );
 };
 
-/* =========================================================
-   Mechanics Grid
-========================================================= */
+const VehiclesGrid = ({
+  vehicles = [],
 
-const MechanicsGrid = ({
-  mechanics = [],
   loading = false,
   error = null,
   onRetry,
 
   search = "",
-  status = "",
   onSearchChange,
-  onStatusChange,
   onReset,
 
   currentPage = 1,
@@ -80,19 +81,17 @@ const MechanicsGrid = ({
   totalItems = 0,
   onPageChange,
 
-  // Actions
   onView,
-  onEdit,
-  onDeactivate,
-  onActivate,
+  onDelete,
+  deletingId,
 }) => {
-  const hasFilters = Boolean(search || status);
+  const hasSearch = Boolean(search?.trim());
 
   return (
     <section>
-      {/* =====================================================
+      {/* =================================
           Header
-      ====================================================== */}
+      ================================== */}
 
       <div
         className="
@@ -114,7 +113,7 @@ const MechanicsGrid = ({
                 sm:text-3xl
               "
             >
-              Mechanics
+              Vehicles
             </h2>
 
             <span
@@ -143,14 +142,14 @@ const MechanicsGrid = ({
               dark:text-slate-400
             "
           >
-            Monitor mechanic availability and current service activity.
+            View and manage registered vehicles.
           </p>
         </div>
       </div>
 
-      {/* =====================================================
-          Filters
-      ====================================================== */}
+      {/* =================================
+          Search
+      ================================== */}
 
       <div
         className="
@@ -164,11 +163,10 @@ const MechanicsGrid = ({
           dark:border-slate-700
           dark:bg-slate-900
           sm:p-5
-          md:flex-row
-          md:items-center
+          sm:flex-row
+          sm:items-center
         "
       >
-        {/* Search */}
         <div className="relative flex-1">
           <Search
             size={18}
@@ -185,7 +183,7 @@ const MechanicsGrid = ({
             type="text"
             value={search}
             onChange={(event) => onSearchChange?.(event.target.value)}
-            placeholder="Search mechanics..."
+            placeholder="Search vehicles..."
             className="
               h-11 w-full
               rounded-xl
@@ -211,7 +209,7 @@ const MechanicsGrid = ({
             "
           />
 
-          {search && (
+          {hasSearch && (
             <button
               type="button"
               onClick={() => onSearchChange?.("")}
@@ -233,71 +231,32 @@ const MechanicsGrid = ({
           )}
         </div>
 
-        {/* Status */}
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal
-            size={16}
-            className="
-              hidden
-              text-slate-400
-              dark:text-slate-500
-              sm:block
-            "
-          />
-
-          <Select
-            value={status}
-            onChange={(event) => onStatusChange?.(event.target.value)}
-            placeholder="All statuses"
-            options={[
-              {
-                value: "AVAILABLE",
-                label: "Available",
-              },
-              {
-                value: "BUSY",
-                label: "Busy",
-              },
-              {
-                value: "ON_THE_WAY",
-                label: "On The Way",
-              },
-              {
-                value: "OFFLINE",
-                label: "Offline",
-              },
-            ]}
-            className="w-full sm:w-48"
-          />
-        </div>
-
-        {/* Reset */}
-        {hasFilters && (
+        {hasSearch && (
           <Button variant="ghost" size="md" onClick={onReset}>
             Reset
           </Button>
         )}
       </div>
 
-      {/* =====================================================
+      {/* =================================
           Error
-      ====================================================== */}
+      ================================== */}
 
       {error && !loading && (
         <div className="mt-6">
           <ErrorState
-            title="Unable to load mechanics"
+            title="Unable to load vehicles"
             description={
-              error || "Something went wrong while fetching mechanics."
+              error || "Something went wrong while fetching vehicles."
             }
             onRetry={onRetry}
           />
         </div>
       )}
 
-      {/* =====================================================
+      {/* =================================
           Loading
-      ====================================================== */}
+      ================================== */}
 
       {loading && (
         <div
@@ -310,37 +269,39 @@ const MechanicsGrid = ({
             xl:grid-cols-3
           "
         >
-          {Array.from({ length: 6 }).map((_, index) => (
-            <MechanicCardSkeleton key={index} />
+          {Array.from({
+            length: 6,
+          }).map((_, index) => (
+            <VehicleCardSkeleton key={index} />
           ))}
         </div>
       )}
 
-      {/* =====================================================
+      {/* =================================
           Empty
-      ====================================================== */}
+      ================================== */}
 
-      {!loading && !error && mechanics.length === 0 && (
+      {!loading && !error && vehicles.length === 0 && (
         <div className="mt-6">
           <EmptyState
-            icon={UsersRound}
-            title={hasFilters ? "No mechanics found" : "No mechanics available"}
+            icon={CarFront}
+            title={hasSearch ? "No vehicles found" : "No vehicles available"}
             description={
-              hasFilters
-                ? "Try changing your search or status filter."
-                : "Mechanic information will appear here once data is available."
+              hasSearch
+                ? "Try changing your search."
+                : "Vehicle information will appear here once vehicles are added."
             }
-            actionLabel={hasFilters ? "Clear Filters" : undefined}
-            onAction={hasFilters ? onReset : undefined}
+            actionLabel={hasSearch ? "Clear Search" : undefined}
+            onAction={hasSearch ? onReset : undefined}
           />
         </div>
       )}
 
-      {/* =====================================================
-          Mechanics Grid
-      ====================================================== */}
+      {/* =================================
+          Vehicle Grid
+      ================================== */}
 
-      {!loading && !error && mechanics.length > 0 && (
+      {!loading && !error && vehicles.length > 0 && (
         <div
           className="
               mt-6
@@ -351,24 +312,23 @@ const MechanicsGrid = ({
               xl:grid-cols-3
             "
         >
-          {mechanics.map((mechanic) => (
-            <MechanicCard
-              key={mechanic.id}
-              mechanic={mechanic}
+          {vehicles.map((vehicle) => (
+            <VehicleCard
+              key={vehicle.id}
+              vehicle={vehicle}
               onView={onView}
-              onEdit={onEdit}
-              onDeactivate={onDeactivate}
-              onActivate={onActivate}
+              onDelete={onDelete}
+              deleting={deletingId === vehicle.id}
             />
           ))}
         </div>
       )}
 
-      {/* =====================================================
+      {/* =================================
           Result Count + Pagination
-      ====================================================== */}
+      ================================== */}
 
-      {!loading && !error && mechanics.length > 0 && (
+      {!loading && !error && vehicles.length > 0 && (
         <div
           className="
               mt-5
@@ -394,7 +354,7 @@ const MechanicsGrid = ({
                   dark:text-slate-300
                 "
             >
-              {mechanics.length}
+              {vehicles.length}
             </span>{" "}
             of{" "}
             <span
@@ -406,10 +366,9 @@ const MechanicsGrid = ({
             >
               {totalItems}
             </span>{" "}
-            mechanics
+            vehicles
           </p>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center gap-2">
               <Button
@@ -450,4 +409,4 @@ const MechanicsGrid = ({
   );
 };
 
-export default MechanicsGrid;
+export default VehiclesGrid;

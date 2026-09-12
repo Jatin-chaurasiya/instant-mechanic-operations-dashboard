@@ -12,6 +12,7 @@ import MechanicsPage from "../pages/MechanicsPage";
 import CustomersPage from "../pages/CustomersPage";
 import ProfilePage from "../pages/ProfilePage";
 import HelpSupportPage from "../pages/HelpSupportPage";
+import VehiclesPage from "../pages/VehiclesPage";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -36,6 +37,7 @@ const AppRoutes = () => {
             <Route path="mechanics" element={<MechanicsPage />} />
 
             <Route path="customers" element={<CustomersPage />} />
+             <Route path="vehicles" element={<VehiclesPage />} />
 
             <Route path="profile" element={<ProfilePage />} />
             <Route path="support" element={<HelpSupportPage />} />

@@ -54,8 +54,6 @@ const OverviewPage = () => {
 const revenueData =
   revenueOverTime || [];
 
-  // Backend mein abhi ye dono available nahi hain.
-  // Isliye fake/hardcoded data nahi rakhenge.
   const statusData =
   statusDistribution || [];
 

@@ -3,11 +3,19 @@ import {
   MapPin,
   CalendarCheck,
   ChevronRight,
+  Pencil,
+  Power,
 } from "lucide-react";
 
 import MechanicStatusBadge from "./MechanicStatusBadge";
 
-const MechanicCard = ({ mechanic, onView }) => {
+const MechanicCard = ({
+  mechanic,
+  onView,
+  onEdit,
+  onDeactivate,
+  onActivate,
+}) => {
   const {
     id,
     name,
@@ -28,6 +36,8 @@ const MechanicCard = ({ mechanic, onView }) => {
         .toUpperCase()
     : "M";
 
+  const isInactive = String(status).toUpperCase() === "INACTIVE";
+
   return (
     <div
       className="
@@ -47,7 +57,9 @@ const MechanicCard = ({ mechanic, onView }) => {
         dark:hover:shadow-lg
       "
     >
-      {/* Top Section */}
+      {/* ==========================================
+          Top Section
+      ========================================== */}
       <div className="flex items-start justify-between gap-3">
         {/* Profile */}
         <div className="flex min-w-0 items-center gap-3">
@@ -124,7 +136,9 @@ const MechanicCard = ({ mechanic, onView }) => {
         "
       />
 
-      {/* Jobs Completed + Location */}
+      {/* ==========================================
+          Jobs Completed + Location
+      ========================================== */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div
@@ -195,7 +209,9 @@ const MechanicCard = ({ mechanic, onView }) => {
         )}
       </div>
 
-      {/* Current Booking */}
+      {/* ==========================================
+          Current Booking
+      ========================================== */}
       <div
         className="
           mt-5
@@ -294,7 +310,9 @@ const MechanicCard = ({ mechanic, onView }) => {
         )}
       </div>
 
-      {/* Last Booking */}
+      {/* ==========================================
+          Last Booking
+      ========================================== */}
       {lastBooking && (
         <div className="mt-3 flex items-center justify-between">
           <span
@@ -320,12 +338,104 @@ const MechanicCard = ({ mechanic, onView }) => {
         </div>
       )}
 
-      {/* View Button */}
+      {/* ==========================================
+          Actions
+      ========================================== */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        {/* Update */}
+        <button
+          type="button"
+          onClick={() => onEdit?.(mechanic)}
+          className="
+            flex items-center justify-center
+            gap-1.5
+            rounded-xl
+            border border-slate-200
+            bg-white
+            px-3 py-2.5
+            text-xs
+            font-semibold
+            text-slate-600
+            transition
+            hover:border-slate-300
+            hover:bg-slate-50
+            hover:text-slate-900
+            dark:border-slate-700
+            dark:bg-slate-900
+            dark:text-slate-300
+            dark:hover:border-slate-600
+            dark:hover:bg-slate-800
+            dark:hover:text-white
+          "
+        >
+          <Pencil size={14} />
+          Update
+        </button>
+
+        {/* Activate / Deactivate */}
+        {isInactive ? (
+          <button
+            type="button"
+            onClick={() => onActivate?.(mechanic)}
+            className="
+              flex items-center justify-center
+              gap-1.5
+              rounded-xl
+              border border-emerald-200
+              bg-emerald-50
+              px-3 py-2.5
+              text-xs
+              font-semibold
+              text-emerald-700
+              transition
+              hover:border-emerald-300
+              hover:bg-emerald-100
+              dark:border-emerald-900/50
+              dark:bg-emerald-950/30
+              dark:text-emerald-400
+              dark:hover:bg-emerald-950/50
+            "
+          >
+            <Power size={14} />
+            Activate
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onDeactivate?.(mechanic)}
+            className="
+              flex items-center justify-center
+              gap-1.5
+              rounded-xl
+              border border-amber-200
+              bg-amber-50
+              px-3 py-2.5
+              text-xs
+              font-semibold
+              text-amber-700
+              transition
+              hover:border-amber-300
+              hover:bg-amber-100
+              dark:border-amber-900/50
+              dark:bg-amber-950/30
+              dark:text-amber-400
+              dark:hover:bg-amber-950/50
+            "
+          >
+            <Power size={14} />
+            Deactivate
+          </button>
+        )}
+      </div>
+
+      {/* ==========================================
+          View Details
+      ========================================== */}
       <button
         type="button"
         onClick={() => onView?.(mechanic)}
         className="
-          mt-4
+          mt-2
           flex w-full
           items-center
           justify-center
@@ -350,7 +460,6 @@ const MechanicCard = ({ mechanic, onView }) => {
         "
       >
         View Details
-
         <ChevronRight
           size={15}
           className="

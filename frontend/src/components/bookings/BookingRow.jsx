@@ -3,6 +3,8 @@ import {
   UserRound,
   Wrench,
   Eye,
+  UserRoundPlus,
+  Trash2,
 } from "lucide-react";
 
 import StatusBadge from "./StatusBadge";
@@ -10,7 +12,14 @@ import StatusBadge from "./StatusBadge";
 const BookingRow = ({
   booking,
   onView,
+
+  // Actions
+  showAssign = false,
+  showDelete = false,
+  onAssign,
+  onDelete,
 }) => {
+
   if (!booking) {
     return null;
   }
@@ -30,6 +39,7 @@ const BookingRow = ({
     bookingTime,
   } = booking;
 
+
   return (
     <tr
       className="
@@ -41,9 +51,13 @@ const BookingRow = ({
         dark:hover:bg-slate-800/50
       "
     >
-      {/* Booking ID */}
+
+      {/* ==========================================
+          Booking ID
+      ========================================== */}
 
       <td className="whitespace-nowrap px-5 py-4 sm:px-6">
+
         <span
           className="
             text-sm
@@ -54,11 +68,16 @@ const BookingRow = ({
         >
           #{bookingCode || id}
         </span>
+
       </td>
 
-      {/* Customer */}
+
+      {/* ==========================================
+          Customer
+      ========================================== */}
 
       <td className="px-5 py-4 sm:px-6">
+
         <div className="flex items-center gap-3">
 
           <div
@@ -103,12 +122,18 @@ const BookingRow = ({
             )}
 
           </div>
+
         </div>
+
       </td>
 
-      {/* Vehicle */}
+
+      {/* ==========================================
+          Vehicle
+      ========================================== */}
 
       <td className="px-5 py-4 sm:px-6">
+
         <div className="flex items-center gap-2.5">
 
           <CarFront
@@ -147,12 +172,18 @@ const BookingRow = ({
             )}
 
           </div>
+
         </div>
+
       </td>
 
-      {/* Service */}
+
+      {/* ==========================================
+          Service
+      ========================================== */}
 
       <td className="px-5 py-4 sm:px-6">
+
         <span
           className="
             text-sm
@@ -162,11 +193,16 @@ const BookingRow = ({
         >
           {serviceName || "N/A"}
         </span>
+
       </td>
 
-      {/* Mechanic */}
+
+      {/* ==========================================
+          Mechanic
+      ========================================== */}
 
       <td className="px-5 py-4 sm:px-6">
+
         <div className="flex items-center gap-2.5">
 
           <div
@@ -199,15 +235,24 @@ const BookingRow = ({
           </span>
 
         </div>
+
       </td>
 
-      {/* Status */}
+
+      {/* ==========================================
+          Status
+      ========================================== */}
 
       <td className="px-5 py-4 sm:px-6">
+
         <StatusBadge status={status} />
+
       </td>
 
-      {/* Amount */}
+
+      {/* ==========================================
+          Amount
+      ========================================== */}
 
       <td className="whitespace-nowrap px-5 py-4 sm:px-6">
 
@@ -220,14 +265,15 @@ const BookingRow = ({
           "
         >
           ₹
-          {Number(amount || 0).toLocaleString(
-            "en-IN"
-          )}
+          {Number(amount || 0).toLocaleString("en-IN")}
         </span>
 
       </td>
 
-      {/* Date / Time */}
+
+      {/* ==========================================
+          Date / Time
+      ========================================== */}
 
       <td className="whitespace-nowrap px-5 py-4 sm:px-6">
 
@@ -257,33 +303,100 @@ const BookingRow = ({
 
       </td>
 
-      {/* Action */}
+
+      {/* ==========================================
+          Actions
+      ========================================== */}
 
       <td className="px-5 py-4 sm:px-6">
 
-        <button
-          type="button"
-          onClick={() => onView?.(booking)}
-          className="
-            rounded-lg
-            p-2
-            text-slate-400
-            opacity-70
-            transition
-            hover:bg-slate-200
-            hover:text-slate-900
-            dark:hover:bg-slate-700
-            dark:hover:text-white
-            group-hover:opacity-100
-          "
-          aria-label={`View booking ${
-            bookingCode || id
-          }`}
-        >
-          <Eye size={17} />
-        </button>
+        <div className="flex items-center gap-1.5">
+
+          {/* View */}
+
+          <button
+            type="button"
+            onClick={() => onView?.(booking)}
+            className="
+              rounded-lg
+              p-2
+              text-slate-400
+              transition
+              hover:bg-slate-200
+              hover:text-slate-900
+              dark:hover:bg-slate-700
+              dark:hover:text-white
+            "
+            aria-label={`View booking ${
+              bookingCode || id
+            }`}
+            title="View Booking"
+          >
+            <Eye size={17} />
+          </button>
+
+
+          {/* ======================================
+              Assign Mechanic
+              Only Pending Section
+          ====================================== */}
+
+          {showAssign && (
+            <button
+              type="button"
+              onClick={() => onAssign?.(booking)}
+              className="
+                rounded-lg
+                p-2
+                text-blue-500
+                transition
+                hover:bg-blue-50
+                hover:text-blue-700
+                dark:hover:bg-blue-950/40
+                dark:hover:text-blue-400
+              "
+              aria-label={`Assign mechanic to booking ${
+                bookingCode || id
+              }`}
+              title="Assign Mechanic"
+            >
+              <UserRoundPlus size={17} />
+            </button>
+          )}
+
+
+          {/* ======================================
+              Delete Booking
+              Only All Bookings Section
+          ====================================== */}
+
+          {showDelete && (
+            <button
+              type="button"
+              onClick={() => onDelete?.(booking)}
+              className="
+                rounded-lg
+                p-2
+                text-red-400
+                transition
+                hover:bg-red-50
+                hover:text-red-600
+                dark:hover:bg-red-950/40
+                dark:hover:text-red-400
+              "
+              aria-label={`Delete booking ${
+                bookingCode || id
+              }`}
+              title="Delete Booking"
+            >
+              <Trash2 size={17} />
+            </button>
+          )}
+
+        </div>
 
       </td>
+
     </tr>
   );
 };

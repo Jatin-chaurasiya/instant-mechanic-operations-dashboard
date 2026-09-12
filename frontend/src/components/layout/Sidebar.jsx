@@ -37,6 +37,11 @@ export const navigationItems = [
     path: "/customers",
     icon: Users,
   },
+  {
+    name: "Vehicles",
+    path: "/vehicles",
+    icon: Users,
+  },
 ];
 
 const Sidebar = ({ onClose }) => {

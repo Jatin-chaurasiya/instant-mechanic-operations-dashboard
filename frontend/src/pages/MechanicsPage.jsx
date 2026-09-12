@@ -1,33 +1,58 @@
-import {
-  Wrench,
-  RefreshCw,
-} from "lucide-react";
+import { Wrench, RefreshCw, Plus } from "lucide-react";
 
 import MechanicsGrid from "../components/mechanics/MechanicsGrid";
+import AddMechanicModal from "../components/mechanics/AddMechanicModal";
 import Button from "../components/ui/Button";
-import useMechanics from "../hooks/useMechanics";
+import MechanicDetailsModal from "../components/mechanics/MechanicDetailsModal";
+
+import useMechanics from "../hooks/mechanics/useMechanics";
 
 const MechanicsPage = () => {
   const {
-    mechanics,
-    loading,
-    refreshing,
-    error,
     search,
     status,
-    currentPage,
-    totalPages,
     totalItems,
-    refresh,
+
+    activeSection,
+    sectionData,
+
+    available,
+    inactive,
+
+    detailsOpen,
+    selectedMechanicId,
+
+    mechanicModalOpen,
+    selectedMechanic,
+    saving,
+
     setSearch,
     setStatus,
-    setPage,
-    resetFilters,
+
+    handleSectionChange,
+    handleRefresh,
+    handleSectionPageChange,
+    handleRetry,
+    handleReset,
+
+    handleAddClick,
+    handleSaveMechanic,
+    handleCloseModal,
+
+    handleView,
+    handleCloseDetails,
+
+    handleEdit,
+    handleDeactivate,
+    handleActivate,
   } = useMechanics();
 
   return (
     <div>
-      {/* Header */}
+      {/* =====================================================
+          Header
+      ====================================================== */}
+
       <div
         className="
           flex flex-col gap-4
@@ -68,6 +93,21 @@ const MechanicsPage = () => {
             >
               Mechanics
             </h1>
+
+            <span
+              className="
+                rounded-full
+                bg-slate-100
+                px-2.5 py-1
+                text-xs
+                font-semibold
+                text-slate-600
+                dark:bg-slate-800
+                dark:text-slate-300
+              "
+            >
+              {sectionData.totalItems}
+            </span>
           </div>
 
           <p
@@ -78,46 +118,191 @@ const MechanicsPage = () => {
               dark:text-slate-400
             "
           >
-            Monitor mechanic availability and current service activity.
+            Manage mechanics and monitor their availability.
           </p>
         </div>
 
-        {/* Refresh */}
-        <Button
-          variant="secondary"
-          icon={RefreshCw}
-          loading={refreshing}
-          onClick={refresh}
-        >
-          Refresh
-        </Button>
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            icon={RefreshCw}
+            loading={
+              activeSection === "all"
+                ? sectionData.refreshing
+                : sectionData.loading
+            }
+            onClick={handleRefresh}
+          >
+            Refresh
+          </Button>
+
+          <Button
+            variant="primary"
+            icon={Plus}
+            onClick={handleAddClick}
+          >
+            Add Mechanic
+          </Button>
+        </div>
       </div>
 
-      {/* Mechanics */}
+      {/* =====================================================
+          Sections
+      ====================================================== */}
+
+      <div
+        className="
+          mt-6
+          flex flex-wrap
+          gap-2
+          rounded-2xl
+          border border-slate-200
+          bg-white
+          p-2
+          shadow-sm
+          dark:border-slate-700
+          dark:bg-slate-900
+        "
+      >
+        {/* All */}
+        <button
+          type="button"
+          onClick={() => handleSectionChange("all")}
+          className={`
+            rounded-xl
+            px-4 py-2.5
+            text-sm font-semibold
+            transition
+            ${
+              activeSection === "all"
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            }
+          `}
+        >
+          All Mechanics
+
+          <span className="ml-2 opacity-70">
+            {totalItems}
+          </span>
+        </button>
+
+        {/* Available */}
+        <button
+          type="button"
+          onClick={() =>
+            handleSectionChange("available")
+          }
+          className={`
+            rounded-xl
+            px-4 py-2.5
+            text-sm font-semibold
+            transition
+            ${
+              activeSection === "available"
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            }
+          `}
+        >
+          Available Mechanics
+
+          <span className="ml-2 opacity-70">
+            {available.totalItems}
+          </span>
+        </button>
+
+        {/* Inactive */}
+        <button
+          type="button"
+          onClick={() =>
+            handleSectionChange("inactive")
+          }
+          className={`
+            rounded-xl
+            px-4 py-2.5
+            text-sm font-semibold
+            transition
+            ${
+              activeSection === "inactive"
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            }
+          `}
+        >
+          Inactive Mechanics
+
+          <span className="ml-2 opacity-70">
+            {inactive.totalItems}
+          </span>
+        </button>
+      </div>
+
+      {/* =====================================================
+          Mechanics Grid
+      ====================================================== */}
+
       <div className="mt-6">
         <MechanicsGrid
-          mechanics={mechanics}
-          loading={loading}
-          error={error}
-          onRetry={refresh}
-          search={search}
-          status={status}
+          mechanics={sectionData.mechanics}
+          loading={sectionData.loading}
+          error={sectionData.error}
+          onRetry={handleRetry}
+          search={
+            activeSection === "all"
+              ? search
+              : ""
+          }
+          status={
+            activeSection === "all"
+              ? status
+              : ""
+          }
           onSearchChange={setSearch}
           onStatusChange={setStatus}
-          onReset={resetFilters}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          onPageChange={setPage}
+          onReset={handleReset}
+          currentPage={sectionData.currentPage}
+          totalPages={sectionData.totalPages}
+          totalItems={sectionData.totalItems}
+          onPageChange={handleSectionPageChange}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDeactivate={handleDeactivate}
+          onActivate={handleActivate}
         />
       </div>
 
-      {/* Live Status */}
+      {/* =====================================================
+          Mechanic Details Modal
+      ====================================================== */}
+
+      <MechanicDetailsModal
+        isOpen={detailsOpen}
+        onClose={handleCloseDetails}
+        mechanicId={selectedMechanicId}
+      />
+
+      {/* =====================================================
+          Add / Update Mechanic Modal
+      ====================================================== */}
+
+      <AddMechanicModal
+        isOpen={mechanicModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSaveMechanic}
+        mechanic={selectedMechanic}
+        loading={saving}
+      />
+
+      {/* =====================================================
+          Live Status
+      ====================================================== */}
+
       <div
         className="
           mt-5
-          flex
-          items-center
+          flex items-center
           justify-end
           gap-2
           text-xs
