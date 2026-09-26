@@ -33,12 +33,28 @@ jobs:
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.5
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: JWT_SECRET,RAZORPAY_KEY_ID,RAZORPAY_KEY_SECRET
           script: |
             cd ~/instant-mechanic
+
+            touch .env
+
+            sed -i '/^JWT_SECRET=/d' .env
+            sed -i '/^RAZORPAY_KEY_ID=/d' .env
+            sed -i '/^RAZORPAY_KEY_SECRET=/d' .env
+
+            echo "JWT_SECRET=${JWT_SECRET}" >> .env
+            echo "RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}" >> .env
+            echo "RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}" >> .env
+
             sudo docker compose pull backend
             sudo docker compose up -d backend
             sudo docker image prune -f
