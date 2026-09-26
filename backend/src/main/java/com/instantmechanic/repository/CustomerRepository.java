@@ -9,9 +9,12 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomerRepository
         extends JpaRepository<Customer, Long> {
+
+    Optional<Customer> findByEmail(String email);
 
     // Used by Dashboard API
     long countByCreatedAtAfter(

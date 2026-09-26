@@ -10,10 +10,10 @@ import java.util.List;
 public interface ServiceRepository
         extends JpaRepository<Service, Long> {
 
-    // Active services for booking/service listing
+    // Get active services
     List<Service> findByActiveTrue();
 
-    // Distinct active service categories
+    // Get distinct active categories
     @Query("""
             SELECT DISTINCT s.category
             FROM Service s
@@ -23,13 +23,17 @@ public interface ServiceRepository
             ORDER BY s.category
             """)
     List<String> findActiveCategories();
+
+    // Search services
     @Query("""
-        SELECT s
-        FROM Service s
-        WHERE
-            LOWER(s.serviceName) LIKE LOWER(CONCAT('%', :query, '%'))
-            OR LOWER(s.category) LIKE LOWER(CONCAT('%', :query, '%'))
-            OR LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))
-        """)
-    List<Service> searchServices(@Param("query") String query);
+            SELECT s
+            FROM Service s
+            WHERE
+                LOWER(s.serviceName) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(s.category) LIKE LOWER(CONCAT('%', :query, '%'))
+                OR LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))
+            """)
+    List<Service> searchServices(
+            @Param("query") String query
+    );
 }

@@ -10,6 +10,7 @@ import BookingsOverTimeChart from "../components/analytics/BookingsOverTimeChart
 import RevenueChart from "../components/analytics/RevenueChart";
 import StatusPieChart from "../components/analytics/StatusPieChart";
 import CategoryBarChart from "../components/analytics/CategoryBarChart";
+import WebSocketTest from "../components/webSocketTest/WebSocketTest";
 
 import ErrorState from "../components/ui/ErrorState";
 
@@ -69,6 +70,7 @@ const categoryData =
   return (
     <div>
 
+      <WebSocketTest />
       {/* Page Summary */}
 
       <DashboardSummary

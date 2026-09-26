@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import { useState } from "react";
+
+>>>>>>> 13663fd (push backend code)
 import { CalendarX2 } from "lucide-react";
 
 import BookingRow from "./BookingRow";
@@ -62,25 +67,27 @@ const TableHeader = () => {
           dark:bg-slate-800/70
         "
       >
-        {TABLE_HEADINGS.map((heading) => (
-          <th
-            key={heading}
-            className="
-              whitespace-nowrap
-              px-5 py-3.5
-              text-left
-              text-[11px]
-              font-semibold
-              uppercase
-              tracking-wider
-              text-slate-500
-              dark:text-slate-400
-              sm:px-6
-            "
-          >
-            {heading}
-          </th>
-        ))}
+        {TABLE_HEADINGS.map(
+          (heading) => (
+            <th
+              key={heading}
+              className="
+                whitespace-nowrap
+                px-5 py-3.5
+                text-left
+                text-[11px]
+                font-semibold
+                uppercase
+                tracking-wider
+                text-slate-500
+                dark:text-slate-400
+                sm:px-6
+              "
+            >
+              {heading}
+            </th>
+          )
+        )}
       </tr>
     </thead>
   );
@@ -90,12 +97,13 @@ const BookingsTable = ({
   bookings = [],
   loading = false,
   error = null,
-  currentPage = 0,
+  currentPage = 1,
   totalPages = 1,
   totalItems = bookings.length,
   itemsPerPage = 10,
   onPageChange,
   onRetry,
+<<<<<<< HEAD
   section = "all",
 
   onAssign,
@@ -192,6 +200,23 @@ const BookingsTable = ({
     return "There are no bookings matching your current search or filters.";
   };
   // Render
+=======
+}) => {
+  // Local UI state:
+  // kept as useState because it only controls
+  // the Booking Detail Modal.
+  const [selectedBooking, setSelectedBooking] =
+    useState(null);
+
+  const handleViewBooking = (booking) => {
+    setSelectedBooking(booking);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedBooking(null);
+  };
+
+>>>>>>> 13663fd (push backend code)
   return (
     <>
       <div
@@ -207,6 +232,10 @@ const BookingsTable = ({
         "
       >
         {/* Table Header */}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13663fd (push backend code)
         <div
           className="
             flex
@@ -228,7 +257,7 @@ const BookingsTable = ({
               sm:text-base
             "
           >
-            {getSectionTitle()}
+            Recent Bookings
           </h3>
 
           <p
@@ -239,11 +268,16 @@ const BookingsTable = ({
               sm:text-sm
             "
           >
-            {getSectionDescription()}
+            Monitor and manage vehicle
+            service bookings.
           </p>
         </div>
 
         {/* Error */}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13663fd (push backend code)
         {error && !loading && (
           <div className="p-5 sm:p-6">
             <ErrorState
@@ -257,6 +291,10 @@ const BookingsTable = ({
         )}
 
         {/* Loading */}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13663fd (push backend code)
         {loading && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1100px]">
@@ -270,6 +308,7 @@ const BookingsTable = ({
         )}
 
         {/* Empty */}
+<<<<<<< HEAD
         {!loading && !error && bookings.length === 0 && (
           <div className="p-5 sm:p-6">
             <EmptyState
@@ -286,12 +325,40 @@ const BookingsTable = ({
             <div className="overflow-x-auto">
               <table
                 className="
+=======
+
+        {!loading &&
+          !error &&
+          bookings.length === 0 && (
+            <div className="p-5 sm:p-6">
+              <EmptyState
+                icon={CalendarX2}
+                title="No bookings found"
+                description="
+                  There are no bookings matching your
+                  current search or filters.
+                "
+              />
+            </div>
+          )}
+
+        {/* Table */}
+
+        {!loading &&
+          !error &&
+          bookings.length > 0 && (
+            <>
+              <div className="overflow-x-auto">
+                <table
+                  className="
+>>>>>>> 13663fd (push backend code)
                     w-full
                     min-w-[1100px]
                   "
               >
                 <TableHeader />
 
+<<<<<<< HEAD
                 <tbody>
                   {bookings.map((booking) => (
                     <BookingRow
@@ -330,9 +397,42 @@ const BookingsTable = ({
       </div>
 
       {/* Booking Detail Modal */}
+=======
+                  <tbody>
+                    {bookings.map(
+                      (booking) => (
+                        <BookingRow
+                          key={booking.id}
+                          booking={booking}
+                          onView={
+                            handleViewBooking
+                          }
+                        />
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={onPageChange}
+              />
+            </>
+          )}
+      </div>
+
+      {/* Detail Modal */}
+
+>>>>>>> 13663fd (push backend code)
       <BookingDetailModal
         isOpen={Boolean(selectedBooking)}
-        onClose={onCloseDetail}
+        onClose={handleCloseModal}
         booking={selectedBooking}
       />
     </>

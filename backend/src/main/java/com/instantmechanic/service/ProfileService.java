@@ -18,20 +18,22 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public ProfileResponse getProfile(Authentication authentication) {
 
+        // Get logged-in user's email from JWT
         String email = authentication.getName();
 
+        // Find user from database
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "User not found"
                         )
                 );
-
+        // Convert Entity → DTO
         return ProfileResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
-                .role("ADMIN")
+                .role(user.getRole().name())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

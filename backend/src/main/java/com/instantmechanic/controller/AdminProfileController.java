@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/admin/profile")
 @RequiredArgsConstructor
-public class ProfileController {
+public class AdminProfileController {
 
     private final ProfileService profileService;
 
@@ -20,7 +20,6 @@ public class ProfileController {
     public ResponseEntity<ProfileResponse> getProfile(
             Authentication authentication
     ) {
-
         ProfileResponse response =
                 profileService.getProfile(authentication);
 

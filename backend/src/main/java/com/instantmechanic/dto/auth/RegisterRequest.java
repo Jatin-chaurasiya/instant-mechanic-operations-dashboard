@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RegisterRequest {
 
     @NotBlank(message = "Name is required")
@@ -17,9 +18,28 @@ public class RegisterRequest {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
+    @Size(max = 150, message = "Email cannot exceed 150 characters")
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
+    @Size(
+            min = 6,
+            max = 100,
+            message = "Password must be between 6 and 100 characters"
+    )
     private String password;
+
+    @NotBlank(message = "Phone number is required")
+    @Size(
+            max = 20,
+            message = "Phone number cannot exceed 20 characters"
+    )
+    private String phone;
+
+    @NotBlank(message = "Address is required")
+    @Size(
+            max = 255,
+            message = "Address cannot exceed 255 characters"
+    )
+    private String address;
 }

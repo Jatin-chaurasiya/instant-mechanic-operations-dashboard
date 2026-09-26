@@ -1,22 +1,47 @@
+<<<<<<< HEAD
 import { CalendarCheck, RefreshCw, Plus } from "lucide-react";
+=======
+import { CalendarCheck, RefreshCw } from "lucide-react";
+import { useState, useEffect } from "react";
+>>>>>>> 13663fd (push backend code)
 
 import BookingSearch from "../components/bookings/BookingSearch";
 import BookingFilters from "../components/bookings/BookingFilters";
 import BookingSort from "../components/bookings/BookingSort";
 import BookingsTable from "../components/bookings/BookingsTable";
+<<<<<<< HEAD
 import AddBookingModal from "../components/bookings/AddBookingModal";
 import RejectBookingModal from "../components/bookings/RejectBookingModal";
 import AssignBookingModal from "../components/bookings/AssignBookingModal";
+=======
+>>>>>>> 13663fd (push backend code)
 
-import ConfirmModal from "../components/ui/ConfirmModal";
 import Button from "../components/ui/Button";
 
+<<<<<<< HEAD
 import useBookings from "../hooks/bookings/useBookings";
 
 const BookingsPage = () => {
   const {
     // All Bookings
 
+=======
+import useBookings from "../hooks/useBookings";
+import serviceApi from "../api/serviceApi";
+
+const BookingsPage = () => {
+  // ==========================================
+  // Service Categories
+  // Kept as local state because this is
+  // page-level category data, not booking state.
+  // ==========================================
+
+  const [categories, setCategories] = useState([]);
+
+  const {
+    bookings,
+    loading,
+>>>>>>> 13663fd (push backend code)
     refreshing,
     error,
 
@@ -30,18 +55,22 @@ const BookingsPage = () => {
     totalItems,
     itemsPerPage,
 
+<<<<<<< HEAD
     // Categories
 
     categories,
 
     // Existing All Booking Handlers
 
+=======
+>>>>>>> 13663fd (push backend code)
     setSearch,
     setStatus,
     setCategory,
     setSort,
     setPage,
     resetFilters,
+<<<<<<< HEAD
 
     // Sections
 
@@ -147,6 +176,41 @@ const BookingsPage = () => {
   } = useBookings();
   return (
     <div>
+=======
+    refresh,
+  } = useBookings();
+
+  // ==========================================
+  // Load Categories
+  // ==========================================
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data =
+          await serviceApi.getCategories();
+
+        setCategories(
+          Array.isArray(data) ? data : []
+        );
+      } catch (error) {
+        console.error(
+          "Unable to load service categories:",
+          error
+        );
+
+        setCategories([]);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  return (
+    <div>
+      {/* Page Header */}
+
+>>>>>>> 13663fd (push backend code)
       <div
         className="
           flex flex-col gap-4
@@ -179,7 +243,7 @@ const BookingsPage = () => {
                 dark:text-slate-300
               "
             >
-              {sectionTotalItems}
+              {totalItems}
             </span>
           </div>
 
@@ -194,8 +258,9 @@ const BookingsPage = () => {
           </p>
         </div>
 
-        {/* Header Actions */}
+        {/* Refresh */}
 
+<<<<<<< HEAD
         <div className="flex items-center gap-3">
           <Button
             variant="secondary"
@@ -268,21 +333,34 @@ const BookingsPage = () => {
           </div>
         </div>
       )}
+=======
+        <Button
+          variant="secondary"
+          icon={RefreshCw}
+          loading={refreshing}
+          onClick={refresh}
+        >
+          Refresh
+        </Button>
+      </div>
+
+      {/* Search & Controls */}
+
+>>>>>>> 13663fd (push backend code)
       <div
         className="
           mt-6
-          flex
-          overflow-x-auto
           rounded-2xl
-          border
-          border-slate-200
+          border border-slate-200
           bg-white
-          p-1.5
+          p-4
           shadow-sm
           dark:border-slate-700
           dark:bg-slate-900
+          sm:p-5
         "
       >
+<<<<<<< HEAD
         {/* All */}
 
         <button
@@ -466,28 +544,155 @@ const BookingsPage = () => {
         </div>
 
         <span
+=======
+        <div
+>>>>>>> 13663fd (push backend code)
           className="
-            rounded-full
-            bg-slate-100
-            px-3 py-1
-            text-xs font-semibold
-            text-slate-600
-            dark:bg-slate-800
-            dark:text-slate-300
+            flex flex-col gap-4
+            xl:flex-row
+            xl:items-center
+            xl:justify-between
           "
         >
-          {sectionTotalItems} bookings
-        </span>
+          {/* Search */}
+
+          <BookingSearch
+            value={search}
+            onChange={setSearch}
+            placeholder="Search by booking, customer, vehicle..."
+          />
+
+          {/* Sort */}
+
+          <BookingSort
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSortChange={setSort}
+          />
+        </div>
+
+        {/* Filters */}
+
+        <div
+          className="
+            mt-4
+            border-t border-slate-100
+            pt-4
+            dark:border-slate-800
+          "
+        >
+          <BookingFilters
+            status={status}
+            category={category}
+            onStatusChange={setStatus}
+            onCategoryChange={setCategory}
+            onReset={resetFilters}
+            categories={categories}
+          />
+        </div>
       </div>
+<<<<<<< HEAD
       <div className="mt-4">
+=======
+
+      {/* Active Filter Summary */}
+
+      {(search || status || category) && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span
+            className="
+              text-xs font-medium
+              text-slate-400
+              dark:text-slate-500
+            "
+          >
+            Active filters:
+          </span>
+
+          {search && (
+            <span
+              className="
+                rounded-full
+                bg-slate-100
+                px-2.5 py-1
+                text-xs font-medium
+                text-slate-600
+                dark:bg-slate-800
+                dark:text-slate-300
+              "
+            >
+              Search: {search}
+            </span>
+          )}
+
+          {status && (
+            <span
+              className="
+                rounded-full
+                bg-slate-100
+                px-2.5 py-1
+                text-xs font-medium
+                text-slate-600
+                dark:bg-slate-800
+                dark:text-slate-300
+              "
+            >
+              Status:{" "}
+              {status
+                .replaceAll("_", " ")
+                .toLowerCase()
+                .replace(/\b\w/g, (char) =>
+                  char.toUpperCase()
+                )}
+            </span>
+          )}
+
+          {category && (
+            <span
+              className="
+                rounded-full
+                bg-slate-100
+                px-2.5 py-1
+                text-xs font-medium
+                text-slate-600
+                dark:bg-slate-800
+                dark:text-slate-300
+              "
+            >
+              Service: {category}
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="
+              text-xs font-medium
+              text-slate-500
+              underline underline-offset-2
+              hover:text-slate-900
+              dark:text-slate-400
+              dark:hover:text-white
+            "
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
+      {/* Table */}
+
+      <div className="mt-6">
+>>>>>>> 13663fd (push backend code)
         <BookingsTable
-          bookings={sectionBookings}
-          loading={sectionIsLoading}
-          error={sectionErrorMessage}
-          currentPage={sectionCurrentPage}
-          totalPages={sectionTotalPages}
-          totalItems={sectionTotalItems}
+          bookings={bookings}
+          loading={loading}
+          error={error}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
           itemsPerPage={itemsPerPage}
+<<<<<<< HEAD
           onPageChange={handleCurrentSectionPageChange}
           onRetry={refreshCurrentSection}
           section={activeSection}
@@ -501,13 +706,19 @@ const BookingsPage = () => {
           markingAsPaid={markingAsPaid}
         />
       </div>
+=======
+          onPageChange={setPage}
+          onRetry={refresh}
+        />
+      </div>
+
+      {/* Live Status */}
+
+>>>>>>> 13663fd (push backend code)
       <div
         className="
           mt-4
-          flex
-          items-center
-          justify-end
-          gap-2
+          flex items-center justify-end gap-2
           text-xs
           text-slate-400
           dark:text-slate-500
@@ -515,17 +726,17 @@ const BookingsPage = () => {
       >
         <CalendarCheck size={14} />
 
+<<<<<<< HEAD
         <span>Bookings automatically refresh every 30 seconds</span>
+=======
+        <span>
+          Bookings automatically refresh every 30 seconds
+        </span>
+>>>>>>> 13663fd (push backend code)
 
-        <span
-          className="
-            h-1.5
-            w-1.5
-            rounded-full
-            bg-emerald-500
-          "
-        />
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
       </div>
+<<<<<<< HEAD
       <AddBookingModal
         isOpen={isAddBookingOpen}
         onClose={closeAddBooking}
@@ -594,6 +805,8 @@ const BookingsPage = () => {
         cancelText="Cancel"
         loading={deletingBooking}
       />
+=======
+>>>>>>> 13663fd (push backend code)
     </div>
   );
 };

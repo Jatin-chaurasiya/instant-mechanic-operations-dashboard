@@ -38,10 +38,8 @@ const BookingFilters = ({
   onReset,
   categories = [],
 }) => {
-
-  const categoryOptions =
-    categories.map((item) => {
-
+  const categoryOptions = categories
+    .map((item) => {
       if (
         typeof item === "object" &&
         item !== null
@@ -62,7 +60,8 @@ const BookingFilters = ({
         value: item,
         label: item,
       };
-    }).filter(
+    })
+    .filter(
       (item) => item.value
     );
 

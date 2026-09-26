@@ -1,5 +1,6 @@
 package com.instantmechanic.entity;
 
+import com.instantmechanic.enums.BookingCreatedBy;
 import com.instantmechanic.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -67,6 +68,11 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private BookingStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private BookingCreatedBy createdBy;
+    @Column(length = 500)
+    private String rejectionReason;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

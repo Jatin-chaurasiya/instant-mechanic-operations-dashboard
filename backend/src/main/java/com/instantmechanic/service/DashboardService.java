@@ -33,34 +33,20 @@ public class DashboardService {
 
         LocalDate yesterday =
                 today.minusDays(1);
-
-        // ==============================
         // Current month
-        // ==============================
-
         LocalDate currentMonthStart =
                 today.withDayOfMonth(1);
 
         LocalDate currentMonthEnd =
                 today;
-
-        // ==============================
         // Previous month
-        // ==============================
-
         LocalDate previousMonthDate =
                 currentMonthStart.minusDays(1);
-
         LocalDate previousMonthStart =
                 previousMonthDate.withDayOfMonth(1);
-
         LocalDate previousMonthEnd =
                 previousMonthDate;
-
-        // ==============================
         // Basic dashboard metrics
-        // ==============================
-
         long totalBookings =
                 bookingRepository.count();
 
@@ -68,27 +54,22 @@ public class DashboardService {
                 bookingRepository.countByBookingDate(
                         today
                 );
-
         long completedBookings =
                 bookingRepository.countByStatus(
                         BookingStatus.COMPLETED
                 );
-
         long pendingBookings =
                 bookingRepository.countByStatus(
                         BookingStatus.PENDING
                 );
-
         long cancelledBookings =
                 bookingRepository.countByStatus(
                         BookingStatus.CANCELLED
                 );
-
         BigDecimal totalRevenue =
                 bookingRepository.getRevenueByStatus(
                         BookingStatus.COMPLETED
                 );
-
         long activeMechanics =
                 mechanicRepository.countByStatusIn(
                         List.of(
@@ -97,45 +78,30 @@ public class DashboardService {
                                 MechanicStatus.ON_THE_WAY
                         )
                 );
-
         LocalDateTime thirtyDaysAgo =
                 LocalDateTime.now()
                         .minusDays(30);
-
         long newCustomers =
                 customerRepository.countByCreatedAtAfter(
                         thirtyDaysAgo
                 );
-
-        // ==============================
         // Current month bookings
-        // ==============================
-
         long currentMonthBookings =
                 bookingRepository.countByBookingDateBetween(
                         currentMonthStart,
                         currentMonthEnd
                 );
-
         long previousMonthBookings =
                 bookingRepository.countByBookingDateBetween(
                         previousMonthStart,
                         previousMonthEnd
                 );
-
-        // ==============================
         // Today vs yesterday
-        // ==============================
-
         long yesterdayBookings =
                 bookingRepository.countByBookingDate(
                         yesterday
                 );
-
-        // ==============================
         // Current month status counts
-        // ==============================
-
         long currentCompleted =
                 bookingRepository
                         .countByBookingDateBetweenAndStatus(
@@ -143,7 +109,6 @@ public class DashboardService {
                                 currentMonthEnd,
                                 BookingStatus.COMPLETED
                         );
-
         long previousCompleted =
                 bookingRepository
                         .countByBookingDateBetweenAndStatus(
@@ -151,7 +116,6 @@ public class DashboardService {
                                 previousMonthEnd,
                                 BookingStatus.COMPLETED
                         );
-
         long currentPending =
                 bookingRepository
                         .countByBookingDateBetweenAndStatus(
@@ -159,7 +123,6 @@ public class DashboardService {
                                 currentMonthEnd,
                                 BookingStatus.PENDING
                         );
-
         long previousPending =
                 bookingRepository
                         .countByBookingDateBetweenAndStatus(
@@ -167,7 +130,6 @@ public class DashboardService {
                                 previousMonthEnd,
                                 BookingStatus.PENDING
                         );
-
         long currentCancelled =
                 bookingRepository
                         .countByBookingDateBetweenAndStatus(
@@ -175,7 +137,6 @@ public class DashboardService {
                                 currentMonthEnd,
                                 BookingStatus.CANCELLED
                         );
-
         long previousCancelled =
                 bookingRepository
                         .countByBookingDateBetweenAndStatus(
@@ -183,11 +144,7 @@ public class DashboardService {
                                 previousMonthEnd,
                                 BookingStatus.CANCELLED
                         );
-
-        // ==============================
         // Revenue comparison
-        // ==============================
-
         BigDecimal currentMonthRevenue =
                 bookingRepository
                         .getRevenueByStatusAndDateRange(
@@ -195,7 +152,6 @@ public class DashboardService {
                                 currentMonthStart,
                                 currentMonthEnd
                         );
-
         BigDecimal previousMonthRevenue =
                 bookingRepository
                         .getRevenueByStatusAndDateRange(
@@ -203,11 +159,7 @@ public class DashboardService {
                                 previousMonthStart,
                                 previousMonthEnd
                         );
-
-        // ==============================
         // Customer comparison
-        // ==============================
-
         LocalDateTime currentMonthCustomerStart =
                 currentMonthStart.atStartOfDay();
 
@@ -237,11 +189,7 @@ public class DashboardService {
                         previousMonthCustomerStart,
                         previousMonthCustomerEnd
                 );
-
-        // ==============================
         // Dynamic trends
-        // ==============================
-
         double totalBookingsTrend =
                 calculatePercentageChange(
                         previousMonthBookings,
@@ -331,30 +279,22 @@ public class DashboardService {
 
                 .build();
     }
-
-    // ==============================
     // Percentage change
-    // ==============================
-
     private double calculatePercentageChange(
             long previous,
             long current
     ) {
 
         if (previous == 0) {
-
             if (current == 0) {
                 return 0.0;
             }
-
             return 100.0;
         }
-
         double percentage =
                 ((double) (current - previous)
                         / previous)
                         * 100.0;
-
         return BigDecimal
                 .valueOf(percentage)
                 .setScale(1, RoundingMode.HALF_UP)
@@ -369,23 +309,18 @@ public class DashboardService {
         if (previous == null) {
             previous = BigDecimal.ZERO;
         }
-
         if (current == null) {
             current = BigDecimal.ZERO;
         }
-
         if (previous.compareTo(BigDecimal.ZERO) == 0) {
-
             if (current.compareTo(BigDecimal.ZERO) == 0) {
                 return 0.0;
             }
-
             return 100.0;
         }
 
         BigDecimal difference =
                 current.subtract(previous);
-
         BigDecimal percentage =
                 difference
                         .multiply(BigDecimal.valueOf(100))
@@ -394,7 +329,6 @@ public class DashboardService {
                                 1,
                                 RoundingMode.HALF_UP
                         );
-
         return percentage.doubleValue();
     }
 }

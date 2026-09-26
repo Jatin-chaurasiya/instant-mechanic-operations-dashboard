@@ -4,6 +4,7 @@ import com.instantmechanic.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -49,20 +50,19 @@ public class SecurityConfig {
 
         return configuration.getAuthenticationManager();
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http
     ) throws Exception {
 
         http
-                // REST API ke liye CSRF disable
+                // REST API → CSRF not required
                 .csrf(csrf -> csrf.disable())
 
-                // CORS
+                // Enable CORS
                 .cors(cors -> {})
 
-                // JWT ke saath session nahi chahiye
+                // JWT → Stateless session
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
@@ -80,14 +80,41 @@ public class SecurityConfig {
                                 "/**/OPTIONS"
                         ).permitAll()
 
-                        // Baaki sab protected
-                        .anyRequest().authenticated()
-                )
+                        // Public service viewing
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/services",
+                                "/services/**"
+                        ).permitAll()
 
+                        // Admin APIs
+                        .requestMatchers("/admin/**")
+                        .hasAuthority("ADMIN")
+
+                        // Customer APIs
+                        .requestMatchers("/customer/**")
+                        .hasAuthority("CUSTOMER")
+
+                        // Admin customer management APIs
+                        .requestMatchers("/customers/**")
+                        .hasAuthority("ADMIN")
+                        .requestMatchers("/mechanics/**")
+                        .hasAuthority("ADMIN")
+
+                        // Admin booking APIs
+                        .requestMatchers("/bookings/**")
+                        .hasAuthority("ADMIN")
+
+                        // Other authenticated APIs
+                        .anyRequest()
+                        .authenticated()
+                )
+                // Authentication Provider
                 .authenticationProvider(
                         authenticationProvider()
                 )
 
+                // JWT Filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

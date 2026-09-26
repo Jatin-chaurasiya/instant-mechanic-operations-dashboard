@@ -1,6 +1,6 @@
 package com.instantmechanic.controller;
 
-import com.instantmechanic.entity.Service;
+import com.instantmechanic.dto.service.ServiceResponse;
 import com.instantmechanic.service.ServiceService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class ServiceController {
 
     // Get all active services
     @GetMapping
-    public ResponseEntity<List<Service>> getAllServices() {
+    public ResponseEntity<List<ServiceResponse>> getAllServices() {
 
         return ResponseEntity.ok(
                 serviceService.getAllServices()
@@ -28,7 +28,7 @@ public class ServiceController {
 
     // Get active service by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Service> getServiceById(
+    public ResponseEntity<ServiceResponse> getServiceById(
             @PathVariable Long id
     ) {
 

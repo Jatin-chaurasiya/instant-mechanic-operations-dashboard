@@ -25,7 +25,9 @@ public class Vehicle {
     @JoinColumn(
             name = "customer_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_vehicle_customer")
+            foreignKey = @ForeignKey(
+                    name = "fk_vehicle_customer"
+            )
     )
     private Customer customer;
 }

@@ -16,11 +16,8 @@ public interface BookingRepository
         extends JpaRepository<Booking, Long> {
 
     // DASHBOARD
-
     long countByStatus(BookingStatus status);
-
     long countByBookingDate(LocalDate bookingDate);
-
     @Query("""
             SELECT COALESCE(SUM(b.amount), 0)
             FROM Booking b
@@ -29,35 +26,25 @@ public interface BookingRepository
     BigDecimal getRevenueByStatus(
             @Param("status") BookingStatus status
     );
-
-
     // BOOKING LIST - OLD METHODS KEPT
-
     @Query("""
             SELECT b
             FROM Booking b
             WHERE
                 LOWER(b.bookingCode)
                     LIKE LOWER(CONCAT('%', :keyword, '%'))
-
                 OR LOWER(b.customer.name)
                     LIKE LOWER(CONCAT('%', :keyword, '%'))
-
                 OR LOWER(b.customer.email)
                     LIKE LOWER(CONCAT('%', :keyword, '%'))
-
                 OR LOWER(b.vehicle.vehicleNumber)
                     LIKE LOWER(CONCAT('%', :keyword, '%'))
-
                 OR LOWER(b.vehicle.vehicleModel)
                     LIKE LOWER(CONCAT('%', :keyword, '%'))
-
                 OR LOWER(b.service.serviceName)
                     LIKE LOWER(CONCAT('%', :keyword, '%'))
-
                 OR LOWER(b.service.category)
                     LIKE LOWER(CONCAT('%', :keyword, '%'))
-
                 OR LOWER(b.mechanic.name)
                     LIKE LOWER(CONCAT('%', :keyword, '%'))
             """)
@@ -70,11 +57,7 @@ public interface BookingRepository
             BookingStatus status,
             Pageable pageable
     );
-
-
-
     // NEW - BOOKING SEARCH + STATUS + CATEGORY
-
     @Query("""
             SELECT b
             FROM Booking b
@@ -116,10 +99,7 @@ public interface BookingRepository
             @Param("category") String category,
             Pageable pageable
     );
-
-
     // MECHANIC
-
     @Query("""
             SELECT COUNT(b)
             FROM Booking b
@@ -130,12 +110,7 @@ public interface BookingRepository
     long countCompletedBookingsByMechanicId(
             @Param("mechanicId") Long mechanicId
     );
-
-
-
     // CUSTOMER
-
-
     @Query("""
             SELECT COUNT(b)
             FROM Booking b
@@ -144,10 +119,7 @@ public interface BookingRepository
     long countBookingsByCustomerId(
             @Param("customerId") Long customerId
     );
-
-
     // ANALYTICS
-
     @Query("""
             SELECT b.bookingDate, COUNT(b)
             FROM Booking b
@@ -181,13 +153,11 @@ public interface BookingRepository
             LocalDate fromDate,
             LocalDate toDate
     );
-
     long countByBookingDateBetweenAndStatus(
             LocalDate fromDate,
             LocalDate toDate,
             BookingStatus status
     );
-
     @Query("""
             SELECT COALESCE(SUM(b.amount), 0)
             FROM Booking b
@@ -201,7 +171,6 @@ public interface BookingRepository
             @Param("toDate") LocalDate toDate
     );
 // ANALYTICS - STATUS DISTRIBUTION
-
     @Query("""
         SELECT b.status, COUNT(b)
         FROM Booking b
@@ -214,11 +183,7 @@ public interface BookingRepository
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate
     );
-
-
 // ANALYTICS - CATEGORY BREAKDOWN
-
-
     @Query("""
         SELECT b.service.category, COUNT(b)
         FROM Booking b
@@ -257,6 +222,10 @@ public interface BookingRepository
     );
     Page<Booking> findByStatusIn(
             List<BookingStatus> statuses,
+            Pageable pageable
+    );
+    Page<Booking> findByCustomerId(
+            Long customerId,
             Pageable pageable
     );
     boolean existsByVehicleId(Long vehicleId);

@@ -1,8 +1,6 @@
 package com.instantmechanic.service;
 
-import com.instantmechanic.dto.booking.BookingPageResponse;
-import com.instantmechanic.dto.booking.BookingResponse;
-import com.instantmechanic.dto.booking.CreateBookingRequest;
+import com.instantmechanic.dto.booking.*;
 
 import com.instantmechanic.entity.Booking;
 import com.instantmechanic.entity.Customer;
@@ -10,17 +8,14 @@ import com.instantmechanic.entity.Mechanic;
 import com.instantmechanic.entity.Vehicle;
 import com.instantmechanic.entity.Service;
 
+import com.instantmechanic.enums.BookingCreatedBy;
 import com.instantmechanic.enums.BookingStatus;
 
+import com.instantmechanic.enums.PaymentStatus;
 import com.instantmechanic.exception.BadRequestException;
 import com.instantmechanic.exception.ResourceNotFoundException;
 
-import com.instantmechanic.repository.BookingRepository;
-import com.instantmechanic.repository.CustomerRepository;
-import com.instantmechanic.repository.MechanicRepository;
-import com.instantmechanic.repository.ServiceRepository;
-import com.instantmechanic.repository.VehicleRepository;
-import com.instantmechanic.dto.booking.AssignMechanicRequest;
+import com.instantmechanic.repository.*;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +36,8 @@ public class BookingService {
     private final VehicleRepository vehicleRepository;
     private final ServiceRepository serviceRepository;
     private final MechanicRepository mechanicRepository;
+    private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
 
     @Transactional(readOnly = true)
     public BookingPageResponse getBookings(
@@ -60,9 +57,7 @@ public class BookingService {
         if (size <= 0) {
             size = 10;
         }
-
         // Safe sorting
-
         String sortField =
                 resolveSortField(sortBy);
 
@@ -79,7 +74,6 @@ public class BookingService {
                         )
                 );
         // Booking data
-
         Page<Booking> bookingPage;
 
         boolean hasKeyword =
@@ -114,7 +108,6 @@ public class BookingService {
                             pageable
                     );
         }
-
         // Entity → DTO
         List<BookingResponse> bookings =
                 bookingPage.getContent()
@@ -142,7 +135,6 @@ public class BookingService {
                 .build();
     }
     // Get Active Bookings
-
     @Transactional(readOnly = true)
     public BookingPageResponse getActiveBookings(
             int page,
@@ -375,7 +367,6 @@ public class BookingService {
                 .build();
     }
     // Delete Booking
-
     @Transactional
     public void deleteBooking(Long id) {
 
@@ -383,27 +374,37 @@ public class BookingService {
                 bookingRepository.findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Booking not found with id: "
-                                                + id
+                                        "Booking not found with id: " + id
                                 )
                         );
 
-        BookingStatus status =
-                booking.getStatus();
+        BookingStatus status = booking.getStatus();
 
         if (status != BookingStatus.PENDING &&
                 status != BookingStatus.CANCELLED) {
 
             throw new BadRequestException(
-                    "Booking cannot be deleted when status is: " + status + "->" + "Only PENDING bookings can be " +
-                    "deleted !"
+                    "Booking cannot be deleted when status is: "
+                            + status
+            );
+        }
+
+        // Paid bookings cannot be deleted
+        com.instantmechanic.entity.payment.Payment payment =
+                paymentRepository.findByBookingId(id)
+                        .orElse(null);
+
+        if (payment != null &&
+                payment.getPaymentStatus() == PaymentStatus.PAID) {
+
+            throw new BadRequestException(
+                    "Paid booking cannot be deleted. Refund is required first."
             );
         }
 
         bookingRepository.delete(booking);
     }
     // Status transition validation
-
     private void validateStatusTransition(
             BookingStatus currentStatus,
             BookingStatus newStatus
@@ -412,7 +413,6 @@ public class BookingService {
         if (currentStatus == newStatus) {
             return;
         }
-
         boolean validTransition =
                 switch (currentStatus) {
 
@@ -433,10 +433,10 @@ public class BookingService {
                                     || newStatus == BookingStatus.CANCELLED;
 
                     case COMPLETED,
-                         CANCELLED ->
+                         CANCELLED,
+                         REJECTED ->
                             false;
                 };
-
         if (!validTransition) {
             throw new BadRequestException(
                     "Invalid booking status transition: "
@@ -447,7 +447,6 @@ public class BookingService {
         }
     }
     // Create Booking
-
     @Transactional
     public BookingResponse createBooking(
             CreateBookingRequest request
@@ -464,7 +463,6 @@ public class BookingService {
                         )
                 );
 
-
         // Vehicle
         Vehicle vehicle =
                 vehicleRepository.findById(
@@ -475,6 +473,7 @@ public class BookingService {
                                         + request.getVehicleId()
                         )
                 );
+
         // Make sure vehicle belongs to selected customer
         if (!vehicle.getCustomer().getId()
                 .equals(customer.getId())) {
@@ -483,7 +482,6 @@ public class BookingService {
                     "Vehicle does not belong to the selected customer"
             );
         }
-
 
         // Service
         Service service =
@@ -512,13 +510,11 @@ public class BookingService {
                     );
         }
 
-
         // Determine booking status
         BookingStatus status =
                 mechanic != null
                         ? BookingStatus.ASSIGNED
                         : BookingStatus.PENDING;
-
 
         // Create Booking
         Booking booking = new Booking();
@@ -528,11 +524,8 @@ public class BookingService {
         );
 
         booking.setCustomer(customer);
-
         booking.setVehicle(vehicle);
-
         booking.setService(service);
-
         booking.setMechanic(mechanic);
 
         booking.setBookingDate(
@@ -549,16 +542,23 @@ public class BookingService {
 
         booking.setStatus(status);
 
+        // Booking created by Admin
+        booking.setCreatedBy(
+                BookingCreatedBy.ADMIN
+        );
 
-        // Save
+        // Save Booking
         Booking savedBooking =
                 bookingRepository.save(booking);
 
+        // Create Admin Cash Payment automatically
+        paymentService.createAdminCashPayment(
+                savedBooking.getId()
+        );
 
         return entityToDto(savedBooking);
     }
     // Assign Mechanic to Booking
-
     @Transactional
     public BookingResponse assignMechanic(
             Long bookingId,
@@ -622,6 +622,239 @@ public class BookingService {
 
         return entityToDto(booking);
     }
+    @Transactional
+    public BookingResponse createCustomerBooking(
+            String customerEmail,
+            CreateCustomerBookingRequest request
+    ) {
+
+        // Customer from JWT email
+        Customer customer =
+                customerRepository.findByEmail(customerEmail)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Customer not found with email: "
+                                                + customerEmail
+                                )
+                        );
+
+        // Vehicle
+        Vehicle vehicle =
+                vehicleRepository.findById(
+                        request.getVehicleId()
+                ).orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Vehicle not found with id: "
+                                        + request.getVehicleId()
+                        )
+                );
+
+        // Vehicle must belong to logged-in customer
+        if (!vehicle.getCustomer().getId()
+                .equals(customer.getId())) {
+
+            throw new BadRequestException(
+                    "Vehicle does not belong to the logged-in customer"
+            );
+        }
+
+        // Service
+        Service service =
+                serviceRepository.findById(
+                        request.getServiceId()
+                ).orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Service not found with id: "
+                                        + request.getServiceId()
+                        )
+                );
+
+        // Service must be active
+        if (!Boolean.TRUE.equals(service.getActive())) {
+
+            throw new BadRequestException(
+                    "Selected service is currently unavailable"
+            );
+        }
+
+        // Create Customer Booking
+        Booking booking = new Booking();
+
+        booking.setBookingCode(
+                generateBookingCode()
+        );
+
+        booking.setCustomer(customer);
+        booking.setVehicle(vehicle);
+        booking.setService(service);
+
+        // Customer booking has no mechanic initially
+        booking.setMechanic(null);
+
+        booking.setBookingDate(
+                request.getBookingDate()
+        );
+
+        booking.setBookingTime(
+                request.getBookingTime()
+        );
+
+        // Amount comes from Service DB
+        booking.setAmount(
+                service.getPrice()
+        );
+
+        // Customer booking starts as PENDING
+        booking.setStatus(
+                BookingStatus.PENDING
+        );
+
+        // Booking created by Customer
+        booking.setCreatedBy(
+                BookingCreatedBy.CUSTOMER
+        );
+
+        // Save
+        Booking savedBooking =
+                bookingRepository.save(booking);
+
+        return entityToDto(savedBooking);
+    }
+    @Transactional(readOnly = true)
+    public BookingPageResponse getCustomerBookings(
+            String customerEmail,
+            int page,
+            int size
+    ) {
+
+        if (page < 0) {
+            page = 0;
+        }
+
+        if (size <= 0) {
+            size = 10;
+        }
+
+        // Logged-in customer
+        Customer customer =
+                customerRepository.findByEmail(customerEmail)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Customer not found with email: "
+                                                + customerEmail
+                                )
+                        );
+
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        Sort.by(
+                                Sort.Direction.DESC,
+                                "bookingDate"
+                        )
+                );
+
+        Page<Booking> bookingPage =
+                bookingRepository.findByCustomerId(
+                        customer.getId(),
+                        pageable
+                );
+
+        List<BookingResponse> bookings =
+                bookingPage.getContent()
+                        .stream()
+                        .map(this::entityToDto)
+                        .toList();
+
+        return BookingPageResponse.builder()
+                .bookings(bookings)
+                .currentPage(
+                        bookingPage.getNumber()
+                )
+                .pageSize(
+                        bookingPage.getSize()
+                )
+                .totalElements(
+                        bookingPage.getTotalElements()
+                )
+                .totalPages(
+                        bookingPage.getTotalPages()
+                )
+                .last(
+                        bookingPage.isLast()
+                )
+                .build();
+    }
+    @Transactional(readOnly = true)
+    public BookingResponse getCustomerBookingById(
+            String customerEmail,
+            Long bookingId
+    ) {
+
+        Customer customer =
+                customerRepository.findByEmail(customerEmail)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Customer not found with email: "
+                                                + customerEmail
+                                )
+                        );
+
+        Booking booking =
+                bookingRepository.findById(bookingId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Booking not found with id: "
+                                                + bookingId
+                                )
+                        );
+
+        // Ownership check
+        if (!booking.getCustomer().getId()
+                .equals(customer.getId())) {
+
+            throw new BadRequestException(
+                    "You are not authorized to access this booking"
+            );
+        }
+
+        return entityToDto(booking);
+    }
+    @Transactional
+    public BookingResponse rejectBooking(
+            Long bookingId,
+            String reason
+    ) {
+
+        Booking booking =
+                bookingRepository.findById(bookingId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Booking not found with id: "
+                                                + bookingId
+                                )
+                        );
+
+        // Only PENDING bookings can be rejected
+        if (booking.getStatus() != BookingStatus.PENDING) {
+
+            throw new BadRequestException(
+                    "Only PENDING bookings can be rejected"
+            );
+        }
+
+        // Save rejection reason
+        booking.setRejectionReason(reason.trim());
+
+        // Change booking status
+        booking.setStatus(BookingStatus.REJECTED);
+
+        Booking savedBooking =
+                bookingRepository.save(booking);
+
+        return entityToDto(savedBooking);
+    }
     // Entity → DTO
     private BookingResponse entityToDto(
             Booking booking
@@ -666,6 +899,12 @@ public class BookingService {
                 )
                 .status(
                         booking.getStatus().name()
+                )
+                .createdBy(
+                        booking.getCreatedBy().name()
+                )
+                .rejectionReason(
+                        booking.getRejectionReason()
                 )
                 .build();
     }

@@ -31,9 +31,13 @@ public class BookingResponse {
 
     private BigDecimal amount;
 
+    private String status;
+
+    private String createdBy;
+
+    private String rejectionReason;
+
     private LocalDate bookingDate;
 
     private LocalTime bookingTime;
-
-    private String status;
 }

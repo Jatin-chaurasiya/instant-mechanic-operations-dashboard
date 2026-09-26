@@ -1,11 +1,14 @@
 package com.instantmechanic.controller;
 
 import com.instantmechanic.dto.booking.*;
+import com.instantmechanic.dto.payment.PaymentResponse;
 import com.instantmechanic.enums.BookingStatus;
 import com.instantmechanic.service.BookingService;
+import com.instantmechanic.service.PaymentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -17,6 +20,7 @@ import jakarta.validation.Valid;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final PaymentService paymentService;
 
     @GetMapping
     public ResponseEntity<BookingPageResponse> getBookings(
@@ -152,6 +156,35 @@ public class BookingController {
                         id,
                         request
                 )
+        );
+    }
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<BookingResponse> rejectBooking(
+            @PathVariable Long id,
+            @Valid @RequestBody RejectBookingRequest request
+    ) {
+        return ResponseEntity.ok(
+                bookingService.rejectBooking(
+                        id,
+                        request.getReason()
+                )
+        );
+    }
+    @GetMapping("/unpaid")
+    public ResponseEntity<Page<UnpaidBookingResponse>> getUnpaidCashPayments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                paymentService.getUnpaidCashPayments(page, size)
+        );
+    }
+    @PutMapping("/{id}/mark-paid")
+    public ResponseEntity<PaymentResponse> markAsPaid(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                paymentService.markCashPaymentAsPaid(id)
         );
     }
 }
