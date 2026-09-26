@@ -24,9 +24,7 @@ services:
   # Spring Boot Application
   # ===============================
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: jatin8953/instant-mechanic-backend:latest
 
     container_name: instant-mechanic-backend
 
@@ -38,10 +36,13 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: root
 
-      JWT_SECRET: cGAdygr8H1rALcd1yyIn16EdG3djGW82xWoD2m/50Ic=
+      JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: 86400000
 
       SERVER_PORT: 8081
+
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
 
     ports:
       - "8081:8081"
