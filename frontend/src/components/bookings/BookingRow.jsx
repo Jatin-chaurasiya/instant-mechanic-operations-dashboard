@@ -5,6 +5,8 @@ import {
   Eye,
   UserRoundPlus,
   Trash2,
+  CircleX,
+  CheckCircle2,
 } from "lucide-react";
 
 import StatusBadge from "./StatusBadge";
@@ -15,11 +17,16 @@ const BookingRow = ({
 
   // Actions
   showAssign = false,
+  showReject = false,
   showDelete = false,
-  onAssign,
-  onDelete,
-}) => {
+  showMarkAsPaid = false,
+  markingAsPaid = false,
 
+  onAssign,
+  onReject,
+  onDelete,
+  onMarkAsPaid,
+}) => {
   if (!booking) {
     return null;
   }
@@ -39,7 +46,6 @@ const BookingRow = ({
     bookingTime,
   } = booking;
 
-
   return (
     <tr
       className="
@@ -51,13 +57,8 @@ const BookingRow = ({
         dark:hover:bg-slate-800/50
       "
     >
-
-      {/* ==========================================
-          Booking ID
-      ========================================== */}
-
+      {/* Booking ID */}
       <td className="whitespace-nowrap px-5 py-4 sm:px-6">
-
         <span
           className="
             text-sm
@@ -68,18 +69,11 @@ const BookingRow = ({
         >
           #{bookingCode || id}
         </span>
-
       </td>
 
-
-      {/* ==========================================
-          Customer
-      ========================================== */}
-
+      {/* Customer */}
       <td className="px-5 py-4 sm:px-6">
-
         <div className="flex items-center gap-3">
-
           <div
             className="
               flex h-9 w-9 shrink-0
@@ -95,7 +89,6 @@ const BookingRow = ({
           </div>
 
           <div className="min-w-0">
-
             <p
               className="
                 truncate
@@ -120,22 +113,13 @@ const BookingRow = ({
                 {customerEmail}
               </p>
             )}
-
           </div>
-
         </div>
-
       </td>
 
-
-      {/* ==========================================
-          Vehicle
-      ========================================== */}
-
+      {/* Vehicle */}
       <td className="px-5 py-4 sm:px-6">
-
         <div className="flex items-center gap-2.5">
-
           <CarFront
             size={17}
             className="
@@ -146,7 +130,6 @@ const BookingRow = ({
           />
 
           <div className="min-w-0">
-
             <p
               className="
                 truncate
@@ -170,20 +153,12 @@ const BookingRow = ({
                 {vehicleNumber}
               </p>
             )}
-
           </div>
-
         </div>
-
       </td>
 
-
-      {/* ==========================================
-          Service
-      ========================================== */}
-
+      {/* Service */}
       <td className="px-5 py-4 sm:px-6">
-
         <span
           className="
             text-sm
@@ -193,18 +168,11 @@ const BookingRow = ({
         >
           {serviceName || "N/A"}
         </span>
-
       </td>
 
-
-      {/* ==========================================
-          Mechanic
-      ========================================== */}
-
+      {/* Mechanic */}
       <td className="px-5 py-4 sm:px-6">
-
         <div className="flex items-center gap-2.5">
-
           <div
             className="
               flex h-8 w-8 shrink-0
@@ -233,29 +201,16 @@ const BookingRow = ({
           >
             {mechanicName || "Unassigned"}
           </span>
-
         </div>
-
       </td>
 
-
-      {/* ==========================================
-          Status
-      ========================================== */}
-
+      {/* Status */}
       <td className="px-5 py-4 sm:px-6">
-
         <StatusBadge status={status} />
-
       </td>
 
-
-      {/* ==========================================
-          Amount
-      ========================================== */}
-
+      {/* Amount */}
       <td className="whitespace-nowrap px-5 py-4 sm:px-6">
-
         <span
           className="
             text-sm
@@ -267,16 +222,10 @@ const BookingRow = ({
           ₹
           {Number(amount || 0).toLocaleString("en-IN")}
         </span>
-
       </td>
 
-
-      {/* ==========================================
-          Date / Time
-      ========================================== */}
-
+      {/* Date / Time */}
       <td className="whitespace-nowrap px-5 py-4 sm:px-6">
-
         <p
           className="
             text-sm
@@ -300,20 +249,12 @@ const BookingRow = ({
             {bookingTime}
           </p>
         )}
-
       </td>
 
-
-      {/* ==========================================
-          Actions
-      ========================================== */}
-
+      {/* Actions */}
       <td className="px-5 py-4 sm:px-6">
-
         <div className="flex items-center gap-1.5">
-
           {/* View */}
-
           <button
             type="button"
             onClick={() => onView?.(booking)}
@@ -335,12 +276,34 @@ const BookingRow = ({
             <Eye size={17} />
           </button>
 
+          {/* Mark as Paid */}
+          {showMarkAsPaid && (
+            <button
+              type="button"
+              onClick={() => onMarkAsPaid?.(booking.id)}
+              disabled={markingAsPaid}
+              className="
+                rounded-lg
+                p-2
+                text-emerald-500
+                transition
+                hover:bg-emerald-50
+                hover:text-emerald-700
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+                dark:hover:bg-emerald-950/40
+                dark:hover:text-emerald-400
+              "
+              aria-label={`Mark booking ${
+                bookingCode || id
+              } as paid`}
+              title="Mark as Paid"
+            >
+              <CheckCircle2 size={17} />
+            </button>
+          )}
 
-          {/* ======================================
-              Assign Mechanic
-              Only Pending Section
-          ====================================== */}
-
+          {/* Assign Mechanic */}
           {showAssign && (
             <button
               type="button"
@@ -364,12 +327,31 @@ const BookingRow = ({
             </button>
           )}
 
+          {/* Reject Booking */}
+          {showReject && (
+            <button
+              type="button"
+              onClick={() => onReject?.(booking)}
+              className="
+                rounded-lg
+                p-2
+                text-red-500
+                transition
+                hover:bg-red-50
+                hover:text-red-700
+                dark:hover:bg-red-950/40
+                dark:hover:text-red-400
+              "
+              aria-label={`Reject booking ${
+                bookingCode || id
+              }`}
+              title="Reject Booking"
+            >
+              <CircleX size={17} />
+            </button>
+          )}
 
-          {/* ======================================
-              Delete Booking
-              Only All Bookings Section
-          ====================================== */}
-
+          {/* Delete Booking */}
           {showDelete && (
             <button
               type="button"
@@ -392,11 +374,8 @@ const BookingRow = ({
               <Trash2 size={17} />
             </button>
           )}
-
         </div>
-
       </td>
-
     </tr>
   );
 };

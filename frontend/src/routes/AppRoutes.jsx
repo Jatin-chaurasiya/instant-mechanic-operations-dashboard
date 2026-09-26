@@ -1,9 +1,17 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import DashboardLayout from "../components/layout/DashboardLayout";
+import HomePage from "../pages/HomePage";
+import ServicePage from "../pages/ServicePage";
 
-import LoginPage from "../pages/LoginPage";
-import RegisterPage from "../pages/RegisterPage";
+import CustomerProfilePage from "../pages/CustomerProfilePage";
+import CustomerServicesPage from "../pages/CustomerServicesPage";
+import CustomerBookingsPage from "../pages/CustomerBookingsPage";
+import CustomerVehiclesPage from "../pages/CustomerVehiclesPage";
+import CustomerCreateBookingPage from "../pages/CustomerCreateBookingPage";
+
+import PublicLayout from "../components/home/PublicLayout";
+import CustomerLayout from "../components/customer/CustomerLayout";
+import DashboardLayout from "../components/layout/DashboardLayout";
 
 import OverviewPage from "../pages/OverviewPage";
 import AnalyticsPage from "../pages/AnalyticsPage";
@@ -20,13 +28,40 @@ const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        {/* Public Routes */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
 
-        <Route path="/register" element={<RegisterPage />} />
+          <Route path="/services" element={<ServicePage mode="public" />} />
+        </Route>
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<DashboardLayout />}>
-            <Route index element={<Navigate to="/overview" replace />} />
+        {/* Customer Routes */}
+        <Route element={<ProtectedRoute allowedRoles={["CUSTOMER"]} />}>
+          <Route path="/customer" element={<CustomerLayout />}>
+            <Route
+              index
+              element={<Navigate to="/customer/profile" replace />}
+            />
+
+            <Route path="profile" element={<CustomerProfilePage />} />
+
+            <Route path="services" element={<CustomerServicesPage />} />
+
+            <Route
+              path="/customer/createBooking"
+              element={<CustomerCreateBookingPage />}
+            />
+
+            <Route path="bookings" element={<CustomerBookingsPage />} />
+
+            <Route path="vehicles" element={<CustomerVehiclesPage />} />
+          </Route>
+        </Route>
+
+        {/* Admin Routes */}
+        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+          <Route path="/admin" element={<DashboardLayout />}>
+            <Route index element={<Navigate to="/admin/overview" replace />} />
 
             <Route path="overview" element={<OverviewPage />} />
 
@@ -37,14 +72,19 @@ const AppRoutes = () => {
             <Route path="mechanics" element={<MechanicsPage />} />
 
             <Route path="customers" element={<CustomersPage />} />
-             <Route path="vehicles" element={<VehiclesPage />} />
+
+            <Route path="vehicles" element={<VehiclesPage />} />
+
+            <Route path="services" element={<ServicePage mode="admin" />} />
 
             <Route path="profile" element={<ProfilePage />} />
+
             <Route path="support" element={<HelpSupportPage />} />
           </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Unknown Route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

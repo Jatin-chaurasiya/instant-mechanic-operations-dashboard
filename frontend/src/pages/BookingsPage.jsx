@@ -5,6 +5,7 @@ import BookingFilters from "../components/bookings/BookingFilters";
 import BookingSort from "../components/bookings/BookingSort";
 import BookingsTable from "../components/bookings/BookingsTable";
 import AddBookingModal from "../components/bookings/AddBookingModal";
+import RejectBookingModal from "../components/bookings/RejectBookingModal";
 import AssignBookingModal from "../components/bookings/AssignBookingModal";
 
 import ConfirmModal from "../components/ui/ConfirmModal";
@@ -15,6 +16,7 @@ import useBookings from "../hooks/bookings/useBookings";
 const BookingsPage = () => {
   const {
     // All Bookings
+
     refreshing,
     error,
 
@@ -29,6 +31,7 @@ const BookingsPage = () => {
     itemsPerPage,
 
     // Categories
+
     categories,
 
     // Existing All Booking Handlers
@@ -43,9 +46,15 @@ const BookingsPage = () => {
     // Sections
 
     activeSection,
-
     pendingCount,
     activeCount,
+    unpaidCount,
+    unpaidBookings,
+    unpaidPage,
+    unpaidTotalPages,
+    loadingUnpaid,
+    markingAsPaid,
+    handleMarkAsPaid,
 
     sectionBookings,
     sectionCurrentPage,
@@ -60,7 +69,9 @@ const BookingsPage = () => {
     // Refresh
 
     refreshCurrentSection,
+
     // Add Booking
+
     isAddBookingOpen,
     openAddBooking,
     closeAddBooking,
@@ -99,13 +110,31 @@ const BookingsPage = () => {
     handleBookingDateChange,
     handleBookingTimeChange,
     handleAmountChange,
+
     // Assign Booking
 
     isAssignBookingOpen,
     selectedBooking,
+    assigning,
     handleAssignClick,
-    handleAssigned,
+    handleAssignMechanic,
     handleCloseAssignModal,
+
+    // Booking Detail
+
+    handleViewBooking,
+    handleCloseDetail,
+
+    // Reject Booking
+
+    isRejectBookingOpen,
+    rejectBookingTarget,
+    rejectBookingReason,
+    rejecting,
+    handleRejectClick,
+    handleRejectReasonChange,
+    handleConfirmReject,
+    handleCloseRejectModal,
 
     // Delete Booking
 
@@ -116,7 +145,6 @@ const BookingsPage = () => {
     handleConfirmDeleteBooking,
     handleCloseDeleteModal,
   } = useBookings();
-
   return (
     <div>
       <div
@@ -356,6 +384,39 @@ const BookingsPage = () => {
           Active Bookings
           <span className="ml-2 opacity-70">({activeCount})</span>
         </button>
+        {/* Unpaid */}
+
+        <button
+          type="button"
+          onClick={() => handleSectionChange("unpaid")}
+          className={`
+    whitespace-nowrap
+    rounded-xl
+    px-5 py-2.5
+    text-sm
+    font-semibold
+    transition
+
+    ${
+      activeSection === "unpaid"
+        ? `
+          bg-slate-900
+          text-white
+          dark:bg-white
+          dark:text-slate-900
+        `
+        : `
+          text-slate-500
+          hover:bg-slate-100
+          dark:text-slate-400
+          dark:hover:bg-slate-800
+        `
+    }
+  `}
+        >
+          Unpaid Bookings
+          <span className="ml-2 opacity-70">({unpaidCount})</span>
+        </button>
       </div>
       <div
         className="
@@ -379,6 +440,8 @@ const BookingsPage = () => {
             {activeSection === "pending" && "Pending Assignments"}
 
             {activeSection === "active" && "Active Bookings"}
+
+            {activeSection === "unpaid" && "Unpaid Bookings"}
           </h2>
 
           <p
@@ -396,6 +459,9 @@ const BookingsPage = () => {
 
             {activeSection === "active" &&
               "Bookings currently assigned or in service."}
+
+            {activeSection === "unpaid" &&
+              "Cash bookings waiting for payment confirmation."}
           </p>
         </div>
 
@@ -426,7 +492,13 @@ const BookingsPage = () => {
           onRetry={refreshCurrentSection}
           section={activeSection}
           onAssign={handleAssignClick}
+          onReject={handleRejectClick}
           onDelete={handleDeleteBooking}
+          selectedBooking={selectedBooking}
+          onView={handleViewBooking}
+          onCloseDetail={handleCloseDetail}
+          onMarkAsPaid={handleMarkAsPaid}
+          markingAsPaid={markingAsPaid}
         />
       </div>
       <div
@@ -491,7 +563,20 @@ const BookingsPage = () => {
         isOpen={isAssignBookingOpen}
         onClose={handleCloseAssignModal}
         booking={selectedBooking}
-        onAssigned={handleAssigned}
+        mechanics={mechanics}
+        selectedMechanicId={mechanicId}
+        assigning={assigning}
+        onMechanicSelect={handleMechanicChange}
+        onAssign={(_, mechanicId) => handleAssignMechanic(mechanicId)}
+      />
+      <RejectBookingModal
+        isOpen={isRejectBookingOpen}
+        onClose={handleCloseRejectModal}
+        booking={rejectBookingTarget}
+        reason={rejectBookingReason}
+        rejecting={rejecting}
+        onReasonChange={handleRejectReasonChange}
+        onReject={handleConfirmReject}
       />
       <ConfirmModal
         isOpen={Boolean(deleteBookingTarget)}

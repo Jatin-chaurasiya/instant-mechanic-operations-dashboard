@@ -13,101 +13,96 @@ const AUTH_KEY = "instant_mechanic_auth";
 const TOKEN_KEY = "token";
 
 const AuthProvider = ({ children }) => {
-
   const [user, setUser] = useState(null);
-
   const [loading, setLoading] = useState(true);
 
-  // ==========================================
-  // Restore authentication
-  // ==========================================
-
-  useEffect(() => {
-
+  // Check whether JWT is expired
+  const isTokenValid = (token) => {
     try {
+      const payload = JSON.parse(
+        atob(token.split(".")[1])
+      );
 
-      const savedAuth =
-        localStorage.getItem(AUTH_KEY);
-
-      const token =
-        localStorage.getItem(TOKEN_KEY);
-
-      if (savedAuth && token) {
-
-        const parsedAuth =
-          JSON.parse(savedAuth);
-
-        setUser(parsedAuth);
-
-      } else {
-
-        localStorage.removeItem(AUTH_KEY);
-        localStorage.removeItem(TOKEN_KEY);
-
-        setUser(null);
+      if (!payload.exp) {
+        return true;
       }
 
+      return payload.exp * 1000 > Date.now();
     } catch (error) {
+      return false;
+    }
+  };
 
+  // Restore authentication for current browser session
+  useEffect(() => {
+    try {
+      const savedAuth = sessionStorage.getItem(AUTH_KEY);
+      const token = sessionStorage.getItem(TOKEN_KEY);
+
+      // Remove old localStorage authentication
+      // so previous persistent login cannot be restored.
+      localStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+
+      if (
+        savedAuth &&
+        token &&
+        isTokenValid(token)
+      ) {
+        const parsedAuth = JSON.parse(savedAuth);
+        setUser(parsedAuth);
+      } else {
+        sessionStorage.removeItem(AUTH_KEY);
+        sessionStorage.removeItem(TOKEN_KEY);
+        setUser(null);
+      }
+    } catch (error) {
       console.error(
         "Unable to restore authentication:",
         error
       );
 
-      localStorage.removeItem(AUTH_KEY);
-      localStorage.removeItem(TOKEN_KEY);
-
+      sessionStorage.removeItem(AUTH_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
       setUser(null);
-
     } finally {
-
       setLoading(false);
     }
-
   }, []);
 
-  // ==========================================
   // Login
-  // ==========================================
-
-  const login = async ({
-    email,
-    password,
-  }) => {
-
-    if (!email || !password) {
+  const login = async ({ email, password }) => {
+    if (!email?.trim() || !password) {
       throw new Error(
         "Email and password are required."
       );
     }
 
-    const response =
-      await authApi.login({
-        email,
-        password,
-      });
+    const response = await authApi.login({
+      email: email.trim(),
+      password,
+    });
 
-    const authData = response;
-
-    if (!authData?.token) {
+    if (!response?.token) {
       throw new Error(
         "Login failed: authentication token not received."
       );
     }
 
-    // Save JWT
-    localStorage.setItem(
-      TOKEN_KEY,
-      authData.token
-    );
-
-    // Save user information
     const loggedInUser = {
-      name: authData.name,
-      email: authData.email,
+      name: response.name,
+      email: response.email,
+      role: response.role,
     };
 
-    localStorage.setItem(
+    // Save JWT for current browser session
+    sessionStorage.setItem(
+      TOKEN_KEY,
+      response.token
+    );
+
+    // Save user information for current browser session
+    sessionStorage.setItem(
       AUTH_KEY,
       JSON.stringify(loggedInUser)
     );
@@ -117,41 +112,41 @@ const AuthProvider = ({ children }) => {
     return loggedInUser;
   };
 
-  // ==========================================
-  // Register
-  // ==========================================
-
+  // Register customer
   const register = async ({
     name,
     email,
     password,
+    phone,
+    address,
   }) => {
-
-    if (!name || !email || !password) {
+    if (
+      !name?.trim() ||
+      !email?.trim() ||
+      !password ||
+      !phone?.trim() ||
+      !address?.trim()
+    ) {
       throw new Error(
         "All fields are required."
       );
     }
 
-    const response =
-      await authApi.register({
-        name,
-        email,
-        password,
-      });
+    const response = await authApi.register({
+      name: name.trim(),
+      email: email.trim(),
+      password,
+      phone: phone.trim(),
+      address: address.trim(),
+    });
 
     return response;
   };
 
-  // ==========================================
   // Logout
-  // ==========================================
-
   const logout = () => {
-
-    localStorage.removeItem(TOKEN_KEY);
-
-    localStorage.removeItem(AUTH_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_KEY);
 
     setUser(null);
   };
@@ -173,11 +168,9 @@ const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => {
-
   const context = useContext(AuthContext);
 
   if (!context) {
-
     throw new Error(
       "useAuth must be used inside AuthProvider"
     );

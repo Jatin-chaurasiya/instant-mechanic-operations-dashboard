@@ -11,8 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -28,9 +27,7 @@ api.interceptors.response.use(
   (response) => response,
 
   (error) => {
-
     if (error.response) {
-
       console.error(
         "API Error:",
         error.response.status,
@@ -38,17 +35,16 @@ api.interceptors.response.use(
       );
 
       if (error.response.status === 401) {
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem(
+          "instant_mechanic_auth"
+        );
       }
-
     } else if (error.request) {
-
       console.error(
         "Network Error: Server not reachable"
       );
-
     } else {
-
       console.error(
         "Request Error:",
         error.message

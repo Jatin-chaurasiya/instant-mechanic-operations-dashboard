@@ -23,36 +23,29 @@ const TABLE_HEADINGS = [
 const TableSkeleton = () => {
   return (
     <>
-      {Array.from({ length: 7 }).map(
-        (_, rowIndex) => (
-          <tr
-            key={rowIndex}
-            className="
-              border-b
-              border-slate-100
-              dark:border-slate-800
-            "
-          >
-            {Array.from({ length: 9 }).map(
-              (_, columnIndex) => (
-                <td
-                  key={columnIndex}
-                  className="px-5 py-5 sm:px-6"
-                >
-                  <Skeleton
-                    variant="text"
-                    className="
-                      h-4
-                      w-full
-                      max-w-[110px]
-                    "
-                  />
-                </td>
-              )
-            )}
-          </tr>
-        )
-      )}
+      {Array.from({ length: 7 }).map((_, rowIndex) => (
+        <tr
+          key={rowIndex}
+          className="
+            border-b
+            border-slate-100
+            dark:border-slate-800
+          "
+        >
+          {Array.from({ length: 9 }).map((_, columnIndex) => (
+            <td key={columnIndex} className="px-5 py-5 sm:px-6">
+              <Skeleton
+                variant="text"
+                className="
+                  h-4
+                  w-full
+                  max-w-[110px]
+                "
+              />
+            </td>
+          ))}
+        </tr>
+      ))}
     </>
   );
 };
@@ -104,18 +97,26 @@ const BookingsTable = ({
   onPageChange,
   onRetry,
   section = "all",
+
   onAssign,
+  onReject,
   onDelete,
 
-  // Booking Detail Modal
-  // Controlled from Hook / Page
   selectedBooking = null,
   onView,
   onCloseDetail,
+
+  onMarkAsPaid,
+  markingAsPaid = false,
 }) => {
   // Assign Booking
   const handleAssignBooking = (booking) => {
     onAssign?.(booking);
+  };
+
+  // Reject Booking
+  const handleRejectBooking = (booking) => {
+    onReject?.(booking);
   };
 
   // Delete Booking
@@ -134,6 +135,10 @@ const BookingsTable = ({
       return "Active Bookings";
     }
 
+    if (section === "unpaid") {
+      return "Unpaid Bookings";
+    }
+
     return "Recent Bookings";
   };
 
@@ -145,6 +150,10 @@ const BookingsTable = ({
 
     if (section === "active") {
       return "Monitor currently active service bookings.";
+    }
+
+    if (section === "unpaid") {
+      return "Cash bookings waiting for payment confirmation.";
     }
 
     return "Monitor and manage vehicle service bookings.";
@@ -160,6 +169,10 @@ const BookingsTable = ({
       return "No active bookings";
     }
 
+    if (section === "unpaid") {
+      return "No unpaid bookings";
+    }
+
     return "No bookings found";
   };
 
@@ -172,9 +185,12 @@ const BookingsTable = ({
       return "There are currently no active service bookings.";
     }
 
+    if (section === "unpaid") {
+      return "There are currently no cash bookings waiting for payment.";
+    }
+
     return "There are no bookings matching your current search or filters.";
   };
-
   // Render
   return (
     <>
@@ -233,8 +249,7 @@ const BookingsTable = ({
             <ErrorState
               title="Unable to load bookings"
               description={
-                error ||
-                "Something went wrong while fetching bookings."
+                error || "Something went wrong while fetching bookings."
               }
               onRetry={onRetry}
             />
@@ -255,67 +270,63 @@ const BookingsTable = ({
         )}
 
         {/* Empty */}
-        {!loading &&
-          !error &&
-          bookings.length === 0 && (
-            <div className="p-5 sm:p-6">
-              <EmptyState
-                icon={CalendarX2}
-                title={getEmptyTitle()}
-                description={getEmptyDescription()}
-              />
-            </div>
-          )}
+        {!loading && !error && bookings.length === 0 && (
+          <div className="p-5 sm:p-6">
+            <EmptyState
+              icon={CalendarX2}
+              title={getEmptyTitle()}
+              description={getEmptyDescription()}
+            />
+          </div>
+        )}
 
         {/* Table */}
-        {!loading &&
-          !error &&
-          bookings.length > 0 && (
-            <>
-              <div className="overflow-x-auto">
-                <table
-                  className="
+        {!loading && !error && bookings.length > 0 && (
+          <>
+            <div className="overflow-x-auto">
+              <table
+                className="
                     w-full
                     min-w-[1100px]
                   "
-                >
-                  <TableHeader />
+              >
+                <TableHeader />
 
-                  <tbody>
-                    {bookings.map((booking) => (
-                      <BookingRow
-                        key={booking.id}
-                        booking={booking}
-                        onView={onView}
-                        showAssign={
-                          section === "pending"
-                        }
-                        showDelete={
-                          section === "all" &&
-                          booking.status === "PENDING"
-                        }
-                        onAssign={
-                          handleAssignBooking
-                        }
-                        onDelete={
-                          handleDeleteBooking
-                        }
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                <tbody>
+                  {bookings.map((booking) => (
+                    <BookingRow
+                      key={booking.id}
+                      booking={booking}
+                      onView={onView}
+                      showMarkAsPaid={section === "unpaid"}
+                      markingAsPaid={markingAsPaid}
+                      onMarkAsPaid={onMarkAsPaid}
+                      showAssign={section === "pending"}
+                      showReject={
+                        section === "pending" && booking.status === "PENDING"
+                      }
+                      showDelete={
+                        section === "all" && booking.status === "PENDING"
+                      }
+                      onAssign={handleAssignBooking}
+                      onReject={handleRejectBooking}
+                      onDelete={handleDeleteBooking}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-              {/* Pagination */}
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={onPageChange}
-              />
-            </>
-          )}
+            {/* Pagination */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={onPageChange}
+            />
+          </>
+        )}
       </div>
 
       {/* Booking Detail Modal */}

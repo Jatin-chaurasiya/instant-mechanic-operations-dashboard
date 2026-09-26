@@ -6,6 +6,8 @@ const authApi = {
     name,
     email,
     password,
+    phone,
+    address,
   }) => {
     const response = await api.post(
       API_ENDPOINTS.AUTH.REGISTER,
@@ -13,6 +15,8 @@ const authApi = {
         name,
         email,
         password,
+        phone,
+        address,
       }
     );
 

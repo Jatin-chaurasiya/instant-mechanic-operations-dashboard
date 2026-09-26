@@ -79,6 +79,7 @@ export const initialBookingState = {
   // ======================================================
 
   isAddBookingOpen: false,
+
   // ======================================================
   // Add Booking Data
   // ======================================================
@@ -119,12 +120,31 @@ export const initialBookingState = {
   isAssignBookingOpen: false,
   selectedBooking: null,
 
+  // Assign Booking Operation
+  assigning: false,
+
+  // ======================================================
+  // Reject Booking
+  // ======================================================
+
+  isRejectBookingOpen: false,
+  rejectBookingTarget: null,
+  rejectBookingReason: "",
+  rejecting: false,
+
   // ======================================================
   // Delete Booking
   // ======================================================
 
   deleteBookingTarget: null,
   deletingBooking: false,
+  //Pending Booking
+  unpaidBookings: [],
+  unpaidCount: 0,
+  unpaidPage: 0,
+  unpaidTotalPages: 0,
+  markingAsPaid: false,
+  loadingUnpaid: false,
 };
 
 // ======================================================
@@ -200,6 +220,7 @@ export const BOOKING_ACTIONS = {
   // ------------------------------------------
 
   SET_ADD_BOOKING_OPEN: "SET_ADD_BOOKING_OPEN",
+
   // ------------------------------------------
   // Add Booking Data
   // ------------------------------------------
@@ -236,11 +257,25 @@ export const BOOKING_ACTIONS = {
   SET_SELECTED_BOOKING: "SET_SELECTED_BOOKING",
 
   // ------------------------------------------
+  // Assign Booking Operation
+  // ------------------------------------------
+
+  SET_ASSIGNING: "SET_ASSIGNING",
+
+  // ------------------------------------------
+  // Reject Booking
+  // ------------------------------------------
+
+  SET_REJECT_BOOKING_OPEN: "SET_REJECT_BOOKING_OPEN",
+  SET_REJECT_BOOKING_TARGET: "SET_REJECT_BOOKING_TARGET",
+  SET_REJECT_BOOKING_REASON: "SET_REJECT_BOOKING_REASON",
+  SET_REJECTING: "SET_REJECTING",
+
+  // ------------------------------------------
   // Delete Booking
   // ------------------------------------------
 
   SET_DELETE_BOOKING_TARGET: "SET_DELETE_BOOKING_TARGET",
-
   SET_DELETING_BOOKING: "SET_DELETING_BOOKING",
 
   // ------------------------------------------
@@ -248,6 +283,14 @@ export const BOOKING_ACTIONS = {
   // ------------------------------------------
 
   RESET_FILTERS: "RESET_FILTERS",
+  //Pending
+  SET_UNPAID_BOOKINGS: "SET_UNPAID_BOOKINGS",
+  SET_UNPAID_COUNT: "SET_UNPAID_COUNT",
+  SET_UNPAID_PAGE: "SET_UNPAID_PAGE",
+  SET_UNPAID_TOTAL_PAGES: "SET_UNPAID_TOTAL_PAGES",
+
+  SET_MARKING_AS_PAID: "SET_MARKING_AS_PAID",
+  SET_LOADING_UNPAID: "SET_LOADING_UNPAID",
 };
 
 // ======================================================
@@ -330,6 +373,7 @@ const bookingReducer = (state, action) => {
         ...state,
         currentPage: action.payload,
       };
+
     case BOOKING_ACTIONS.SET_TOTAL_PAGES:
       return {
         ...state,
@@ -439,6 +483,7 @@ const bookingReducer = (state, action) => {
         ...state,
         isAddBookingOpen: action.payload,
       };
+
     case BOOKING_ACTIONS.SET_CUSTOMERS:
       return {
         ...state,
@@ -550,6 +595,7 @@ const bookingReducer = (state, action) => {
         submitting: action.payload,
       };
 
+    // ==================================================
     // Assign Booking Modal
     // ==================================================
 
@@ -566,6 +612,44 @@ const bookingReducer = (state, action) => {
       };
 
     // ==================================================
+    // Assign Booking Operation
+    // ==================================================
+
+    case BOOKING_ACTIONS.SET_ASSIGNING:
+      return {
+        ...state,
+        assigning: action.payload,
+      };
+
+    // ==================================================
+    // Reject Booking
+    // ==================================================
+
+    case BOOKING_ACTIONS.SET_REJECT_BOOKING_OPEN:
+      return {
+        ...state,
+        isRejectBookingOpen: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_REJECT_BOOKING_TARGET:
+      return {
+        ...state,
+        rejectBookingTarget: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_REJECT_BOOKING_REASON:
+      return {
+        ...state,
+        rejectBookingReason: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_REJECTING:
+      return {
+        ...state,
+        rejecting: action.payload,
+      };
+
+    // ==================================================
     // Delete Booking
     // ==================================================
 
@@ -579,6 +663,42 @@ const bookingReducer = (state, action) => {
       return {
         ...state,
         deletingBooking: action.payload,
+      };
+
+    //Pending
+    case BOOKING_ACTIONS.SET_UNPAID_BOOKINGS:
+      return {
+        ...state,
+        unpaidBookings: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_UNPAID_COUNT:
+      return {
+        ...state,
+        unpaidCount: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_UNPAID_PAGE:
+      return {
+        ...state,
+        unpaidPage: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_UNPAID_TOTAL_PAGES:
+      return {
+        ...state,
+        unpaidTotalPages: action.payload,
+      };
+
+    case BOOKING_ACTIONS.SET_MARKING_AS_PAID:
+      return {
+        ...state,
+        markingAsPaid: action.payload,
+      };
+    case BOOKING_ACTIONS.SET_LOADING_UNPAID:
+      return {
+        ...state,
+        loadingUnpaid: action.payload,
       };
 
     // ==================================================

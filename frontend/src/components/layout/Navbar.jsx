@@ -24,17 +24,18 @@ const Navbar = ({ onMenuClick }) => {
     logout();
     setProfileOpen(false);
 
-    navigate("/login", {
+    navigate("/", {
       replace: true,
     });
   };
 
   const handleProfile = () => {
     setProfileOpen(false);
-    navigate("/profile");
+
+    navigate("/admin/profile");
   };
   const handleSupport = () => {
-    navigate("/support");
+    navigate("/admin/support");
   };
 
   return (

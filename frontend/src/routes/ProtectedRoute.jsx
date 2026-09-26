@@ -1,12 +1,14 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = () => {
+const ProtectedRoute = ({ allowedRoles = [] }) => {
   const {
     isAuthenticated,
     loading,
+    user,
   } = useAuth();
 
+  // Wait for authentication state
   if (loading) {
     return (
       <div
@@ -33,10 +35,44 @@ const ProtectedRoute = () => {
     );
   }
 
-  if (!isAuthenticated) {
+  // User is not logged in
+  if (!isAuthenticated || !user) {
     return (
       <Navigate
-        to="/login"
+        to="/"
+        replace
+      />
+    );
+  }
+
+  // Check whether logged-in user's role is allowed
+  if (
+    allowedRoles.length > 0 &&
+    !allowedRoles.includes(user.role)
+  ) {
+    // Admin cannot access Customer routes
+    if (user.role === "ADMIN") {
+      return (
+        <Navigate
+          to="/admin/profile"
+          replace
+        />
+      );
+    }
+
+    // Customer cannot access Admin routes
+    if (user.role === "CUSTOMER") {
+      return (
+        <Navigate
+          to="/customer/profile"
+          replace
+        />
+      );
+    }
+
+    return (
+      <Navigate
+        to="/"
         replace
       />
     );

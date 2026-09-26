@@ -15,15 +15,29 @@ const RegisterPage = () => {
   const {
     register,
     isAuthenticated,
+    user,
   } = useAuth();
 
   if (isAuthenticated) {
-    return (
-      <Navigate
-        to="/overview"
-        replace
-      />
-    );
+    if (user?.role === "ADMIN") {
+      return (
+        <Navigate
+          to="/admin/overview"
+          replace
+        />
+      );
+    }
+
+    if (user?.role === "CUSTOMER") {
+      return (
+        <Navigate
+          to="/customer/profile"
+          replace
+        />
+      );
+    }
+
+    return null;
   }
 
   const handleRegister = async (data) => {
@@ -39,24 +53,15 @@ const RegisterPage = () => {
 
   return (
     <AuthLayout
-      title="Create admin account"
-      subtitle="Register an account for the Operations Dashboard."
+      title="Create your account"
+      subtitle="Create a customer account to book and manage your vehicle services."
       footer={
-        <p
-          className="
-            text-sm
-            text-slate-500
-          "
-        >
+        <p className="text-sm text-slate-500">
           Already have an account?{" "}
 
           <Link
             to="/login"
-            className="
-              font-semibold
-              text-slate-900
-              hover:underline
-            "
+            className="font-semibold text-slate-900 hover:underline"
           >
             Sign in
           </Link>

@@ -9,38 +9,45 @@ import {
   Settings,
   HelpCircle,
   X,
+  Car,
+  BriefcaseBusiness,
 } from "lucide-react";
 
 export const navigationItems = [
   {
     name: "Overview",
-    path: "/",
+    path: "/admin/overview",
     icon: LayoutDashboard,
   },
   {
     name: "Analytics",
-    path: "/analytics",
+    path: "/admin/analytics",
     icon: BarChart3,
   },
   {
     name: "Bookings",
-    path: "/bookings",
+    path: "/admin/bookings",
     icon: CalendarCheck,
   },
   {
     name: "Mechanics",
-    path: "/mechanics",
+    path: "/admin/mechanics",
     icon: Wrench,
   },
   {
     name: "Customers",
-    path: "/customers",
+    path: "/admin/customers",
     icon: Users,
   },
   {
     name: "Vehicles",
-    path: "/vehicles",
-    icon: Users,
+    path: "/admin/vehicles",
+    icon: Car,
+  },
+  {
+    name: "Services",
+    path: "/admin/services",
+    icon: BriefcaseBusiness,
   },
 ];
 
@@ -155,7 +162,6 @@ const Sidebar = ({ onClose }) => {
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
-                end={item.path === "/"}
                 className={({ isActive }) => `
                   group
                   flex items-center gap-3
@@ -247,60 +253,60 @@ const Sidebar = ({ onClose }) => {
 
         {/* Help & Support */}
         <NavLink
-  to="/support"
-  onClick={onClose}
-  className={({ isActive }) =>
-    isActive
-      ? `
-        flex w-full items-center gap-3
-        rounded-xl
-        px-3 py-3
-        text-sm font-medium
-        bg-slate-900
-        text-white
-        shadow-sm
-        dark:bg-white
-        dark:text-slate-950
-      `
-      : `
-        flex w-full items-center gap-3
-        rounded-xl
-        px-3 py-3
-        text-sm font-medium
-        text-slate-600
-        transition
-        hover:bg-slate-100
-        hover:text-slate-900
-        dark:text-slate-400
-        dark:hover:bg-slate-800
-        dark:hover:text-white
-      `
-  }
->
-  {({ isActive }) => (
-    <>
-      <HelpCircle
-        size={19}
-        strokeWidth={isActive ? 2.4 : 2}
-        className={
-          isActive
-            ? "text-white dark:text-slate-950"
-            : "text-slate-600 dark:text-slate-400"
-        }
-      />
+          to="/admin/support"
+          onClick={onClose}
+          className={({ isActive }) =>
+            isActive
+              ? `
+                flex w-full items-center gap-3
+                rounded-xl
+                px-3 py-3
+                text-sm font-medium
+                bg-slate-900
+                text-white
+                shadow-sm
+                dark:bg-white
+                dark:text-slate-950
+              `
+              : `
+                flex w-full items-center gap-3
+                rounded-xl
+                px-3 py-3
+                text-sm font-medium
+                text-slate-600
+                transition
+                hover:bg-slate-100
+                hover:text-slate-900
+                dark:text-slate-400
+                dark:hover:bg-slate-800
+                dark:hover:text-white
+              `
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <HelpCircle
+                size={19}
+                strokeWidth={isActive ? 2.4 : 2}
+                className={
+                  isActive
+                    ? "text-white dark:text-slate-950"
+                    : "text-slate-600 dark:text-slate-400"
+                }
+              />
 
-      <span
-        className={
-          isActive
-            ? "text-white dark:text-slate-950"
-            : "text-slate-600 dark:text-slate-400"
-        }
-      >
-        Help & Support
-      </span>
-    </>
-  )}
-</NavLink>
+              <span
+                className={
+                  isActive
+                    ? "text-white dark:text-slate-950"
+                    : "text-slate-600 dark:text-slate-400"
+                }
+              >
+                Help & Support
+              </span>
+            </>
+          )}
+        </NavLink>
 
         {/* Version */}
         <p

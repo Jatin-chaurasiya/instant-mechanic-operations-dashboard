@@ -15,45 +15,59 @@ const LoginPage = () => {
   const {
     login,
     isAuthenticated,
+    user,
   } = useAuth();
 
   if (isAuthenticated) {
-    return (
-      <Navigate
-        to="/overview"
-        replace
-      />
-    );
+    if (user?.role === "ADMIN") {
+      return (
+        <Navigate
+          to="/admin/overview"
+          replace
+        />
+      );
+    }
+
+    if (user?.role === "CUSTOMER") {
+      return (
+        <Navigate
+          to="/customer/profile"
+          replace
+        />
+      );
+    }
+
+    return null;
   }
 
   const handleLogin = async (credentials) => {
-    await login(credentials);
+    const loggedInUser = await login(credentials);
 
-    navigate("/overview", {
-      replace: true,
-    });
+    if (loggedInUser.role === "ADMIN") {
+      navigate("/admin/overview", {
+        replace: true,
+      });
+      return;
+    }
+
+    if (loggedInUser.role === "CUSTOMER") {
+      navigate("/customer/profile", {
+        replace: true,
+      });
+    }
   };
 
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your Operations Dashboard."
+      subtitle="Sign in to your account."
       footer={
-        <p
-          className="
-            text-sm
-            text-slate-500
-          "
-        >
+        <p className="text-sm text-slate-500">
           Don't have an account?{" "}
 
           <Link
             to="/register"
-            className="
-              font-semibold
-              text-slate-900
-              hover:underline
-            "
+            className="font-semibold text-slate-900 hover:underline"
           >
             Create account
           </Link>

@@ -136,6 +136,21 @@ const useBookings = ({
     isAssignBookingOpen,
     selectedBooking,
 
+    assigning,
+
+    isRejectBookingOpen,
+    rejectBookingTarget,
+    rejectBookingReason,
+    rejecting,
+
+    //pending
+    unpaidBookings,
+    unpaidCount,
+    unpaidPage,
+    unpaidTotalPages,
+    markingAsPaid,
+    loadingUnpaid,
+
     deleteBookingTarget,
     deletingBooking,
   } = state;
@@ -169,6 +184,7 @@ const useBookings = ({
           sortBy,
           sortOrder,
         });
+
         const data = normalizePageResponse(response);
 
         dispatch({
@@ -187,6 +203,7 @@ const useBookings = ({
         });
 
         const backendTotalPages = data.totalPages;
+
         if (backendTotalPages > 0 && currentPage > backendTotalPages) {
           dispatch({
             type: BOOKING_ACTIONS.SET_CURRENT_PAGE,
@@ -395,7 +412,70 @@ const useBookings = ({
     },
     [activePage, itemsPerPage],
   );
+  const loadUnpaidBookings = useCallback(
+    async (page = unpaidPage) => {
+      try {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_LOADING_UNPAID,
+          payload: true,
+        });
 
+        const response = await bookingApi.getUnpaidBookings({
+          page,
+          size: itemsPerPage,
+        });
+
+        const data = normalizePageResponse(response);
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_UNPAID_BOOKINGS,
+          payload: data.content,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_UNPAID_COUNT,
+          payload: data.totalElements,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_UNPAID_PAGE,
+          payload: page,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_UNPAID_TOTAL_PAGES,
+          payload: data.totalPages,
+        });
+      } catch (error) {
+        console.error("Unable to load unpaid bookings:", error);
+
+        toast.error(
+          error?.response?.data?.message || "Unable to load unpaid bookings.",
+        );
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_UNPAID_BOOKINGS,
+          payload: [],
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_UNPAID_COUNT,
+          payload: 0,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_UNPAID_TOTAL_PAGES,
+          payload: 0,
+        });
+      } finally {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_LOADING_UNPAID,
+          payload: false,
+        });
+      }
+    },
+    [unpaidPage, itemsPerPage],
+  );
   useEffect(() => {
     if (activeSection === "pending") {
       loadPendingBookings(pendingPage);
@@ -408,6 +488,11 @@ const useBookings = ({
     }
   }, [activeSection, activePage, loadActiveBookings]);
 
+  useEffect(() => {
+    if (activeSection === "unpaid") {
+      loadUnpaidBookings(unpaidPage);
+    }
+  }, [activeSection, unpaidPage, loadUnpaidBookings]);
   useEffect(() => {
     const loadSectionCounts = async () => {
       try {
@@ -518,6 +603,12 @@ const useBookings = ({
         payload: 0,
       });
     }
+    if (section === "unpaid") {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_UNPAID_PAGE,
+        payload: 0,
+      });
+    }
   }, []);
 
   const handlePendingPageChange = useCallback((page) => {
@@ -551,6 +642,10 @@ const useBookings = ({
   }, []);
 
   const handleCloseAssignModal = useCallback(() => {
+    if (assigning) {
+      return;
+    }
+
     dispatch({
       type: BOOKING_ACTIONS.SET_ASSIGN_BOOKING_OPEN,
       payload: false,
@@ -560,24 +655,50 @@ const useBookings = ({
       type: BOOKING_ACTIONS.SET_SELECTED_BOOKING,
       payload: null,
     });
+  }, [assigning]);
+  const handleViewBooking = useCallback((booking) => {
+    if (!booking?.id) {
+      return;
+    }
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SELECTED_BOOKING,
+      payload: booking,
+    });
+  }, []);
+
+  const handleCloseDetail = useCallback(() => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_SELECTED_BOOKING,
+      payload: null,
+    });
   }, []);
 
   const refreshSectionCounts = useCallback(async () => {
     try {
-      const [pendingResponse, activeResponse] = await Promise.all([
-        bookingApi.getPendingAssignments({
-          page: 0,
-          size: 1,
-        }),
-        bookingApi.getActiveBookings({
-          page: 0,
-          size: 1,
-        }),
-      ]);
+      const [pendingResponse, activeResponse, unpaidResponse] =
+        await Promise.all([
+          bookingApi.getPendingAssignments({
+            page: 0,
+            size: 1,
+          }),
+
+          bookingApi.getActiveBookings({
+            page: 0,
+            size: 1,
+          }),
+
+          bookingApi.getUnpaidBookings({
+            page: 0,
+            size: 1,
+          }),
+        ]);
 
       const pendingData = normalizePageResponse(pendingResponse);
 
       const activeData = normalizePageResponse(activeResponse);
+
+      const unpaidData = normalizePageResponse(unpaidResponse);
 
       dispatch({
         type: BOOKING_ACTIONS.SET_PENDING_COUNT,
@@ -588,10 +709,83 @@ const useBookings = ({
         type: BOOKING_ACTIONS.SET_ACTIVE_COUNT,
         payload: activeData.totalElements,
       });
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_UNPAID_COUNT,
+        payload: unpaidData.totalElements,
+      });
     } catch (error) {
       console.error("Unable to refresh booking counts:", error);
     }
   }, []);
+
+  // Assign Mechanic + Approve Booking
+
+  const handleAssignMechanic = useCallback(
+    async (mechanicId) => {
+      if (!selectedBooking?.id) {
+        toast.error("Booking not selected.");
+        return false;
+      }
+
+      if (!mechanicId) {
+        toast.error("Please select a mechanic.");
+        return false;
+      }
+
+      try {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ASSIGNING,
+          payload: true,
+        });
+
+        await bookingApi.assignMechanic(selectedBooking.id, Number(mechanicId));
+
+        toast.success("Mechanic assigned and booking approved successfully.");
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ASSIGN_BOOKING_OPEN,
+          payload: false,
+        });
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_SELECTED_BOOKING,
+          payload: null,
+        });
+
+        await fetchBookings(false);
+        await loadPendingBookings(pendingPage);
+        await loadActiveBookings(activePage);
+        await refreshSectionCounts();
+
+        return true;
+      } catch (error) {
+        console.error("Unable to assign mechanic:", error);
+
+        toast.error(
+          error?.response?.data?.message || "Unable to assign mechanic.",
+        );
+
+        return false;
+      } finally {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_ASSIGNING,
+          payload: false,
+        });
+      }
+    },
+    [
+      selectedBooking,
+      fetchBookings,
+      loadPendingBookings,
+      loadActiveBookings,
+      pendingPage,
+      activePage,
+      refreshSectionCounts,
+    ],
+  );
+
+  // Existing compatibility handler
 
   const handleAssigned = useCallback(async () => {
     dispatch({
@@ -609,6 +803,152 @@ const useBookings = ({
     await loadActiveBookings(activePage);
     await refreshSectionCounts();
   }, [
+    fetchBookings,
+    loadPendingBookings,
+    loadActiveBookings,
+    pendingPage,
+    activePage,
+    refreshSectionCounts,
+  ]);
+  const handleMarkAsPaid = useCallback(
+    async (bookingId) => {
+      if (!bookingId || markingAsPaid) {
+        return;
+      }
+
+      try {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_MARKING_AS_PAID,
+          payload: true,
+        });
+
+        await bookingApi.markBookingAsPaid(bookingId);
+
+        toast.success("Payment marked as paid successfully.");
+
+        await loadUnpaidBookings(unpaidPage);
+
+        await refreshSectionCounts();
+      } catch (error) {
+        console.error("Unable to mark payment as paid:", error);
+
+        toast.error(
+          error?.response?.data?.message || "Unable to mark payment as paid.",
+        );
+      } finally {
+        dispatch({
+          type: BOOKING_ACTIONS.SET_MARKING_AS_PAID,
+          payload: false,
+        });
+      }
+    },
+    [markingAsPaid, unpaidPage, loadUnpaidBookings, refreshSectionCounts],
+  );
+
+  // Reject Booking
+
+  const handleRejectClick = useCallback((booking) => {
+    if (!booking?.id) {
+      return;
+    }
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_REJECT_BOOKING_TARGET,
+      payload: booking,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_REJECT_BOOKING_REASON,
+      payload: "",
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_REJECT_BOOKING_OPEN,
+      payload: true,
+    });
+  }, []);
+  const handleCloseRejectModal = useCallback(() => {
+    if (rejecting) {
+      return;
+    }
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_REJECT_BOOKING_OPEN,
+      payload: false,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_REJECT_BOOKING_TARGET,
+      payload: null,
+    });
+
+    dispatch({
+      type: BOOKING_ACTIONS.SET_REJECT_BOOKING_REASON,
+      payload: "",
+    });
+  }, [rejecting]);
+
+  const handleConfirmReject = useCallback(async () => {
+    if (!rejectBookingTarget?.id) {
+      toast.error("Booking not selected.");
+      return false;
+    }
+
+    const trimmedReason = rejectBookingReason.trim();
+
+    if (!trimmedReason) {
+      toast.error("Please enter a rejection reason.");
+      return false;
+    }
+
+    try {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_REJECTING,
+        payload: true,
+      });
+
+      await bookingApi.rejectBooking(rejectBookingTarget.id, trimmedReason);
+
+      toast.success("Booking rejected successfully.");
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_REJECT_BOOKING_OPEN,
+        payload: false,
+      });
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_REJECT_BOOKING_TARGET,
+        payload: null,
+      });
+
+      dispatch({
+        type: BOOKING_ACTIONS.SET_REJECT_BOOKING_REASON,
+        payload: "",
+      });
+
+      await fetchBookings(false);
+      await loadPendingBookings(pendingPage);
+      await loadActiveBookings(activePage);
+      await refreshSectionCounts();
+
+      return true;
+    } catch (error) {
+      console.error("Unable to reject booking:", error);
+
+      toast.error(
+        error?.response?.data?.message || "Unable to reject booking.",
+      );
+
+      return false;
+    } finally {
+      dispatch({
+        type: BOOKING_ACTIONS.SET_REJECTING,
+        payload: false,
+      });
+    }
+  }, [
+    rejectBookingTarget,
+    rejectBookingReason,
     fetchBookings,
     loadPendingBookings,
     loadActiveBookings,
@@ -671,6 +1011,12 @@ const useBookings = ({
     pendingPage,
     activePage,
   ]);
+  const handleRejectReasonChange = useCallback((value) => {
+    dispatch({
+      type: BOOKING_ACTIONS.SET_REJECT_BOOKING_REASON,
+      payload: value,
+    });
+  }, []);
 
   const handleCloseDeleteModal = useCallback(() => {
     if (deletingBooking) {
@@ -806,6 +1152,13 @@ const useBookings = ({
       });
     }
   }, []);
+  useEffect(() => {
+    if (!isAssignBookingOpen) {
+      return;
+    }
+
+    loadMechanics();
+  }, [isAssignBookingOpen, loadMechanics]);
 
   useEffect(() => {
     if (!isAddBookingOpen) {
@@ -1009,10 +1362,15 @@ const useBookings = ({
     }
   }, [serviceId, services]);
 
-  const handleMechanicChange = useCallback((event) => {
+  const handleMechanicChange = useCallback((valueOrEvent) => {
+    const value =
+      valueOrEvent?.target?.value !== undefined
+        ? valueOrEvent.target.value
+        : valueOrEvent;
+
     dispatch({
       type: BOOKING_ACTIONS.SET_MECHANIC_ID,
-      payload: event.target.value,
+      payload: value,
     });
   }, []);
 
@@ -1036,7 +1394,7 @@ const useBookings = ({
       payload: event.target.value,
     });
   }, []);
-  // Add Booking
+
   const handleAddBooking = useCallback(
     async (event) => {
       event.preventDefault();
@@ -1045,10 +1403,6 @@ const useBookings = ({
         type: BOOKING_ACTIONS.SET_ERROR,
         payload: "",
       });
-
-      // ------------------------------------------
-      // Customer Validation
-      // ------------------------------------------
 
       if (!customerId) {
         const message = "Please select a customer.";
@@ -1062,10 +1416,6 @@ const useBookings = ({
         return;
       }
 
-      // ------------------------------------------
-      // Vehicle Validation
-      // ------------------------------------------
-
       if (!vehicleId) {
         const message = "Please select a vehicle.";
 
@@ -1077,10 +1427,6 @@ const useBookings = ({
         toast.error(message);
         return;
       }
-
-      // ------------------------------------------
-      // Service Validation
-      // ------------------------------------------
 
       if (!serviceId) {
         const message = "Please select a service.";
@@ -1094,10 +1440,6 @@ const useBookings = ({
         return;
       }
 
-      // ------------------------------------------
-      // Booking Date Validation
-      // ------------------------------------------
-
       if (!bookingDate) {
         const message = "Please select a booking date.";
 
@@ -1109,10 +1451,6 @@ const useBookings = ({
         toast.error(message);
         return;
       }
-
-      // ------------------------------------------
-      // Booking Time Validation
-      // ------------------------------------------
 
       if (!bookingTime) {
         const message = "Please select a booking time.";
@@ -1126,10 +1464,6 @@ const useBookings = ({
         return;
       }
 
-      // ------------------------------------------
-      // Amount Validation
-      // ------------------------------------------
-
       if (!amount || Number(amount) < 0) {
         const message = "Please enter a valid booking amount.";
 
@@ -1142,29 +1476,15 @@ const useBookings = ({
         return;
       }
 
-      // ------------------------------------------
-      // Booking Payload
-      // ------------------------------------------
-
       const bookingData = {
         customerId: Number(customerId),
-
         vehicleId: Number(vehicleId),
-
         serviceId: Number(serviceId),
-
         mechanicId: mechanicId ? Number(mechanicId) : null,
-
         bookingDate,
-
         bookingTime: `${bookingTime}:00`,
-
         amount: Number(amount),
       };
-
-      // ------------------------------------------
-      // Create Booking
-      // ------------------------------------------
 
       try {
         dispatch({
@@ -1187,11 +1507,8 @@ const useBookings = ({
         toast.success("Booking created successfully.");
 
         await fetchBookings(false);
-
         await loadPendingBookings(pendingPage);
-
         await loadActiveBookings(activePage);
-
         await refreshSectionCounts();
       } catch (error) {
         console.error("Unable to create booking:", error);
@@ -1228,6 +1545,7 @@ const useBookings = ({
       refreshSectionCounts,
     ],
   );
+
   const refreshCurrentSection = useCallback(async () => {
     if (activeSection === "all") {
       await fetchBookings(false);
@@ -1241,14 +1559,21 @@ const useBookings = ({
 
     if (activeSection === "active") {
       await loadActiveBookings(activePage);
+      return;
+    }
+
+    if (activeSection === "unpaid") {
+      await loadUnpaidBookings(unpaidPage);
     }
   }, [
     activeSection,
     fetchBookings,
     loadPendingBookings,
     loadActiveBookings,
+    loadUnpaidBookings,
     pendingPage,
     activePage,
+    unpaidPage,
   ]);
 
   let sectionBookings = bookings;
@@ -1275,6 +1600,13 @@ const useBookings = ({
     sectionIsLoading = sectionLoading;
     sectionErrorMessage = sectionError;
   }
+  if (activeSection === "unpaid") {
+    sectionBookings = unpaidBookings;
+    sectionCurrentPage = unpaidPage;
+    sectionTotalPages = unpaidTotalPages;
+    sectionTotalItems = unpaidCount;
+    sectionIsLoading = loadingUnpaid;
+  }
 
   const handleCurrentSectionPageChange = useCallback(
     (page) => {
@@ -1298,6 +1630,18 @@ const useBookings = ({
         }
 
         handleActivePageChange(page);
+      }
+      if (activeSection === "unpaid") {
+        if (page < 1 || page > unpaidTotalPages) {
+          return;
+        }
+
+        dispatch({
+          type: BOOKING_ACTIONS.SET_UNPAID_PAGE,
+          payload: page - 1,
+        });
+
+        return;
       }
     },
     [
@@ -1417,13 +1761,39 @@ const useBookings = ({
 
     isAssignBookingOpen,
     selectedBooking,
+    assigning,
 
     handleAssignClick,
+    handleAssignMechanic,
     handleAssigned,
     handleCloseAssignModal,
 
+    handleViewBooking,
+    handleCloseDetail,
+
+    isRejectBookingOpen,
+    rejectBookingTarget,
+    rejectBookingReason,
+    rejecting,
+
+    unpaidBookings,
+    unpaidCount,
+    unpaidPage,
+    unpaidTotalPages,
+    loadingUnpaid,
+    markingAsPaid,
+
+    loadUnpaidBookings,
+    handleMarkAsPaid,
+
+    handleRejectClick,
+    handleRejectReasonChange,
+    handleConfirmReject,
+    handleCloseRejectModal,
+
     deleteBookingTarget,
     deletingBooking,
+
     handleDeleteBooking,
     handleConfirmDeleteBooking,
     handleCloseDeleteModal,

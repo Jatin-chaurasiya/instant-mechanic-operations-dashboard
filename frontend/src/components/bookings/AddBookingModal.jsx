@@ -88,10 +88,7 @@ const AddBookingModal = ({
       title="Add New Booking"
       description="Create a vehicle service booking manually."
     >
-      <form
-        onSubmit={onSubmit}
-        className="space-y-6"
-      >
+      <form onSubmit={onSubmit} className="space-y-6">
         {/* =====================================
             Error
         ====================================== */}
@@ -114,10 +111,7 @@ const AddBookingModal = ({
               dark:text-red-400
             "
           >
-            <AlertCircle
-              size={17}
-              className="mt-0.5 shrink-0"
-            />
+            <AlertCircle size={17} className="mt-0.5 shrink-0" />
 
             <span>{error}</span>
           </div>
@@ -207,10 +201,7 @@ const AddBookingModal = ({
               <select
                 value={customerId}
                 onChange={onCustomerChange}
-                disabled={
-                  loadingCustomers ||
-                  submitting
-                }
+                disabled={loadingCustomers || submitting}
                 required
                 className="
                   mt-2
@@ -238,16 +229,11 @@ const AddBookingModal = ({
                       : "Select customer"}
                 </option>
 
-                {customers.map(
-                  (customer) => (
-                    <option
-                      key={customer.id}
-                      value={customer.id}
-                    >
-                      {customer.name}
-                    </option>
-                  )
-                )}
+                {customers.map((customer) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -284,14 +270,9 @@ const AddBookingModal = ({
                   value={vehicleSearch}
                   onChange={onVehicleSearch}
                   placeholder={
-                    customerId
-                      ? "Search vehicle..."
-                      : "Select customer first"
+                    customerId ? "Search vehicle..." : "Select customer first"
                   }
-                  disabled={
-                    !customerId ||
-                    submitting
-                  }
+                  disabled={!customerId || submitting}
                   className="
                     w-full
                     rounded-xl
@@ -317,11 +298,7 @@ const AddBookingModal = ({
               <select
                 value={vehicleId}
                 onChange={onVehicleChange}
-                disabled={
-                  !customerId ||
-                  loadingVehicles ||
-                  submitting
-                }
+                disabled={!customerId || loadingVehicles || submitting}
                 required
                 className="
                   mt-2
@@ -351,17 +328,11 @@ const AddBookingModal = ({
                         : "Select vehicle"}
                 </option>
 
-                {vehicles.map(
-                  (vehicle) => (
-                    <option
-                      key={vehicle.id}
-                      value={vehicle.id}
-                    >
-                      {vehicle.vehicleModel} -{" "}
-                      {vehicle.vehicleNumber}
-                    </option>
-                  )
-                )}
+                {vehicles.map((vehicle) => (
+                  <option key={vehicle.id} value={vehicle.id}>
+                    {vehicle.vehicleModel} - {vehicle.vehicleNumber}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -423,10 +394,7 @@ const AddBookingModal = ({
                 <select
                   value={serviceId}
                   onChange={onServiceChange}
-                  disabled={
-                    loadingServices ||
-                    submitting
-                  }
+                  disabled={loadingServices || submitting}
                   required
                   className="
                     w-full
@@ -449,21 +417,14 @@ const AddBookingModal = ({
                   "
                 >
                   <option value="">
-                    {loadingServices
-                      ? "Loading services..."
-                      : "Select service"}
+                    {loadingServices ? "Loading services..." : "Select service"}
                   </option>
 
-                  {services.map(
-                    (service) => (
-                      <option
-                        key={service.id}
-                        value={service.id}
-                      >
-                        {service.serviceName}
-                      </option>
-                    )
-                  )}
+                  {services.map((service) => (
+                    <option key={service.id} value={service.id}>
+                      {service.serviceName}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -508,10 +469,7 @@ const AddBookingModal = ({
                 <select
                   value={mechanicId}
                   onChange={onMechanicChange}
-                  disabled={
-                    loadingMechanics ||
-                    submitting
-                  }
+                  disabled={loadingMechanics || submitting}
                   className="
                     w-full
                     rounded-xl
@@ -533,22 +491,14 @@ const AddBookingModal = ({
                   "
                 >
                   <option value="">
-                    {loadingMechanics
-                      ? "Loading mechanics..."
-                      : "Assign later"}
+                    {loadingMechanics ? "Loading mechanics..." : "Assign later"}
                   </option>
 
-                  {mechanics.map(
-                    (mechanic) => (
-                      <option
-                        key={mechanic.id}
-                        value={mechanic.id}
-                      >
-                        {mechanic.name} -{" "}
-                        {mechanic.mechanicCode}
-                      </option>
-                    )
-                  )}
+                  {mechanics.map((mechanic) => (
+                    <option key={mechanic.id} value={mechanic.id}>
+                      {mechanic.name} - {mechanic.mechanicCode}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -728,6 +678,42 @@ const AddBookingModal = ({
             </div>
           </div>
         </div>
+        {/* Payment Method */}
+
+        <div className="sm:col-span-2">
+          <label
+            className="
+      mb-1.5
+      block
+      text-sm
+      font-medium
+      text-slate-700
+      dark:text-slate-300
+    "
+          >
+            Payment Method
+          </label>
+
+          <div
+            className="
+      flex
+      items-center
+      rounded-xl
+      border
+      border-slate-200
+      bg-slate-50
+      px-4
+      py-2.5
+      text-sm
+      text-slate-700
+      dark:border-slate-700
+      dark:bg-slate-800
+      dark:text-slate-300
+    "
+          >
+            <span className="font-medium">Cash / Manual Payment</span>
+          </div>
+        </div>
 
         {/* =====================================
             Footer
@@ -765,16 +751,9 @@ const AddBookingModal = ({
               loadingVehicles
             }
           >
-            {submitting && (
-              <Loader2
-                size={16}
-                className="mr-2 animate-spin"
-              />
-            )}
+            {submitting && <Loader2 size={16} className="mr-2 animate-spin" />}
 
-            {submitting
-              ? "Creating..."
-              : "Create Booking"}
+            {submitting ? "Creating..." : "Create Booking"}
           </Button>
         </div>
       </form>

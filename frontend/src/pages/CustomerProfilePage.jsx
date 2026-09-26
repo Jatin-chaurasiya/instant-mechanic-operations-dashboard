@@ -8,7 +8,7 @@ import {
 
 import useProfile from "../hooks/useProfile";
 
-const ProfilePage = () => {
+const CustomerProfilePage = () => {
   const {
     profile,
     loading,
@@ -20,7 +20,11 @@ const ProfilePage = () => {
       <div className="flex min-h-[60vh] items-center justify-center">
         <Loader2
           size={28}
-          className="animate-spin text-slate-500"
+          className="
+            animate-spin
+            text-slate-500
+            dark:text-slate-400
+          "
         />
       </div>
     );
@@ -31,14 +35,46 @@ const ProfilePage = () => {
       <div
         className="
           rounded-xl
-          border border-red-200
+          border
+          border-red-200
           bg-red-50
-          px-4 py-3
+          px-4
+          py-3
           text-sm
           text-red-600
+          dark:border-red-500/30
+          dark:bg-red-500/10
+          dark:text-red-400
         "
       >
         {error}
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div
+        className="
+          rounded-2xl
+          border
+          border-slate-200
+          bg-white
+          px-6
+          py-10
+          text-center
+          dark:border-slate-800
+          dark:bg-slate-900
+        "
+      >
+        <p
+          className="
+            text-slate-500
+            dark:text-slate-400
+          "
+        >
+          Profile information not available.
+        </p>
       </div>
     );
   }
@@ -56,7 +92,7 @@ const ProfilePage = () => {
             dark:text-white
           "
         >
-          Admin Profile
+          Customer Profile
         </h1>
 
         <p
@@ -75,7 +111,8 @@ const ProfilePage = () => {
       <div
         className="
           rounded-2xl
-          border border-slate-200
+          border
+          border-slate-200
           bg-white
           p-6
           shadow-sm
@@ -84,23 +121,26 @@ const ProfilePage = () => {
         "
       >
 
-        {/* User Header */}
+        {/* Profile Header */}
         <div
           className="
             flex
             items-center
             gap-4
             border-b
-            border-slate-100
+            border-slate-200
             pb-6
             dark:border-slate-800
           "
         >
+
+          {/* Avatar */}
           <div
             className="
               flex
               h-16
               w-16
+              shrink-0
               items-center
               justify-center
               rounded-full
@@ -114,84 +154,88 @@ const ProfilePage = () => {
           >
             {profile?.name
               ?.charAt(0)
-              ?.toUpperCase()}
+              ?.toUpperCase() || "C"}
           </div>
 
-          <div>
+          {/* Name + Email */}
+          <div className="min-w-0">
+
             <h2
               className="
+                truncate
                 text-xl
                 font-semibold
                 text-slate-900
                 dark:text-white
               "
             >
-              {profile?.name}
+              {profile.name}
             </h2>
 
             <p
               className="
+                truncate
                 text-sm
                 text-slate-500
                 dark:text-slate-400
               "
             >
-              {profile?.email}
+              {profile.email}
             </p>
+
           </div>
         </div>
 
         {/* Profile Details */}
-        <div
-          className="
-            mt-6
-            grid
-            gap-5
-            md:grid-cols-2
-          "
-        >
+        <div className="mt-6 grid gap-5 md:grid-cols-2">
 
           {/* Full Name */}
           <div
             className="
               rounded-xl
+              border
+              border-slate-200
               bg-slate-50
-              p-4
+              p-5
+              dark:border-slate-800
               dark:bg-slate-950
             "
           >
-            <div
-              className="
-                mb-2
-                flex
-                items-center
-                gap-2
-                text-slate-500
-                dark:text-slate-400
-              "
-            >
-              <UserRound size={17} />
+            <div className="flex items-center gap-2">
 
-              <span
+              <UserRound
+                size={20}
                 className="
-                  text-xs
+                  text-slate-500
+                  dark:text-slate-400
+                "
+              />
+
+              <p
+                className="
+                  text-sm
                   font-medium
                   uppercase
                   tracking-wide
+                  text-slate-500
+                  dark:text-slate-400
                 "
               >
                 Full Name
-              </span>
+              </p>
+
             </div>
 
             <p
               className="
-                font-medium
+                mt-3
+                text-lg
+                font-semibold
                 text-slate-900
                 dark:text-white
               "
             >
-              {profile?.name || "-"}
+              {profile.name}
             </p>
           </div>
 
@@ -199,43 +243,50 @@ const ProfilePage = () => {
           <div
             className="
               rounded-xl
+              border
+              border-slate-200
               bg-slate-50
-              p-4
+              p-5
+              dark:border-slate-800
               dark:bg-slate-950
             "
           >
-            <div
-              className="
-                mb-2
-                flex
-                items-center
-                gap-2
-                text-slate-500
-                dark:text-slate-400
-              "
-            >
-              <Mail size={17} />
+            <div className="flex items-center gap-2">
 
-              <span
+              <Mail
+                size={20}
                 className="
-                  text-xs
+                  text-slate-500
+                  dark:text-slate-400
+                "
+              />
+
+              <p
+                className="
+                  text-sm
                   font-medium
                   uppercase
                   tracking-wide
+                  text-slate-500
+                  dark:text-slate-400
                 "
               >
                 Email
-              </span>
+              </p>
+
             </div>
 
             <p
               className="
-                font-medium
+                mt-3
+                break-all
+                text-lg
+                font-semibold
                 text-slate-900
                 dark:text-white
               "
             >
-              {profile?.email || "-"}
+              {profile.email}
             </p>
           </div>
 
@@ -243,43 +294,49 @@ const ProfilePage = () => {
           <div
             className="
               rounded-xl
+              border
+              border-slate-200
               bg-slate-50
-              p-4
+              p-5
+              dark:border-slate-800
               dark:bg-slate-950
             "
           >
-            <div
-              className="
-                mb-2
-                flex
-                items-center
-                gap-2
-                text-slate-500
-                dark:text-slate-400
-              "
-            >
-              <ShieldCheck size={17} />
+            <div className="flex items-center gap-2">
 
-              <span
+              <ShieldCheck
+                size={20}
                 className="
-                  text-xs
+                  text-slate-500
+                  dark:text-slate-400
+                "
+              />
+
+              <p
+                className="
+                  text-sm
                   font-medium
                   uppercase
                   tracking-wide
+                  text-slate-500
+                  dark:text-slate-400
                 "
               >
                 Role
-              </span>
+              </p>
+
             </div>
 
             <p
               className="
-                font-medium
+                mt-3
+                text-lg
+                font-semibold
                 text-slate-900
                 dark:text-white
               "
             >
-              {profile?.role || "ADMIN"}
+              {profile.role}
             </p>
           </div>
 
@@ -287,54 +344,57 @@ const ProfilePage = () => {
           <div
             className="
               rounded-xl
+              border
+              border-slate-200
               bg-slate-50
-              p-4
+              p-5
+              dark:border-slate-800
               dark:bg-slate-950
             "
           >
-            <div
-              className="
-                mb-2
-                flex
-                items-center
-                gap-2
-                text-slate-500
-                dark:text-slate-400
-              "
-            >
-              <CalendarDays size={17} />
+            <div className="flex items-center gap-2">
 
-              <span
+              <CalendarDays
+                size={20}
                 className="
-                  text-xs
+                  text-slate-500
+                  dark:text-slate-400
+                "
+              />
+
+              <p
+                className="
+                  text-sm
                   font-medium
                   uppercase
                   tracking-wide
+                  text-slate-500
+                  dark:text-slate-400
                 "
               >
                 Account Created
-              </span>
+              </p>
+
             </div>
 
             <p
               className="
-                font-medium
+                mt-3
+                text-lg
+                font-semibold
                 text-slate-900
                 dark:text-white
               "
             >
-              {profile?.createdAt
+              {profile.createdAt
                 ? new Date(
                     profile.createdAt
-                  ).toLocaleDateString(
-                    "en-IN",
-                    {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    }
-                  )
-                : "-"}
+                  ).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })
+                : "N/A"}
             </p>
           </div>
 
@@ -344,4 +404,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default CustomerProfilePage;
